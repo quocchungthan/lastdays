@@ -20,3 +20,8 @@ pip install -r requirements.txt
 
 Good job!
 Also, you can find more words and explaination here [Notion page](https://www.notion.so/chungbattu/studying-fastapi-78533a5799674c1b8af366beac553096).
+
+Command to start:
+```
+uvicorn main:app --reload
+```

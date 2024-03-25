@@ -2,3 +2,5 @@
 numpy~=1.26.4 
 python~=3.12.2 
 pandas~=2.2.1 
+uvicorn==0.29.0
+fastapi==0.110.0
