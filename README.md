@@ -25,3 +25,4 @@ Command to start:
 ```
 uvicorn main:app --reload
 ```
+But for Vscode, it's much more simple since launch file already set. Just go to the tab "Debug" then click run at the configuration named "Python Debugger: FastAPI"
