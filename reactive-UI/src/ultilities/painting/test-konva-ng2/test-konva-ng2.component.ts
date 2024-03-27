@@ -21,6 +21,7 @@ export class TestKonvaNg2Component implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     const sourceToRenderChanged = changes['data']?.currentValue;
     if (sourceToRenderChanged) {
+      console.log('Start drawing');
       this._mapFabricToKonva(sourceToRenderChanged);
     }
   }
