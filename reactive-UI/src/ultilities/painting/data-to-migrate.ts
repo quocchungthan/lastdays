@@ -1,4 +1,6 @@
-export const drawingJSON = {
+import { DrawingBearer } from './communication-objects/DrawingObject.fabric';
+
+export const drawingJSON: DrawingBearer = {
     "version": "2.4.6",
     "objects": [
         {
