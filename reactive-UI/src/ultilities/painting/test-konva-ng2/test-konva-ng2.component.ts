@@ -1,5 +1,17 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { DrawingBearer, ShapeCircle, ShapeEllipse, ShapeRect, ShapeTriangle } from '../communication-objects/DrawingObject.fabric';
+import {
+  AfterViewInit,
+  Component,
+  Input,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
+import {
+  DrawingBearer,
+  ShapeCircle,
+  ShapeEllipse,
+  ShapeRect,
+  ShapeTriangle,
+} from '../communication-objects/DrawingObject.fabric';
 import Konva from 'konva';
 
 @Component({
@@ -7,9 +19,10 @@ import Konva from 'konva';
   standalone: true,
   imports: [],
   templateUrl: './test-konva-ng2.component.html',
-  styleUrl: './test-konva-ng2.component.scss'
+  styleUrl: './test-konva-ng2.component.scss',
 })
-export class TestKonvaNg2Component implements OnChanges {
+export class TestKonvaNg2Component implements OnChanges, AfterViewInit {
+
   @Input()
   data: DrawingBearer = {
     version: '1.1.1',
@@ -18,12 +31,44 @@ export class TestKonvaNg2Component implements OnChanges {
     width: 0,
   };
 
+  zoomLevel: number = 10;
+
+  ngAfterViewInit(): void {
+    this._setupZoomController();
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     const sourceToRenderChanged = changes['data']?.currentValue;
     if (sourceToRenderChanged) {
       console.log('Start drawing');
       this._mapFabricToKonva(sourceToRenderChanged);
     }
+  }
+
+  handleZooming($event: Event) {
+    console.log($event);
+  }
+
+  handleInput($event: Event) {
+    console.log($event);
+  }
+
+  private _setupZoomController() {
+    const slider = document.getElementById(
+      'zoomLevelController'
+    ) as HTMLInputElement;
+    if (!slider) {
+      return;
+    }
+    slider.addEventListener('wheel', function (e) {
+      if (e.deltaY < 0) {
+        slider.valueAsNumber += 4;
+      } else {
+        slider.valueAsNumber -= 4;
+      }
+      e.preventDefault();
+      e.stopPropagation();
+    });
   }
 
   _mapFabricToKonva(sourceToRenderChanged: DrawingBearer) {
@@ -34,7 +79,7 @@ export class TestKonvaNg2Component implements OnChanges {
     });
 
     var layer = new Konva.Layer();
-    sourceToRenderChanged.objects.forEach(o => {
+    sourceToRenderChanged.objects.forEach((o) => {
       if (o instanceof ShapeCircle) {
         console.log('I found a circle', o);
 
@@ -46,7 +91,7 @@ export class TestKonvaNg2Component implements OnChanges {
           stroke: o.stroke,
           strokeWidth: o.strokeWidth,
         });
-    
+
         // add the shape to the layer
         layer.add(circle);
       }
@@ -61,9 +106,9 @@ export class TestKonvaNg2Component implements OnChanges {
           radiusY: o.ry,
           fill: o.backgroundColor,
           stroke: o.stroke,
-          strokeWidth: o.strokeWidth
+          strokeWidth: o.strokeWidth,
         });
-    
+
         // add the shape to the layer
         layer.add(ellipse);
       }
@@ -78,9 +123,9 @@ export class TestKonvaNg2Component implements OnChanges {
           height: o.height,
           fill: o.backgroundColor,
           stroke: o.stroke,
-          strokeWidth: o.strokeWidth
+          strokeWidth: o.strokeWidth,
         });
-    
+
         // add the shape to the layer
         layer.add(rect);
       }
