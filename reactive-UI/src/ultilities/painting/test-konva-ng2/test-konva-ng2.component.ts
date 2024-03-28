@@ -3,6 +3,7 @@ import {
   Component,
   Input,
   OnChanges,
+  OnInit,
   SimpleChanges,
 } from '@angular/core';
 import {
@@ -13,12 +14,28 @@ import {
   ShapeTriangle,
 } from '../communication-objects/DrawingObject.fabric';
 import Konva from 'konva';
+import { Subject, debounceTime } from 'rxjs';
+import { Stage } from 'konva/lib/Stage';
 
-type Enumerate<N extends number, Acc extends number[] = []> = Acc['length'] extends N
+type Enumerate<
+  N extends number,
+  Acc extends number[] = []
+> = Acc['length'] extends N
   ? Acc[number]
-  : Enumerate<N, [...Acc, Acc['length']]>
+  : Enumerate<N, [...Acc, Acc['length']]>;
 
-type Range<F extends number, T extends number> = Exclude<Enumerate<T>, Enumerate<F>>
+type Range<F extends number, T extends number> = Exclude<
+  Enumerate<T>,
+  Enumerate<F>
+>;
+
+const GAP_BETWEEN_ACCEPTED_TRIGGERS = 200;
+const DEFAULT_SCALE = 100;
+type ZoomLimit = Range<1, 600>;
+type Position = {
+  x: number;
+  y: number;
+};
 
 @Component({
   selector: 'test-konva-ng2',
@@ -27,8 +44,7 @@ type Range<F extends number, T extends number> = Exclude<Enumerate<T>, Enumerate
   templateUrl: './test-konva-ng2.component.html',
   styleUrl: './test-konva-ng2.component.scss',
 })
-export class TestKonvaNg2Component implements OnChanges, AfterViewInit {
-
+export class TestKonvaNg2Component implements OnChanges, AfterViewInit, OnInit {
   @Input()
   data: DrawingBearer = {
     version: '1.1.1',
@@ -37,7 +53,18 @@ export class TestKonvaNg2Component implements OnChanges, AfterViewInit {
     width: 0,
   };
 
-  zoomLevel: Range<1, 600> = 10;
+  zoomLevel: ZoomLimit = DEFAULT_SCALE;
+  zoomFocusPosition: Position = { x: 0, y: 0 };
+  justZoomEvents = new Subject<boolean>();
+  reRenderRequests = new Subject<boolean>();
+
+  private _stage?: Stage;
+
+  constructor() {
+    this._zoomAndDataChangeFireRerenderEvent();
+  }
+
+  ngOnInit(): void {}
 
   ngAfterViewInit(): void {
     this._setupZoomController();
@@ -47,7 +74,7 @@ export class TestKonvaNg2Component implements OnChanges, AfterViewInit {
     const sourceToRenderChanged = changes['data']?.currentValue;
     if (sourceToRenderChanged) {
       console.log('Start drawing');
-      this._mapFabricToKonva(sourceToRenderChanged);
+      this.reRenderRequests.next(true);
     }
   }
 
@@ -59,7 +86,26 @@ export class TestKonvaNg2Component implements OnChanges, AfterViewInit {
     console.log($event);
   }
 
+  private _zoomAndDataChangeFireRerenderEvent() {
+    console.log('setup');
+    this.reRenderRequests
+      // .pipe(debounceTime(GAP_BETWEEN_ACCEPTED_TRIGGERS))
+      .subscribe(() => {
+        this._mapFabricToKonva();
+      });
+
+    this.justZoomEvents.subscribe(() => {
+      if (!this._stage) {
+        return;
+      }
+
+      this._rePositionCanvas(this._stage);
+      // this.reRenderRequests.next(true);
+    });
+  }
+
   private _setupZoomController() {
+    const self = this;
     const slider = document.getElementById(
       'zoomLevelController'
     ) as HTMLInputElement;
@@ -72,20 +118,27 @@ export class TestKonvaNg2Component implements OnChanges, AfterViewInit {
       } else {
         slider.valueAsNumber -= 4;
       }
+      self.zoomFocusPosition = {
+        x: 400,
+        y: 400
+      }
+      self.zoomLevel = slider.valueAsNumber as ZoomLimit;
+
       e.preventDefault();
       e.stopPropagation();
+      self.justZoomEvents.next(true);
     });
   }
 
-  _mapFabricToKonva(sourceToRenderChanged: DrawingBearer) {
-    var stage = new Konva.Stage({
+  _mapFabricToKonva() {
+    this._stage = new Konva.Stage({
       container: 'konva-container',
-      width: sourceToRenderChanged.width,
-      height: sourceToRenderChanged.height,
+      width: this.data.width,
+      height: this.data.height,
     });
 
     var layer = new Konva.Layer();
-    sourceToRenderChanged.objects.forEach((o) => {
+    this.data.objects.forEach((o) => {
       if (o instanceof ShapeCircle) {
         console.log('I found a circle', o);
 
@@ -142,6 +195,59 @@ export class TestKonvaNg2Component implements OnChanges, AfterViewInit {
     });
 
     // add the layer to the stage
-    stage.add(layer);
+    this._stage.add(layer);
+    const stage = this._stage!;
+
+    this._stage.on('wheel', (e) => {
+        // stop default scrolling
+        e.evt.preventDefault();
+
+        var oldScale = stage.scaleX();
+        var pointer = stage.getPointerPosition();
+
+        if (pointer === null) {
+          console.log('Pointer can\'t be null');
+          return;
+        }
+
+        var mousePointTo = {
+          x: (pointer.x - stage.x()) / oldScale,
+          y: (pointer.y - stage.y()) / oldScale,
+        };
+
+        // how to scale? Zoom in? Or zoom out?
+        let direction = e.evt.deltaY > 0 ? 1 : -1;
+        if (e.evt.deltaY < 0) {
+          this.zoomLevel += 4;
+        } else {
+          this.zoomLevel -= 4;
+        }
+
+
+        // when we zoom on trackpad, e.evt.ctrlKey is true
+        // in that case lets revert direction
+        if (e.evt.ctrlKey) {
+          direction = -direction;
+        }
+        const zoomInPercentage = this.zoomLevel / DEFAULT_SCALE;
+        
+        stage.scale({ x: zoomInPercentage, y: zoomInPercentage });
+
+        var newPos = {
+          x: pointer.x - mousePointTo.x * zoomInPercentage,
+          y: pointer.y - mousePointTo.y * zoomInPercentage,
+        };
+        stage.position(newPos);
+      });
+  }
+
+  private _rePositionCanvas(stage: Stage) {
+    const zoomInPercentage = this.zoomLevel / DEFAULT_SCALE;
+    stage.scale({ x: zoomInPercentage, y: zoomInPercentage });
+    // var newPos = {
+    //   x: this.zoomFocusPosition.x,
+    //   y: this.zoomFocusPosition.y,
+    // };
+    // stage.position(newPos);
   }
 }
