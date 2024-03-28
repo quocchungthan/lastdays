@@ -14,6 +14,12 @@ import {
 } from '../communication-objects/DrawingObject.fabric';
 import Konva from 'konva';
 
+type Enumerate<N extends number, Acc extends number[] = []> = Acc['length'] extends N
+  ? Acc[number]
+  : Enumerate<N, [...Acc, Acc['length']]>
+
+type Range<F extends number, T extends number> = Exclude<Enumerate<T>, Enumerate<F>>
+
 @Component({
   selector: 'test-konva-ng2',
   standalone: true,
@@ -31,7 +37,7 @@ export class TestKonvaNg2Component implements OnChanges, AfterViewInit {
     width: 0,
   };
 
-  zoomLevel: number = 10;
+  zoomLevel: Range<1, 600> = 10;
 
   ngAfterViewInit(): void {
     this._setupZoomController();
