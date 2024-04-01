@@ -7,11 +7,14 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import {
+  DashedPath,
   DrawingBearer,
   ShapeCircle,
   ShapeEllipse,
+  ShapeLineArrow,
   ShapeRect,
   ShapeTriangle,
+  SolidPath,
 } from '../communication-objects/DrawingObject.fabric';
 import Konva from 'konva';
 import { Subject, debounceTime } from 'rxjs';
@@ -189,9 +192,55 @@ export class TestKonvaNg2Component implements OnChanges, AfterViewInit, OnInit {
         layer.add(rect);
       }
       // TODO: triangle
-      // TODO: dotted
-      // TODO: solid
+      
+      if (o instanceof DashedPath) {
+        console.log('I found a path', o);
+
+        var solidPath = new Konva.Path({
+          x: o.left,
+          y: o.top,
+          fill: o.backgroundColor,
+          stroke: o.stroke,
+          strokeWidth: o.strokeWidth,
+          data: o.path.map(x => x.join(' ')).join(', '),
+          dash: o.strokeDashArray
+        });
+
+        // add the shape to the layer
+        layer.add(solidPath);
+      }
+
+      if (o instanceof SolidPath) {
+        console.log('I found a path', o);
+
+        var solidPath = new Konva.Path({
+          x: o.left,
+          y: o.top,
+          fill: o.backgroundColor,
+          stroke: o.stroke,
+          strokeWidth: o.strokeWidth,
+          data: o.path.map(x => x.join(' ')).join(', '),
+        });
+
+        // add the shape to the layer
+        layer.add(solidPath);
+      }
       // TODO: arrow
+      if (o instanceof ShapeLineArrow) {
+        console.log('I found a path', o);
+
+        var arrow = new Konva.Arrow({
+          x: o.left,
+          y: o.top,
+          points: [o.x1, o.y1, o.x2, o.y2],
+          fill: o.backgroundColor,
+          stroke: o.stroke,
+          strokeWidth: o.strokeWidth,
+        });
+
+        // add the shape to the layer
+        layer.add(arrow);
+      }
     });
 
     // add the layer to the stage
