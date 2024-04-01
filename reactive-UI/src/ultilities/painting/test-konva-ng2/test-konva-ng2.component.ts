@@ -132,6 +132,16 @@ export class TestKonvaNg2Component implements OnChanges, AfterViewInit, OnInit {
       self.justZoomEvents.next(true);
     });
   }
+  /**
+   * TODO: if this fire the current mouse position   
+   *  document
+      .getElementsByClassName('iv-image-view')[0]
+      .addEventListener('zoomChanged', (o: any) => {
+        console.log(o);
+        return this.onZoomChanged(o.detail.newZoomValue);
+      }
+      );
+   */
 
   _mapFabricToKonva() {
     this._stage = new Konva.Stage({
