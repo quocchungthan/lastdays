@@ -3,6 +3,7 @@
   height: 200px;
   transition: all 0.3s ease-in-out;
   overflow: hidden;
+  transform: scale(1);
 }
 
 .polygon::before {
@@ -31,7 +32,7 @@
     z-index: 2;
 }
 
-$polygon_base_size: 20px;
+$polygon_base_size: 40px;
 $steps_under_10: 10px;
 $steps_under_30: 8px;
 $steps_under_50: 6px;
