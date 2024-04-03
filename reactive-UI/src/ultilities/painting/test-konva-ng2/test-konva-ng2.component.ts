@@ -16,21 +16,11 @@ import {
   SolidPath,
 } from '../communication-objects/DrawingObject.fabric';
 import Konva from 'konva';
-import { Subject, debounceTime } from 'rxjs';
+import { Subject } from 'rxjs';
 import { Stage } from 'konva/lib/Stage';
 import { drawingJSON } from '../data-to-migrate';
+import { Range } from '../../types/Range';
 
-type Enumerate<
-  N extends number,
-  Acc extends number[] = []
-> = Acc['length'] extends N
-  ? Acc[number]
-  : Enumerate<N, [...Acc, Acc['length']]>;
-
-type Range<F extends number, T extends number> = Exclude<
-  Enumerate<T>,
-  Enumerate<F>
->;
 
 const GAP_BETWEEN_ACCEPTED_TRIGGERS = 200;
 const DEFAULT_SCALE = 100;
