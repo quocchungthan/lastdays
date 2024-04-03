@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { Problem } from './models/Problem';
 
 @Component({
   selector: 'app-break-down',
@@ -9,5 +10,5 @@ import { Component, Input } from '@angular/core';
 })
 export class BreakDownComponent {
   @Input()
-  data: [] = [];
+  data: Problem[] = [];
 }
