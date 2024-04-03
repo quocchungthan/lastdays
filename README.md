@@ -1,5 +1,8 @@
 ### Introduction
 ### Objectives
+#### Separation of concern
+- First develop the feature without any real database but just simply inmemory one tightly attached to a business interface. Then concern about what stores that data later
+- Clean and mark the commit as "good start" as a save-point.
 ### Installation
 Given that this computer already has Python and pip installed.
 #### Conda
