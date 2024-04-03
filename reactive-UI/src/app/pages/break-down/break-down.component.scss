@@ -1,0 +1,54 @@
+.polygon {
+  width: 200px;
+  height: 200px;
+}
+
+.polygon::before {
+  content: "\2B22";
+  color: orange;
+  font-size: 135px;
+}
+
+.polygon::before {
+  content: "\2B22";
+  display: block;
+  color: magenta;
+  font-size: 135px;
+  -webkit-transform: rotate(-30deg);
+  -moz-transform: rotate(-30deg);
+  -o-transform: rotate(-30deg);
+  transform: rotate(-30deg);
+}
+
+.poligon__content {
+    z-index: 2;
+}
+
+$steps_under_10: 10;
+$steps_under_30: 8;
+$steps_under_50: 6;
+$steps_under_70: 4;
+$steps_under_100: 2;
+
+// Range defined in Problem.ts
+@for $i from 1 through 100 {
+  .polygon--size-#{$i} {
+    width: calc(3px * $i);
+    height: calc(3px * $i);
+
+    .poligon__content {
+        padding: calc(0.5px * $i);
+        color: white;
+    }
+  }
+
+  .polygon--size-#{$i}::before {
+    font-size: calc(4px * $i);
+    position: absolute;
+    z-index: 1;
+  }
+
+  .polygon--size-#{$i}::before {
+    font-size: calc(4px * $i);
+  }
+}
