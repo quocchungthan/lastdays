@@ -13,12 +13,12 @@ import {
   ShapeEllipse,
   ShapeLineArrow,
   ShapeRect,
-  ShapeTriangle,
   SolidPath,
 } from '../communication-objects/DrawingObject.fabric';
 import Konva from 'konva';
 import { Subject, debounceTime } from 'rxjs';
 import { Stage } from 'konva/lib/Stage';
+import { drawingJSON } from '../data-to-migrate';
 
 type Enumerate<
   N extends number,
@@ -49,12 +49,7 @@ type Position = {
 })
 export class TestKonvaNg2Component implements OnChanges, AfterViewInit, OnInit {
   @Input()
-  data: DrawingBearer = {
-    version: '1.1.1',
-    objects: [],
-    height: 0,
-    width: 0,
-  };
+  data: DrawingBearer = drawingJSON;
 
   zoomLevel: ZoomLimit = DEFAULT_SCALE;
   zoomFocusPosition: Position = { x: 0, y: 0 };
@@ -71,6 +66,7 @@ export class TestKonvaNg2Component implements OnChanges, AfterViewInit, OnInit {
 
   ngAfterViewInit(): void {
     this._setupZoomController();
+    this.reRenderRequests.next(true);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
