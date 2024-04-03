@@ -33,49 +33,45 @@ $steps_under_100: 2px;
 
 // Range defined in Problem.ts
 @for $i from 1 through 100 {
+  $pre_define_polygon_size: calc($polygon_base_size + $steps_under_10 * 10 + $steps_under_30 * 20 + $steps_under_50 * 20 + $steps_under_70 * 20 + $steps_under_100 * ($i - 70));
+
+  @if $polygon_base_size <= 10 {
+    $pre_define_polygon_size: calc($polygon_base_size + $steps_under_10 * $i);
+  }
+  @else {
+    @if $polygon_base_size <= 30 {
+        $pre_define_polygon_size: calc($polygon_base_size + $steps_under_10 * $i);
+    }
+    @else {
+        @if $polygon_base_size <= 50 {
+            $pre_define_polygon_size: calc($polygon_base_size + $steps_under_10 * 10 + $steps_under_30 * 20 + $steps_under_50 * ($i - 30));
+        }
+        @else {
+            @if $polygon_base_size <= 70 {
+                $pre_define_polygon_size: calc($polygon_base_size + $steps_under_10 * 10 + $steps_under_30 * 20 + $steps_under_50 * 20 + $steps_under_70 * ($i - 50));
+            } 
+            @else {
+                $pre_define_polygon_size: calc($polygon_base_size + $steps_under_10 * 10 + $steps_under_30 * 20 + $steps_under_50 * 20 + $steps_under_70 * 20 + $steps_under_100 * ($i - 70));
+            }
+        }
+    }
+  }
+
+  $standard_ratio_polygon_container: 1.1;
+
   .polygon--size-#{$i} {
-    width: calc(7px * $i);
-    height: calc(7px * $i);
+    width: calc($pre_define_polygon_size *   $standard_ratio_polygon_container);
+    height: calc($pre_define_polygon_size *   $standard_ratio_polygon_container);
 
     .poligon__content {
         padding: calc(0.5px * $i);
         color: white;
     }
   }
+
   .polygon--size-#{$i}::before {
     position: absolute;
     z-index: 1;
-  }
-
-  @if $polygon_base_size <= 10 {
-    .polygon--size-#{$i}::before {
-        font-size: calc($polygon_base_size + $steps_under_10 * $i);
-      }
-  }
-  @else {
-    @if $polygon_base_size <= 30 {
-        .polygon--size-#{$i}::before {
-            font-size: calc($polygon_base_size + $steps_under_10 * 10 + $steps_under_30 * ($i - 10));
-          }
-    }
-    @else {
-        @if $polygon_base_size <= 50 {
-            .polygon--size-#{$i}::before {
-                font-size: calc($polygon_base_size + $steps_under_10 * 10 + $steps_under_30 * 20 + $steps_under_50 * ($i - 30));
-            }
-        }
-        @else {
-            @if $polygon_base_size <= 70 {
-                .polygon--size-#{$i}::before {
-                    font-size: calc($polygon_base_size + $steps_under_10 * 10 + $steps_under_30 * 20 + $steps_under_50 * 20 + $steps_under_70 * ($i - 50));
-                }
-            } 
-            @else {
-                .polygon--size-#{$i}::before {
-                    font-size: calc($polygon_base_size + $steps_under_10 * 10 + $steps_under_30 * 20 + $steps_under_50 * 20 + $steps_under_70 * 20 + $steps_under_100 * ($i - 70));
-                }
-            }
-        }
-    }
+    font-size: $pre_define_polygon_size;
   }
 }
