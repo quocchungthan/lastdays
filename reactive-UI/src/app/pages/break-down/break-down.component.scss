@@ -1,12 +1,20 @@
 .polygon {
   width: 200px;
   height: 200px;
+  transition: all 0.3s ease-in-out;
+  overflow: hidden;
 }
 
 .polygon::before {
   content: "\2B22";
   color: orange;
   font-size: 135px;
+  pointer-events: none;
+}
+
+.polygon:hover {
+    cursor: pointer;
+    transform: scale(1.05);
 }
 
 .polygon::before {
@@ -17,7 +25,6 @@
   -moz-transform: rotate(-30deg);
   -o-transform: rotate(-30deg);
   transform: rotate(-30deg);
-  border: dotted 1px black;
 }
 
 .poligon__content {
@@ -57,14 +64,14 @@ $steps_under_100: 2px;
     }
   }
 
-  $standard_ratio_polygon_container: 1.1;
+  $standard_ratio_polygon_container: 0.8;
 
   .polygon--size-#{$i} {
     width: calc($pre_define_polygon_size *   $standard_ratio_polygon_container);
     height: calc($pre_define_polygon_size *   $standard_ratio_polygon_container);
 
     .poligon__content {
-        padding: calc(0.5px * $i);
+        padding: calc(0.2 * $pre_define_polygon_size);
         color: white;
     }
   }

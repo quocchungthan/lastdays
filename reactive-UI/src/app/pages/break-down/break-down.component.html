@@ -1,6 +1,6 @@
 <div class='flex justify-center items-center min-h-screen'>
     <div class='w-max h-max'>
-        <div *ngFor='let p of data' class="polygon polygon--size-{{p.uncertaintyScore}} flex justify-center items-center">
+        <div *ngFor='let p of data' class="polygon polygon--size-{{p.uncertaintyScore}} flex justify-center items-center" title='{{p.name}}'>
             <div class='poligon__content'>
                 {{p.name}}
             </div>
