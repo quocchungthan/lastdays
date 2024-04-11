@@ -95,7 +95,8 @@ export class SnapViewComponent implements AfterViewInit, OnChanges {
       width: 100 * desiredRatio,
       height: 100,
       stroke: 'red',
-      strokeWidth: 1
+      strokeWidth: 1,
+      draggable: true,
     });
 
     this.snapLayer.add(snapRect);
