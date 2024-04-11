@@ -20,6 +20,7 @@ import { Subject } from 'rxjs';
 import { Stage } from 'konva/lib/Stage';
 import { drawingJSON } from '../data-to-migrate';
 import { Range } from '../../types/Range';
+import { SnapViewComponent } from './snap-view/snap-view.component';
 
 
 const GAP_BETWEEN_ACCEPTED_TRIGGERS = 200;
@@ -33,7 +34,7 @@ type Position = {
 @Component({
   selector: 'test-konva-ng2',
   standalone: true,
-  imports: [],
+  imports: [SnapViewComponent],
   templateUrl: './test-konva-ng2.component.html',
   styleUrl: './test-konva-ng2.component.scss',
 })
@@ -45,6 +46,18 @@ export class TestKonvaNg2Component implements OnChanges, AfterViewInit, OnInit {
   zoomFocusPosition: Position = { x: 0, y: 0 };
   justZoomEvents = new Subject<boolean>();
   reRenderRequests = new Subject<boolean>();
+
+  imitatingStageShape = {
+    dimention: {
+      width: 0,
+      height: 0,
+    },
+    position: {
+      x: 0,
+      y: 0,
+    },
+    currentScale: 1,
+  }
 
   private _stage?: Stage;
 
@@ -137,10 +150,11 @@ export class TestKonvaNg2Component implements OnChanges, AfterViewInit, OnInit {
       draggable: false,
     });
 
+    this.imitatingStageShape.dimention = { width: this.data.width, height: this.data.height};
+
     var layer = new Konva.Layer();
     this.data.objects.forEach((o) => {
       if (o instanceof ShapeCircle) {
-        console.log('I found a circle', o);
 
         var circle = new Konva.Circle({
           x: o.left,
@@ -156,7 +170,6 @@ export class TestKonvaNg2Component implements OnChanges, AfterViewInit, OnInit {
       }
 
       if (o instanceof ShapeEllipse) {
-        console.log('I found an ellipse', o);
 
         var ellipse = new Konva.Ellipse({
           x: o.left,
@@ -173,7 +186,6 @@ export class TestKonvaNg2Component implements OnChanges, AfterViewInit, OnInit {
       }
 
       if (o instanceof ShapeRect) {
-        console.log('I found a rect', o);
 
         var rect = new Konva.Rect({
           x: o.left,
@@ -191,7 +203,6 @@ export class TestKonvaNg2Component implements OnChanges, AfterViewInit, OnInit {
       // TODO: triangle
       
       if (o instanceof DashedPath) {
-        console.log('I found a path', o);
 
         var solidPath = new Konva.Path({
           x: o.left,
@@ -208,7 +219,6 @@ export class TestKonvaNg2Component implements OnChanges, AfterViewInit, OnInit {
       }
 
       if (o instanceof SolidPath) {
-        console.log('I found a path', o);
 
         var solidPath = new Konva.Path({
           x: o.left,
@@ -224,7 +234,6 @@ export class TestKonvaNg2Component implements OnChanges, AfterViewInit, OnInit {
       }
       // TODO: arrow
       if (o instanceof ShapeLineArrow) {
-        console.log('I found a path', o);
 
         var arrow = new Konva.Arrow({
           x: o.left,
@@ -278,18 +287,24 @@ export class TestKonvaNg2Component implements OnChanges, AfterViewInit, OnInit {
         const zoomInPercentage = this.zoomLevel / DEFAULT_SCALE;
         this._stage?.draggable(zoomInPercentage > 1.02);
         stage.scale({ x: zoomInPercentage, y: zoomInPercentage });
-
+        this.imitatingStageShape.currentScale = zoomInPercentage;
         var newPos = {
           x: pointer.x - mousePointTo.x * zoomInPercentage,
           y: pointer.y - mousePointTo.y * zoomInPercentage,
         };
+        this.imitatingStageShape.position = newPos;
         stage.position(newPos);
       });
+
+    this._stage.on('dragmove', () => {
+      this.imitatingStageShape.position = this._stage!.getPosition();
+    });
   }
 
   private _rePositionCanvas(stage: Stage) {
     const zoomInPercentage = this.zoomLevel / DEFAULT_SCALE;
     stage.scale({ x: zoomInPercentage, y: zoomInPercentage });
+    this.imitatingStageShape.currentScale = zoomInPercentage;
     // var newPos = {
     //   x: this.zoomFocusPosition.x,
     //   y: this.zoomFocusPosition.y,
