@@ -48,14 +48,17 @@ export class SnapViewComponent implements AfterViewInit, OnChanges {
 
     if (changes.stageDimention) {
       console.log('dimention changed', this.stageDimention);
+      this._guaranteeStageInitiated();
     }
 
     if (changes.stagePosition) {
       console.log('position changed', this.stagePosition);
+      this.reRenderRequests.next();
     }
 
     if (changes.stageScale) {
       console.log('scale changed', this.stageScale);
+      this.reRenderRequests.next();
     }
   }
   private _initiateReRenderSubscription() {
@@ -63,17 +66,39 @@ export class SnapViewComponent implements AfterViewInit, OnChanges {
   }
 
   private _guaranteeStageInitiated() {
+    if (!this.stageDimention.height) {
+      return;
+    }
+
     if (this.snapStage && this.snapLayer) {
-          // Create snap view
+      if (!this.snapStage.height()) {
+        return;
+      }
+
+      const ratioDifference = Math.abs(this.snapStage.width() / this.snapStage.height() - this.stageDimention.width / this.stageDimention.height);
+
+      if (ratioDifference > 0.9 && ratioDifference < 1.1) {
+        return;
+      }
+    }
+    const desiredRatio = this.stageDimention.width / this.stageDimention.height;
+
     this.snapStage = new Konva.Stage({
       container: 'snap-view', 
-      width: 100,
+      width: 100 * desiredRatio,
       height: 100
     });
 
     this.snapLayer = new Konva.Layer();
     this.snapStage.add(this.snapLayer);
-    }
+    const snapRect = new Konva.Rect({
+      width: 100 * desiredRatio,
+      height: 100,
+      stroke: 'red',
+      strokeWidth: 1
+    });
+
+    this.snapLayer.add(snapRect);
   }
 
   private _updateSnapView() {
@@ -81,9 +106,12 @@ export class SnapViewComponent implements AfterViewInit, OnChanges {
     const scaleY = this.stageDimention.height / this.snapStage!.height();
 
     const snapRect = this.snapLayer!.findOne('Rect');
-
-    snapRect!.width(this.stageDimention.width / 5 / this.stageScale);
-    snapRect!.height(this.stageDimention.height / 5 / this.stageScale);
+    const desiredRatio = this.stageDimention.width / this.stageDimention.height;
+    // dimentionHeight/5 = 100
+    // dimentionWidth/5 = 100 * desiredRatio.
+    // To chat gpt.
+    snapRect!.width(100 * desiredRatio / this.stageScale);
+    snapRect!.height(100 / this.stageScale);
 
     snapRect!.position({
       x: - this.stagePosition.x / this.stageScale / scaleX,
