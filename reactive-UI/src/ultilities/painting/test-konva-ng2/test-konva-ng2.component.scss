@@ -3,3 +3,9 @@ input {
     transform: scale(2);
     transform-origin: left top;
 }
+
+::ng-deep #konva-container {
+    .konvajs-content {
+        border: 1px solid black;
+    }
+}

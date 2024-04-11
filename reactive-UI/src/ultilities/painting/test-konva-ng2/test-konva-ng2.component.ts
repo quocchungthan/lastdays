@@ -134,6 +134,7 @@ export class TestKonvaNg2Component implements OnChanges, AfterViewInit, OnInit {
       container: 'konva-container',
       width: this.data.width,
       height: this.data.height,
+      draggable: false,
     });
 
     var layer = new Konva.Layer();
@@ -275,7 +276,7 @@ export class TestKonvaNg2Component implements OnChanges, AfterViewInit, OnInit {
           direction = -direction;
         }
         const zoomInPercentage = this.zoomLevel / DEFAULT_SCALE;
-        
+        this._stage?.draggable(zoomInPercentage > 1.02);
         stage.scale({ x: zoomInPercentage, y: zoomInPercentage });
 
         var newPos = {
