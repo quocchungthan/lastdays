@@ -60,6 +60,7 @@ export class TestKonvaNg2Component implements OnChanges, AfterViewInit, OnInit {
   }
 
   private _stage?: Stage;
+  private _scaleBy: number = 1.1;
 
   constructor() {
     this._zoomAndDataChangeFireRerenderEvent();
@@ -272,12 +273,6 @@ export class TestKonvaNg2Component implements OnChanges, AfterViewInit, OnInit {
 
         // how to scale? Zoom in? Or zoom out?
         let direction = e.evt.deltaY > 0 ? 1 : -1;
-        if (e.evt.deltaY < 0) {
-          this.zoomLevel += 4;
-        } else {
-          this.zoomLevel -= 4;
-        }
-
 
         // when we zoom on trackpad, e.evt.ctrlKey is true
         // in that case lets revert direction
