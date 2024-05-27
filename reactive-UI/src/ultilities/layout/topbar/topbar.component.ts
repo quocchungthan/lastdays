@@ -3,11 +3,12 @@ import { IdentitiesService } from '../../../app/services/data-storages/identitie
 import { RouterModule } from '@angular/router';
 import { SEGMENT_TO_IDENTITY_PAGE } from '../../../app/configs/routing.consants';
 import { TOP_BAR } from '../../../app/configs/html-ids.constants';
+import { UserComponent } from '../../icons/user/user.component';
 
 @Component({
   selector: 'topbar',
   standalone: true,
-  imports: [RouterModule],
+  imports: [RouterModule, UserComponent],
   templateUrl: './topbar.component.html',
   styleUrl: './topbar.component.scss'
 })
