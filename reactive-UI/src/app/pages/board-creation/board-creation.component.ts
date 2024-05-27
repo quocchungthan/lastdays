@@ -5,20 +5,22 @@ import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } 
 import { ToasterService } from '../../services/ui-notifications/toaster.service';
 import { BoardsService } from '../../services/data-storages/boards.service';
 import { Board } from '../../services/data-storages/entities/Board';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { SEGMENT_TO_BOARD_DETAIL } from '../../configs/routing.consants';
 import { DEFAULT_BOARD_NAME } from '../../configs/default-value.constants';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-board-creation',
   standalone: true,
-  imports: [TopbarComponent, ReactiveFormsModule],
+  imports: [TopbarComponent, ReactiveFormsModule, RouterModule, DatePipe],
   templateUrl: './board-creation.component.html',
   styleUrl: './board-creation.component.scss'
 })
 export class BoardCreationComponent {
   lastVisits: LastVisits = new LastVisits;
   boardCreationForm: FormGroup<{name: FormControl<string | null>}>;
+  SEGMENT_TO_BOARD_DETAIL = SEGMENT_TO_BOARD_DETAIL;
 
   constructor(
     private _formBuilder: FormBuilder, 
@@ -28,6 +30,11 @@ export class BoardCreationComponent {
     this.boardCreationForm = this._formBuilder.group({
       name: ['', Validators.required]
     });
+
+    this._boards.recentUpdatedBoards()
+      .then((lastVisits) => {
+        this.lastVisits = lastVisits;
+      });
   }
 
   onSubmit() {

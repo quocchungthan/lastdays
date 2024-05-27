@@ -1,5 +1,5 @@
 <topbar></topbar>
-<div class="flex align-middle justify-center flex-col">
+<div class="flex align-middle justify-center flex-col gap-2 p-1">
     <form class="container max-w-[500px] m-auto grid gap-2" [formGroup]="boardCreationForm" (ngSubmit)="onSubmit()">
         <input type="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" formControlName="name" placeholder="Name" required>
         <!-- Add more form controls as needed -->
@@ -7,12 +7,18 @@
             Create board
         </button>
     </form>
-
-    <div>
-        @for (board of lastVisits; track board) {
-            <div>
-                {{board.id}}
-            </div>
-         }
+    <div class="container max-w-[500px] m-auto">
+        <h3 class="mb-4 mt-4">Last updated:</h3>
+        <div class="grid gap-4 grid-flow-col">
+            @for (board of lastVisits; track board) {
+                <a [routerLink]="'/' + SEGMENT_TO_BOARD_DETAIL + '/' + board.id">
+                    <div class="backdrop-blur-sm bg-white/30 group aspect-square grid-item border border-slate-100 col-span-4 rounded-xl bg-origin-content" style="background-image: url({{board.previewUrl}});">
+                        <div class="h-full w-full transition-all group-hover:scale-75 relative rounded-xl overflow-hidden bg-origin-content" style="background-image: url({{board.previewUrl}});">
+                            <div class="absolute bottom-0 left-0 p-2 w-100 text-sm bg-black bg-opacity-50 text-white">{{board.name}} <br> <span class="text-zinc-400">at {{ board.timeStamp | date:'medium' }}</span></div>
+                        </div>
+                    </div>
+                </a>
+            }
+        </div>
     </div>
 </div>
