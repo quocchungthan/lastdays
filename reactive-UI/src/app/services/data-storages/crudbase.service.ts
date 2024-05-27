@@ -31,7 +31,7 @@ export abstract class CrudBaseService<T extends BaseEntity> {
         if (!model.id) {
             model.id = '' + guid.create();
         }
-
+        model.modifiedTime = new Date();
         this._store.push(model);
         this._cache();
         return Promise.resolve(cloneDeep(this._store[this._store.length - 1]));
@@ -40,6 +40,7 @@ export abstract class CrudBaseService<T extends BaseEntity> {
     update(model: T): Promise<T> {
         const findIndex = this._store.findIndex(x => x.id === model.id);
         this._store[findIndex] = model;
+        this._store[findIndex].modifiedTime = new Date();
         this._cache();
         return Promise.resolve(cloneDeep(this._store[findIndex]));
     }

@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
+import { TopbarComponent } from '../../../ultilities/layout/topbar/topbar.component';
 
 @Component({
   selector: 'app-board-detail',
   standalone: true,
-  imports: [],
+  imports: [TopbarComponent],
   templateUrl: './board-detail.component.html',
   styleUrl: './board-detail.component.scss'
 })
