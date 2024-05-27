@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { LastVisits } from '../../viewmodels/agile-domain/last-visits.viewmodel';
 
 @Component({
   selector: 'app-board-creation',
@@ -8,5 +9,5 @@ import { Component } from '@angular/core';
   styleUrl: './board-creation.component.scss'
 })
 export class BoardCreationComponent {
-
+  lastVisits: LastVisits = new LastVisits;
 }

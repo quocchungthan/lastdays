@@ -1,1 +1,15 @@
-<p>board-creation works!</p>
+<div class="flex align-middle justify-center flex-col">
+    <div>
+        <button class="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
+            Create board
+        </button>
+    </div>
+
+    <div>
+        @for (board of lastVisits; track board) {
+            <div>
+                {{board.id}}
+            </div>
+         }
+    </div>
+</div>
