@@ -7,11 +7,13 @@ import { CanvasManager } from './Canvas.manager';
 import { ChatboxComponent } from '../../../ultilities/chat/chatbox/chatbox.component';
 import { BookmarkComponent } from '../../../ultilities/icons/bookmark/bookmark.component';
 import { BookmarkedComponent } from '../../../ultilities/icons/bookmarked/bookmarked.component';
+import { DropDownItem, UiDropdownComponent } from '../../../ultilities/controls/ui-dropdown/ui-dropdown.component';
+import { StickyNoteCommands } from './commands/sticky-notes.command';
 
 @Component({
   selector: 'app-board-detail',
   standalone: true,
-  imports: [TopbarComponent, ChatboxComponent, BookmarkComponent, BookmarkedComponent],
+  imports: [TopbarComponent, ChatboxComponent, BookmarkComponent, BookmarkedComponent, UiDropdownComponent],
   templateUrl: './board-detail.component.html',
   styleUrl: './board-detail.component.scss'
 })
@@ -21,10 +23,21 @@ export class BoardDetailComponent implements AfterViewInit {
   @ViewChild('topBar')
   topBar: TopbarComponent | undefined;
   isSaved = false;
+  selectedToolId = '';
+  supportedDrawingTools: DropDownItem[] = [
+    {
+      id: StickyNoteCommands.CommandName,
+      name: "Sticky note"
+    }
+  ];
 
   private _canvasManager: CanvasManager | undefined;
 
   constructor() {
+  }
+
+  onToolSelected(id: string) {
+    this.selectedToolId = id;
   }
 
   toggleSavedStatus() {
