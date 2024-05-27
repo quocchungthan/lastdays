@@ -1,4 +1,4 @@
-class BoardBasicData {
+export class BoardBasicData {
     id: string = '';
     name: string = '';
     previewUrl: string = '';

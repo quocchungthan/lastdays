@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CrudBaseService } from './crudbase.service';
 import { Board } from './entities/Board';
-import { LastVisits } from '../../viewmodels/agile-domain/last-visits.viewmodel';
+import { BoardBasicData, LastVisits } from '../../viewmodels/agile-domain/last-visits.viewmodel';
 
 @Injectable({
   providedIn: 'root'
@@ -28,12 +28,14 @@ export class BoardsService extends CrudBaseService<Board> {
     return all
       .sort((b, a) => a.modifiedTime.getTime() - b.modifiedTime.getTime())
       .slice(0, 3)
-      .map(x => ({
-        id: x.id,
-        name: x.name,
-        timeStamp: x.modifiedTime,
-        // TODO: icon, place holder, default background. generate preview/thumbnail after.
-        previewUrl: '/assets/default-preview-pic.jpg'
-      }));
+      .map(this.mapToBasicData);
   }
+
+  mapToBasicData = (x: Board) => ({
+    id: x.id,
+    name: x.name,
+    timeStamp: x.modifiedTime,
+    // TODO: icon, place holder, default background. generate preview/thumbnail after.
+    previewUrl: '/assets/default-preview-pic.jpg'
+  }) as BoardBasicData
 }

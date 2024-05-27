@@ -1,2 +1,15 @@
 <topbar></topbar>
-<p>user-identity works!</p>
+<div class="flex align-middle justify-center flex-col gap-2 p-1 mt-2">
+    <form class="container max-w-[500px] m-auto grid gap-2" [formGroup]="userForm" (ngSubmit)="onSubmit()">
+        <input [readonly]="true" type="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" formControlName="id" placeholder="Name" required>
+        <input type="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" formControlName="displayName" placeholder="Name" required>
+        <!-- Add more form controls as needed -->
+        <button class="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">
+            Save
+        </button>
+    </form>
+    <div class="container max-w-[500px] m-auto">
+        <h3 class="mb-4 mt-4">Saved board:</h3>
+        <app-board-grid [boardList]="allBoards"></app-board-grid>
+    </div>
+</div>

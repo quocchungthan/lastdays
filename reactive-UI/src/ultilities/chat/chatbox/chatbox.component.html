@@ -69,11 +69,11 @@
 
         <p class="chat-feedback">Composing..</p>
 
-        <form [formGroup]="chatBoxForm" (ngSubmit)="onSubmit()">
+        <form [formGroup]="chatBoxForm" (ngSubmit)="onSubmit()" class="p-3">
 
             <fieldset>
                 
-                <input type="text" placeholder="Text here"  formControlName="message" autofocus>
+                <input type="text" placeholder="Text here"  formControlName="message" class="w-full" autofocus>
                 <input type="hidden">
 
             </fieldset>
