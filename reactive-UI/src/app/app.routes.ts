@@ -1,16 +1,26 @@
 import { Routes } from '@angular/router';
-import { TestKonvaNg2Component } from '../ultilities/painting/test-konva-ng2/test-konva-ng2.component';
-import { BreakDownComponent } from './pages/break-down/break-down.component';
+import { BoardCreationComponent } from './pages/board-creation/board-creation.component';
+import { UserIdentityComponent } from './pages/user-identity/user-identity.component';
+import { BoardDetailComponent } from './pages/board-detail/board-detail.component';
 
 export const routes: Routes = [
     {
-        path: 'konva',
-        component: TestKonvaNg2Component,
+        path: 'home',
+        component: BoardCreationComponent,
         pathMatch: 'full'
     },
     {
-        path: 'expiriments/break-down',
-        component: BreakDownComponent,
+        path: 'identity/:id',
+        component: UserIdentityComponent,
         pathMatch: 'full'
+    },
+    {
+        path: 'board/:id',
+        component: BoardDetailComponent,
+        pathMatch: 'full'
+    },
+    {
+        path: '**',
+        redirectTo: 'home'
     }
 ];
