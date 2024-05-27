@@ -1,5 +1,5 @@
 <topbar></topbar>
-<div class="flex align-middle justify-center flex-col gap-2 p-1">
+<div class="flex align-middle justify-center flex-col gap-2 p-1 mt-2">
     <form class="container max-w-[500px] m-auto grid gap-2" [formGroup]="boardCreationForm" (ngSubmit)="onSubmit()">
         <input type="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" formControlName="name" placeholder="Name" required>
         <!-- Add more form controls as needed -->
