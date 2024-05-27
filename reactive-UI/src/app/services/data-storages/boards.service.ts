@@ -8,6 +8,6 @@ import { Board } from './entities/Board';
 export class BoardsService extends CrudBaseService<Board> {
 
   constructor() {
-    super();
+    super(Board);
    }
 }
