@@ -22,8 +22,14 @@ export class BoardsService extends CrudBaseService<Board> {
     })
   }
 
+  async getMyBoards() {
+    // TODO: filter the saved ones.
+
+    return this.index();
+  }
+
   async recentUpdatedBoards(): Promise<LastVisits> {
-    const all = await this.index();
+    const all = await this.getMyBoards();
 
     return all
       .sort((b, a) => a.modifiedTime.getTime() - b.modifiedTime.getTime())

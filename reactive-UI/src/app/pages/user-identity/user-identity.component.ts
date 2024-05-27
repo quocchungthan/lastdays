@@ -33,7 +33,7 @@ export class UserIdentityComponent {
       displayName: ['', Validators.required]
     });
 
-    this._boards.index()
+    this._boards.getMyBoards()
       .then((all) => {
         this.allBoards = all.map(this._boards.mapToBasicData);
       });
