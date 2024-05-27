@@ -1,6 +1,7 @@
 import Konva from 'konva';
 import { Point } from '../../../ultilities/types/Point';
 import { PRIMARY_COLOR } from '../../configs/theme.constants';
+import { LineConfig } from 'konva/lib/shapes/Line';
 
 export class BackgroundLayerManager {
     private _backgroundLayer: Konva.Layer;
@@ -15,48 +16,66 @@ export class BackgroundLayerManager {
     private readonly _rulersGroupName = 'rulersGroup';
 
     private readonly _rulerSize = 1;
+    private readonly _rulerStep = 50;
+
+    private readonly _rulerDashSize = 3;
+    _centerTop: Point = { x: 0, y: 0 };
+    _centerBottom: Point = { x: 0, y: 0 };
+    _middleLeft: Point = { x: 0, y: 0 };
+    _middleRight: Point = { x: 0, y: 0 };
 
     constructor(private _viewPort: Konva.Stage) {
         this._backgroundLayer = new Konva.Layer();
         this._viewPort.add(this._backgroundLayer);
     }
 
+    get rulersGroup () {
+        return this._backgroundLayer.children.find(x => x.name() === this._rulersGroupName) as Konva.Group;
+    }
+
+    get primaryLineDefaultConfig() {
+        return {
+            points: [],
+            stroke: this._theme.primary,
+            // Which never change
+            strokeWidth: this._rulerSize,
+            fill: 'transparent'
+        } as LineConfig
+    }
+
     public putTheRuler() {
-        const centerTop: Point = {
-            x: this._viewPort.width() / 2,
+        this._backgroundLayer.removeChildren();
+        this.rulersGroup?.removeChildren();
+        this._centerTop = {
+            x: 0,
+            y: - this._viewPort.y()
+        };
+
+        this._centerBottom = {
+            x: 0,
+            y: this._viewPort.height() - this._viewPort.y()
+        };
+
+        this._middleLeft = {
+            x: - this._viewPort.x(),
             y: 0
         };
 
-        const centerBottom: Point = {
-            x: this._viewPort.width() / 2,
-            y: this._viewPort.height()
-        };
-
-        const middleLeft: Point = {
-            x: 0,
-            y: this._viewPort.height() / 2
-        };
-
-        const middleBottom: Point = {
-            x: this._viewPort.width(),
-            y: this._viewPort.height() / 2
+        this._middleRight = {
+            x: this._viewPort.width() - this._viewPort.x(),
+            y: 0
         };
 
         const verticalLine = new Konva.Line({
-            points: [centerTop.x, centerTop.y, centerBottom.x, centerBottom.y],
-            stroke: this._theme.primary,
-            // Which never change
-            strokeWidth: this._rulerSize,
-            fill: 'transparent',
+            ...this.primaryLineDefaultConfig,
+            points: [this._centerTop.x, this._centerTop.y, this._centerBottom.x, this._centerBottom.y],
             name: this._verticalLineName
+
         });
 
         const horizontalLine = new Konva.Line({
-            points: [middleLeft.x, middleLeft.y, middleBottom.x, middleBottom.y],
-            stroke: this._theme.primary,
-            // Which never change
-            strokeWidth: this._rulerSize,
-            fill: 'transparent',
+            ...this.primaryLineDefaultConfig,
+            points: [this._middleLeft.x, this._middleLeft.y, this._middleRight.x, this._middleRight.y],
             name: this._horizontalLineName
         });
 
@@ -67,5 +86,39 @@ export class BackgroundLayerManager {
         rulersGroup.add(horizontalLine);
 
         this._backgroundLayer.add(rulersGroup);
+
+        this._drawTheSteps();
+    }
+
+    private _drawTheSteps() {
+        let iterator = 0;
+        do {
+            ++ iterator;
+            this._drawSmallDashOnVerticalRuler(iterator, 1);
+            this._drawSmallDashOnVerticalRuler(iterator, -1);
+        } while (- iterator * this._rulerStep > this._centerTop.y || iterator * this._rulerStep < this._centerBottom.y);
+
+        iterator = 0;
+        do {
+            ++ iterator;
+            this._drawSmallDashOnHorizontalRuler(iterator, 1);
+            this._drawSmallDashOnHorizontalRuler(iterator, -1);
+        } while (- iterator * this._rulerStep >  this._middleLeft.x || iterator * this._rulerStep <  this._middleRight.x);
+    }
+
+    private _drawSmallDashOnVerticalRuler(iterator: number, direction: number) {
+        const rulerStepDash = new Konva.Line({
+            ...this.primaryLineDefaultConfig,
+            points: [- this._rulerDashSize, direction * iterator * this._rulerStep, this._rulerDashSize, direction * iterator * this._rulerStep]
+        });
+        this.rulersGroup.add(rulerStepDash);
+    }
+
+    private _drawSmallDashOnHorizontalRuler(iterator: number, direction: number) {
+        const rulerStepDash = new Konva.Line({
+            ...this.primaryLineDefaultConfig,
+            points: [direction * iterator * this._rulerStep, - this._rulerDashSize, direction * iterator * this._rulerStep, this._rulerDashSize]
+        });
+        this.rulersGroup.add(rulerStepDash);
     }
 }
