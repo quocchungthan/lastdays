@@ -1,5 +1,12 @@
 <topbar #topBar>
-    Toolbar
+    <div class="flex justify-between">
+        <span>Tools</span>
+        @if (isSaved) {
+            <icon-bookmarked style="cursor: pointer" (click)="toggleSavedStatus()"></icon-bookmarked>
+        } @else {
+            <icon-bookmark style="cursor: pointer" (click)="toggleSavedStatus()"></icon-bookmark>
+        }
+    </div>
 </topbar>
 <div id="{{KONVA_CONTAINER}}"></div>
 <chat-box></chat-box>

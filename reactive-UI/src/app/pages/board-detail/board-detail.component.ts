@@ -5,11 +5,13 @@ import Konva from 'konva';
 import { HORIZONTAL_SCROLL_BAR_SIZE } from '../../configs/html-native-size.constants';
 import { CanvasManager } from './Canvas.manager';
 import { ChatboxComponent } from '../../../ultilities/chat/chatbox/chatbox.component';
+import { BookmarkComponent } from '../../../ultilities/icons/bookmark/bookmark.component';
+import { BookmarkedComponent } from '../../../ultilities/icons/bookmarked/bookmarked.component';
 
 @Component({
   selector: 'app-board-detail',
   standalone: true,
-  imports: [TopbarComponent, ChatboxComponent],
+  imports: [TopbarComponent, ChatboxComponent, BookmarkComponent, BookmarkedComponent],
   templateUrl: './board-detail.component.html',
   styleUrl: './board-detail.component.scss'
 })
@@ -18,9 +20,15 @@ export class BoardDetailComponent implements AfterViewInit {
 
   @ViewChild('topBar')
   topBar: TopbarComponent | undefined;
+  isSaved = false;
+
   private _canvasManager: CanvasManager | undefined;
 
   constructor() {
+  }
+
+  toggleSavedStatus() {
+    this.isSaved = !this.isSaved;
   }
 
   ngAfterViewInit(): void {
