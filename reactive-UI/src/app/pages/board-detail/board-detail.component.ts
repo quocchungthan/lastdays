@@ -32,7 +32,8 @@ export class BoardDetailComponent implements AfterViewInit {
     const viewPort = new Konva.Stage({
       container: KONVA_CONTAINER,
       width: window.innerWidth,
-      height: window.innerHeight - (this.topBar?.height ?? 0) - scrollBarHeight
+      height: window.innerHeight - (this.topBar?.height ?? 0) - scrollBarHeight,
+      draggable: true,
     });
 
     this._canvasManager = new CanvasManager(viewPort);
