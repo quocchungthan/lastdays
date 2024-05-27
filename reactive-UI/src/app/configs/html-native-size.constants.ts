@@ -1,0 +1,1 @@
+export const HORIZONTAL_SCROLL_BAR_SIZE = 10;

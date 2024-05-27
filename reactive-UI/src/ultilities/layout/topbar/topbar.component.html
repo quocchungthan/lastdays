@@ -1,4 +1,4 @@
-<div class="grid grid-flow-col border-b-slate-100 p-1 border text-sm mb-2">
+<div id="{{TOP_BAR}}" class="grid grid-flow-col border-b-slate-100 p-1 border text-sm">
     <div class="grid-cols-2"><a routerLink="/home">Home [Logo]</a></div>
     <div class="grid-cols-8"><ng-content></ng-content></div>
     <div class="grid-cols-2 justify-end flex"><a [routerLink]="'/' + segmentToUserIdentity + '/' + currentUserId">User Identity [icon]</a></div>
