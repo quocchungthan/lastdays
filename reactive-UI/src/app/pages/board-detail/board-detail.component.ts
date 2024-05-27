@@ -3,13 +3,13 @@ import { TopbarComponent } from '../../../ultilities/layout/topbar/topbar.compon
 import { KONVA_CONTAINER } from '../../configs/html-ids.constants';
 import Konva from 'konva';
 import { HORIZONTAL_SCROLL_BAR_SIZE } from '../../configs/html-native-size.constants';
-import { Point } from '../../../ultilities/types/Point';
 import { CanvasManager } from './Canvas.manager';
+import { ChatboxComponent } from '../../../ultilities/chat/chatbox/chatbox.component';
 
 @Component({
   selector: 'app-board-detail',
   standalone: true,
-  imports: [TopbarComponent],
+  imports: [TopbarComponent, ChatboxComponent],
   templateUrl: './board-detail.component.html',
   styleUrl: './board-detail.component.scss'
 })
