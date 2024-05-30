@@ -9,6 +9,7 @@ import { BookmarkComponent } from '../../../ultilities/icons/bookmark/bookmark.c
 import { BookmarkedComponent } from '../../../ultilities/icons/bookmarked/bookmarked.component';
 import { DropDownItem, UiDropdownComponent } from '../../../ultilities/controls/ui-dropdown/ui-dropdown.component';
 import { StickyNoteCommands } from './commands/sticky-notes.command';
+import { PencilCommands } from './commands/pencil.command';
 
 @Component({
   selector: 'app-board-detail',
@@ -28,6 +29,10 @@ export class BoardDetailComponent implements AfterViewInit {
     {
       id: StickyNoteCommands.CommandName,
       name: "Sticky note"
+    },
+    {
+      id: PencilCommands.CommandName,
+      name: "Pencil"
     }
   ];
 
