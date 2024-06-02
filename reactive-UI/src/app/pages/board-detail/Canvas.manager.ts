@@ -19,12 +19,22 @@ export class CanvasManager {
         this._viewPortEvents = new ViewPortEventsManager(this._viewPort);
         this._cursorManager = new CursorManager();
         this._viewPortEvents.onDragStart().subscribe(() => {
-            this._cursorManager.grabbing();
+            // this._cursorManager.grabbing();
         });
 
         this._viewPortEvents.onDragEnd().subscribe(() => {
-            this._cursorManager.reset();
+            // TODO: reset to previous, not reset to default
+            // this._cursorManager.reset();
             this._background.putTheRuler();
+        });
+
+        this._viewPortEvents.onMouseEnter().subscribe(() => {
+            // TODO: check the selected tool
+            // this._cursorManager.pencil();
+        });
+
+        this._viewPortEvents.onMouseOut().subscribe(() => {
+            // this._cursorManager.reset();
         });
     }
 
