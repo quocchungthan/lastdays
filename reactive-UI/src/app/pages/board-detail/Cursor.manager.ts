@@ -1,3 +1,5 @@
+import { KONVA_CONTAINER } from '../../configs/html-ids.constants';
+
 export interface ICursorManager {
     grabbing(): void;
     reset(): void;
@@ -6,18 +8,23 @@ export interface ICursorManager {
 
 export class CursorManager implements ICursorManager {
     pencil(): void {
-        throw new Error('Method not implemented.');
+        // TODO: do not wait for mouse down, just show it.
+        this._setCursorByStringValue("url('/assets/marker.cur'), auto");
     }
-    
+
     grabbing() {
-        this._getCssBearer().style.cursor = 'grab';
+        this._setCursorByStringValue('grab');
     }
 
     reset() {
-        this._getCssBearer().style.cursor = 'default';
+        this._setCursorByStringValue('default');
+    }
+
+    private _setCursorByStringValue(value: string) {
+        this._getCssBearer().style.cursor = value;
     }
 
     private _getCssBearer() {
-        return document.body;
+        return document.getElementById(KONVA_CONTAINER)!;
     }
 }
