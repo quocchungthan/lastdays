@@ -1,8 +1,6 @@
 import { AfterViewInit, Component, OnDestroy, ViewChild } from '@angular/core';
 import { TopbarComponent } from '../../../ultilities/layout/topbar/topbar.component';
 import { KONVA_CONTAINER } from '../../configs/html-ids.constants';
-import Konva from 'konva';
-import { HORIZONTAL_SCROLL_BAR_SIZE } from '../../configs/html-native-size.constants';
 import { CanvasManager } from './managers/Canvas.manager';
 import { ChatboxComponent } from '../../../ultilities/chat/chatbox/chatbox.component';
 import { BookmarkComponent } from '../../../ultilities/icons/bookmark/bookmark.component';
@@ -15,15 +13,19 @@ import { UrlExtractorService } from '../../services/browser/url-extractor.servic
 import { ActivatedRoute } from '@angular/router';
 import { KonvaObjectService } from '../../services/3rds/konva-object.service';
 import { UserDrawingLayerManager } from './managers/UserDrawingLayer.manager';
+import { BackgroundLayerManager } from './managers/BackgroundLayer.manager';
+import { ViewPortEventsManager } from './managers/ViewPortEvents.manager';
+import { CursorManager } from './managers/Cursor.manager';
 
 @Component({
   selector: 'app-board-detail',
   standalone: true,
   imports: [TopbarComponent, ChatboxComponent, BookmarkComponent, BookmarkedComponent, UiDropdownComponent],
+  providers: [ViewPortEventsManager, UserDrawingLayerManager, CursorManager, CanvasManager, BackgroundLayerManager, KonvaObjectService],
   templateUrl: './board-detail.component.html',
   styleUrl: './board-detail.component.scss'
 })
-export class BoardDetailComponent implements AfterViewInit, OnDestroy {
+export class BoardDetailComponent implements AfterViewInit {
   KONVA_CONTAINER = KONVA_CONTAINER;
 
   @ViewChild('topBar')
@@ -50,14 +52,10 @@ export class BoardDetailComponent implements AfterViewInit, OnDestroy {
     private _urlExtractor: UrlExtractorService, 
     private _activatedRoute: ActivatedRoute,
     private _konvaObjectService: KonvaObjectService,
-    private _drawingManager: UserDrawingLayerManager,
     private _canvasManager: CanvasManager) {
     this._activatedRoute.params.subscribe(x => {
       this._urlExtractor.setBoardId(x['id']);
     });
-  }
-  ngOnDestroy(): void {
-    this._drawingManager.clear();
   }
 
   onToolSelected(id: string) {

@@ -9,10 +9,8 @@ import { KonvaObjectService } from "../../../services/3rds/konva-object.service"
 import { DrawingObjectService } from "../../../services/data-storages/drawing-object.service";
 import { DrawingObject } from "../../../services/data-storages/entities/DrawingObject";
 
-@Injectable({
-    providedIn: 'root'
-})
-export class UserDrawingLayerManager {
+@Injectable()
+export class UserDrawingLayerManager implements OnDestroy {
     private _drawingLayer: Konva.Layer;
     // TODO: Theme and tool are duplicated where they're stored
     private _theme =  {
@@ -44,7 +42,7 @@ export class UserDrawingLayerManager {
             });
     }
 
-    clear() {
+    ngOnDestroy() {
         this._drawingLayer.removeChildren();
     }
 

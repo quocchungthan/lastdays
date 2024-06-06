@@ -5,9 +5,7 @@ import { isNil } from 'lodash';
 import { KonvaObjectService } from '../../../services/3rds/konva-object.service';
 import { Injectable } from '@angular/core';
 
-@Injectable({
-    providedIn: 'root'
-})
+@Injectable()
 export class ViewPortEventsManager {
     private _dragStart: Subject<Point | null>;
     private _dragEnd: Subject<Point | null>;

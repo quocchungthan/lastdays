@@ -5,9 +5,7 @@ import { LineConfig } from 'konva/lib/shapes/Line';
 import { KonvaObjectService } from '../../../services/3rds/konva-object.service';
 import { Injectable } from '@angular/core';
 
-@Injectable({
-    providedIn: 'root'
-})
+@Injectable()
 export class BackgroundLayerManager {
     private _backgroundLayer!: Konva.Layer;
     private _viewPort!: Konva.Stage;
