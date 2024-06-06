@@ -27,6 +27,10 @@ export class BoardDetailComponent implements AfterViewInit {
   selectedToolId = '';
   supportedDrawingTools: DropDownItem[] = [
     {
+      id: '',
+      name: "Move"
+    },
+    {
       id: StickyNoteCommands.CommandName,
       name: "Sticky note"
     },
@@ -43,6 +47,7 @@ export class BoardDetailComponent implements AfterViewInit {
 
   onToolSelected(id: string) {
     this.selectedToolId = id;
+    this._canvasManager?.setTool(id);
   }
 
   toggleSavedStatus() {
