@@ -5,6 +5,7 @@ import { PencilCommands } from "./commands/pencil.command";
 
 export class UserDrawingLayerManager {
     private _drawingLayer: Konva.Layer;
+    // TODO: Theme and tool are duplicated where they're stored
     private _theme =  {
         primary: PRIMARY_COLOR
     }
