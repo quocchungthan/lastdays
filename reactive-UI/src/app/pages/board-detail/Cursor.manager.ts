@@ -9,7 +9,7 @@ export interface ICursorManager {
 export class CursorManager implements ICursorManager {
     pencil(): void {
         // TODO: do not wait for mouse down, just show it.
-        this._setCursorByStringValue("url('/assets/marker.png'), auto");
+        this._setCursorByStringValue("url('/assets/marker.png') 0 32, auto");
     }
 
     grabbing() {
