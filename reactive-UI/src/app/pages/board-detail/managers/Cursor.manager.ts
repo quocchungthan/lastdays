@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
 import { KONVA_CONTAINER } from '../../../configs/html-ids.constants';
 
-@Injectable({
-    providedIn: 'root'
-})
+@Injectable()
 export class CursorManager {
     pencil(): void {
         // TODO: do not wait for mouse down, just show it.
