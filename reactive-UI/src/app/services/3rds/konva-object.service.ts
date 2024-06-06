@@ -4,9 +4,7 @@ import { KONVA_CONTAINER } from '../../configs/html-ids.constants';
 import { HORIZONTAL_SCROLL_BAR_SIZE } from '../../configs/html-native-size.constants';
 import { BehaviorSubject, filter, map } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class KonvaObjectService {
   private _viewPort: BehaviorSubject<Konva.Stage | null> = new BehaviorSubject<Konva.Stage | null>(null);
   private _scrollBarHeight: number = HORIZONTAL_SCROLL_BAR_SIZE;

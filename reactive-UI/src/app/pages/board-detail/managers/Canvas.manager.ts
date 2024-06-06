@@ -11,9 +11,7 @@ import { UrlExtractorService } from '../../../services/browser/url-extractor.ser
 import { Injectable } from '@angular/core';
 import { KonvaObjectService } from '../../../services/3rds/konva-object.service';
 
-@Injectable({
-    providedIn: 'root'
-})
+@Injectable()
 export class CanvasManager {
     private _viewPort!: Konva.Stage;
     private _tool: string = '';
