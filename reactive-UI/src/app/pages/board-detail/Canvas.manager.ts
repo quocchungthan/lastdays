@@ -21,25 +21,18 @@ export class CanvasManager {
     constructor(stage: Konva.Stage) {
         this._viewPort = stage;
         this._background = new BackgroundLayerManager(this._viewPort);
-        this._userDrawing = new UserDrawingLayerManager(this._viewPort);
         this._viewPortEvents = new ViewPortEventsManager(this._viewPort);
+        this._userDrawing = new UserDrawingLayerManager(this._viewPort, this._viewPortEvents);
         this._cursorManager = new CursorManager();
         this._viewPortEvents.onDragStart().subscribe(() => {
             this._cursorManager.grabbing();
         });
 
         this._viewPortEvents.onDragEnd().subscribe(() => {
-            // TODO: reset to previous, not reset to default
-            // this._cursorManager.reset();
             this._background.putTheRuler();
         });
 
-        this._viewPortEvents.onMouseEnter().subscribe(() => {
-            // TODO: check the selected tool
-            // this._cursorManager.pencil();
-        });
-
-        this._viewPortEvents.onMouseOut().subscribe(() => {
+        this._viewPortEvents.onTouchEnd().subscribe(() => {
             if (!this._tool) {
                 this._cursorManager.reset();
             }
@@ -48,6 +41,7 @@ export class CanvasManager {
 
     public setTool(tool: string) {
         this._tool = tool;
+        this._userDrawing.setTool(tool);
         if (!this._tool) {
             this._cursorManager.reset();
             this._viewPort.draggable(true);

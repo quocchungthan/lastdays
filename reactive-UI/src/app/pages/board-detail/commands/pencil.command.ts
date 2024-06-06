@@ -11,6 +11,12 @@ export class PencilCommands {
     private _color = 'black';
     private _size = 4;
 
+    /**
+     *
+     */
+    constructor(private _layer: Konva.Layer) {
+    }
+
     // Inteface common between the commands that matches the Events manager so that's make code much more simple, less switch case.
     public penDown(position: Point) {
         if (this._currentObject) {
@@ -23,6 +29,7 @@ export class PencilCommands {
             strokeWidth: this._size,
             points: [position.x, position.y, position.x, position.y]
         });
+        this._layer.add(this._currentObject);
     }
 
     public penMove(position: Point) {
