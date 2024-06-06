@@ -42,6 +42,8 @@ export class CanvasManager {
     public setTool(tool: string) {
         this._tool = tool;
         this._userDrawing.setTool(tool);
+        // TODO: if Tool everywhere, need an interface, and put implementations 
+        // that has the same condition in one class which is instance of that interface.
         if (!this._tool) {
             this._cursorManager.reset();
             this._viewPort.draggable(true);
