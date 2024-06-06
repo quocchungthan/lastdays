@@ -1,20 +1,20 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UrlExtractorService {
-  private _boardId: string = '';
+  private _boardId = new BehaviorSubject<string>('');
 
   setBoardId(boardId: string) {
-    this._boardId = boardId;
+    this._boardId.next(boardId);
   }
   
   constructor(private _activatedRoute: ActivatedRoute) { }
 
   currentBoardIdChanges() {
-    return of(this._boardId);
+    return this._boardId.asObservable();
   }
 }

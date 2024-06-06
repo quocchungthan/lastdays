@@ -47,4 +47,15 @@ export class PencilCommands {
 
         return toBeSaved;
     }
+
+    public parseFromJson(shape: Konva.Shape) {
+        const instantObject = new Konva.Line({
+            fill: 'transparent',
+            stroke: shape.attrs.stroke,
+            name: shape.attrs.name,
+            strokeWidth: shape.attrs.strokeWidth,
+            points: shape.attrs.points
+        });
+        this._layer.add(instantObject);
+    }
 }
