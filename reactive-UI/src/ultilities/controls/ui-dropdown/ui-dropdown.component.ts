@@ -22,6 +22,7 @@ export class UiDropdownComponent {
   @Output()
   itemSelected = new EventEmitter<string>();
 
+  // TODO: can we close the dropdown once the item get selected
   select(event: MouseEvent, selectedId: string) {
     event.preventDefault();
     this.itemSelected.emit(selectedId);
