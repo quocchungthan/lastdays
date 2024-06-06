@@ -38,6 +38,9 @@ export class UserDrawingLayerManager {
         this._events.onMouseOut()
               .subscribe((p) => {
                   if (this._tool === PencilCommands.CommandName) {
+                   // TODO: Store to local database as an event in case the site is refrehsed
+                   // TODO: Flow
+                   // TODO: Command via chat
                    this._pencil.penUp();
                   } 
                });
