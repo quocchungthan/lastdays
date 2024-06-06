@@ -5,3 +5,4 @@ uvicorn==0.29.0
 fastapi==0.110.0
 # starting, will be replaced by pure http requests later
 notion==0.0.28
+openai==1.31.1
