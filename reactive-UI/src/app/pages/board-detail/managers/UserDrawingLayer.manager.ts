@@ -4,7 +4,7 @@ import { PencilCommands } from "../commands/pencil.command";
 import { BoardsService } from "../../../services/data-storages/boards.service";
 import { UrlExtractorService } from "../../../services/browser/url-extractor.service";
 import { ViewPortEventsManager } from "./ViewPortEvents.manager";
-import { Injectable } from "@angular/core";
+import { Injectable, OnDestroy } from "@angular/core";
 import { KonvaObjectService } from "../../../services/3rds/konva-object.service";
 import { DrawingObjectService } from "../../../services/data-storages/drawing-object.service";
 import { DrawingObject } from "../../../services/data-storages/entities/DrawingObject";
@@ -42,6 +42,10 @@ export class UserDrawingLayerManager {
                 this._boardId = id;
                 this._loadExistingDrawings();
             });
+    }
+
+    clear() {
+        this._drawingLayer.removeChildren();
     }
 
     private _loadExistingDrawings() {

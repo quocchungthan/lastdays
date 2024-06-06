@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, ViewChild } from '@angular/core';
 import { TopbarComponent } from '../../../ultilities/layout/topbar/topbar.component';
 import { KONVA_CONTAINER } from '../../configs/html-ids.constants';
 import Konva from 'konva';
@@ -14,6 +14,7 @@ import { BoardsService } from '../../services/data-storages/boards.service';
 import { UrlExtractorService } from '../../services/browser/url-extractor.service';
 import { ActivatedRoute } from '@angular/router';
 import { KonvaObjectService } from '../../services/3rds/konva-object.service';
+import { UserDrawingLayerManager } from './managers/UserDrawingLayer.manager';
 
 @Component({
   selector: 'app-board-detail',
@@ -22,7 +23,7 @@ import { KonvaObjectService } from '../../services/3rds/konva-object.service';
   templateUrl: './board-detail.component.html',
   styleUrl: './board-detail.component.scss'
 })
-export class BoardDetailComponent implements AfterViewInit {
+export class BoardDetailComponent implements AfterViewInit, OnDestroy {
   KONVA_CONTAINER = KONVA_CONTAINER;
 
   @ViewChild('topBar')
@@ -49,10 +50,14 @@ export class BoardDetailComponent implements AfterViewInit {
     private _urlExtractor: UrlExtractorService, 
     private _activatedRoute: ActivatedRoute,
     private _konvaObjectService: KonvaObjectService,
+    private _drawingManager: UserDrawingLayerManager,
     private _canvasManager: CanvasManager) {
     this._activatedRoute.params.subscribe(x => {
       this._urlExtractor.setBoardId(x['id']);
     });
+  }
+  ngOnDestroy(): void {
+    this._drawingManager.clear();
   }
 
   onToolSelected(id: string) {
@@ -67,6 +72,8 @@ export class BoardDetailComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this._resetTheViewPort();
   }
+
+  
 
   private _resetTheViewPort() {
     this._konvaObjectService.initKonvaObject();
