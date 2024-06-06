@@ -18,6 +18,7 @@ conda create -n <envname> [names of packages]
 conda activate <just created envname>
 ```
 ```
+conda install python=3.12.2
 pip install -r requirements.txt
 ```
 
