@@ -1,29 +1,38 @@
 import Konva from 'konva';
-import { PRIMARY_COLOR } from '../../configs/theme.constants';
+import { PRIMARY_COLOR } from '../../../configs/theme.constants';
 import { BackgroundLayerManager } from './BackgroundLayer.manager';
-import { IViewPortEventsManager, ViewPortEventsManager } from './ViewPortEvents.manager';
-import { CursorManager, ICursorManager } from './Cursor.manager';
+import { ViewPortEventsManager } from './ViewPortEvents.manager';
+import { CursorManager } from './Cursor.manager';
 import { UserDrawingLayerManager } from './UserDrawingLayer.manager';
-import { StickyNoteCommands } from './commands/sticky-notes.command';
-import { PencilCommands } from './commands/pencil.command';
+import { StickyNoteCommands } from '../commands/sticky-notes.command';
+import { PencilCommands } from '../commands/pencil.command';
+import { BoardsService } from '../../../services/data-storages/boards.service';
+import { UrlExtractorService } from '../../../services/browser/url-extractor.service';
+import { Injectable } from '@angular/core';
+import { KonvaObjectService } from '../../../services/3rds/konva-object.service';
 
+@Injectable({
+    providedIn: 'root'
+})
 export class CanvasManager {
-    private _viewPort: Konva.Stage;
-    private _theme =  {
-        primary: PRIMARY_COLOR
-    }
-    private _background: BackgroundLayerManager;
-    private _userDrawing: UserDrawingLayerManager;
-    private _viewPortEvents: IViewPortEventsManager;
-    private _cursorManager: ICursorManager;
+    private _viewPort!: Konva.Stage;
     private _tool: string = '';
 
-    constructor(stage: Konva.Stage) {
+    constructor(
+        _konvaObjects: KonvaObjectService, 
+        private _viewPortEvents: ViewPortEventsManager,
+        boards: BoardsService, 
+        private _urlExtractor: UrlExtractorService,
+        private _background: BackgroundLayerManager,
+        private _cursorManager: CursorManager,
+        private _userDrawing: UserDrawingLayerManager) {
+        _konvaObjects.viewPortChanges.subscribe((s) => {
+            this.initiateBasedOnBackgroundStage(s, boards, _urlExtractor);
+        });
+    }
+
+    private initiateBasedOnBackgroundStage(stage: Konva.Stage, boards: BoardsService, _urlExtractor: UrlExtractorService) {
         this._viewPort = stage;
-        this._background = new BackgroundLayerManager(this._viewPort);
-        this._viewPortEvents = new ViewPortEventsManager(this._viewPort);
-        this._userDrawing = new UserDrawingLayerManager(this._viewPort, this._viewPortEvents);
-        this._cursorManager = new CursorManager();
         this._viewPortEvents.onDragStart().subscribe(() => {
             this._cursorManager.grabbing();
         });

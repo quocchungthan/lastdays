@@ -1,19 +1,14 @@
 import Konva from 'konva';
 import { Observable, Subject, debounceTime, filter, map } from 'rxjs';
-import { Point } from '../../../ultilities/types/Point';
+import { Point } from '../../../../ultilities/types/Point';
 import { isNil } from 'lodash';
+import { KonvaObjectService } from '../../../services/3rds/konva-object.service';
+import { Injectable } from '@angular/core';
 
-export interface IViewPortEventsManager {
-    onDragStart(): Observable<Point>;
-    onDragEnd(): Observable<Point>;
-    onMouseEnter(): Observable<void>;
-    onMouseOut(): Observable<void>;
-    onTouchStart(): Observable<Point>;
-    onTouchMove(): Observable<Point>;
-    onTouchEnd(): Observable<Point>;
-}
-
-export class ViewPortEventsManager implements IViewPortEventsManager {
+@Injectable({
+    providedIn: 'root'
+})
+export class ViewPortEventsManager {
     private _dragStart: Subject<Point | null>;
     private _dragEnd: Subject<Point | null>;
     private _mouseEnter: Subject<void>;
@@ -21,8 +16,13 @@ export class ViewPortEventsManager implements IViewPortEventsManager {
     private _touchStart: Subject<Point | null>;
     private _touchEnd: Subject<Point | null>;
     private _touchMove: Subject<Point | null>;
+    private _viewPort!: Konva.Stage;
     
-    constructor(private _viewPort: Konva.Stage) {
+    constructor(_konvaObjects: KonvaObjectService) {
+        _konvaObjects.viewPortChanges.subscribe(s => {
+            this._viewPort = s;
+            this._registerEventListener();
+        })
         this._dragStart = new Subject<Point | null>();
         this._dragEnd = new Subject<Point | null>();
         this._touchStart = new Subject<Point | null>();
@@ -30,8 +30,6 @@ export class ViewPortEventsManager implements IViewPortEventsManager {
         this._touchMove = new Subject<Point | null>();
         this._mouseEnter = new Subject<void>();
         this._mouseOut = new Subject<void>();
-
-        this._registerEventListener();
     }
 
     public onMouseEnter() {
