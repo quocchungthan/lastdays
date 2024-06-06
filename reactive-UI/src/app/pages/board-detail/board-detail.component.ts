@@ -3,13 +3,17 @@ import { TopbarComponent } from '../../../ultilities/layout/topbar/topbar.compon
 import { KONVA_CONTAINER } from '../../configs/html-ids.constants';
 import Konva from 'konva';
 import { HORIZONTAL_SCROLL_BAR_SIZE } from '../../configs/html-native-size.constants';
-import { CanvasManager } from './Canvas.manager';
+import { CanvasManager } from './managers/Canvas.manager';
 import { ChatboxComponent } from '../../../ultilities/chat/chatbox/chatbox.component';
 import { BookmarkComponent } from '../../../ultilities/icons/bookmark/bookmark.component';
 import { BookmarkedComponent } from '../../../ultilities/icons/bookmarked/bookmarked.component';
 import { DropDownItem, UiDropdownComponent } from '../../../ultilities/controls/ui-dropdown/ui-dropdown.component';
 import { StickyNoteCommands } from './commands/sticky-notes.command';
 import { PencilCommands } from './commands/pencil.command';
+import { BoardsService } from '../../services/data-storages/boards.service';
+import { UrlExtractorService } from '../../services/browser/url-extractor.service';
+import { ActivatedRoute } from '@angular/router';
+import { KonvaObjectService } from '../../services/3rds/konva-object.service';
 
 @Component({
   selector: 'app-board-detail',
@@ -40,9 +44,15 @@ export class BoardDetailComponent implements AfterViewInit {
     }
   ];
 
-  private _canvasManager: CanvasManager | undefined;
-
-  constructor() {
+  constructor(
+    private _boards: BoardsService, 
+    private _urlExtractor: UrlExtractorService, 
+    private _activatedRoute: ActivatedRoute,
+    private _konvaObjectService: KonvaObjectService,
+    private _canvasManager: CanvasManager) {
+    this._activatedRoute.params.subscribe(x => {
+      this._urlExtractor.setBoardId(x['id']);
+    });
   }
 
   onToolSelected(id: string) {
@@ -59,15 +69,11 @@ export class BoardDetailComponent implements AfterViewInit {
   }
 
   private _resetTheViewPort() {
-    const scrollBarHeight = HORIZONTAL_SCROLL_BAR_SIZE;
-    const viewPort = new Konva.Stage({
-      container: KONVA_CONTAINER,
-      width: window.innerWidth,
-      height: window.innerHeight - (this.topBar?.height ?? 0) - scrollBarHeight,
-      draggable: true,
-    });
-
-    this._canvasManager = new CanvasManager(viewPort);
-    this._canvasManager.drawBackground();
+    this._konvaObjectService.initKonvaObject();
+    this._konvaObjectService.setYOffset(this.topBar?.height ?? 0);
+    this._konvaObjectService.viewPortChanges
+      .subscribe(() => {
+        this._canvasManager.drawBackground();
+      });
   }
 }
