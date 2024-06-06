@@ -6,6 +6,8 @@ import { UrlExtractorService } from "../../../services/browser/url-extractor.ser
 import { ViewPortEventsManager } from "./ViewPortEvents.manager";
 import { Injectable } from "@angular/core";
 import { KonvaObjectService } from "../../../services/3rds/konva-object.service";
+import { DrawingObjectService } from "../../../services/data-storages/drawing-object.service";
+import { DrawingObject } from "../../../services/data-storages/entities/DrawingObject";
 
 @Injectable({
     providedIn: 'root'
@@ -19,23 +21,59 @@ export class UserDrawingLayerManager {
     private _tool: string = '';
     private _pencil!: PencilCommands;
     private _viewPort!: Konva.Stage;
+    private _boardId: string = '';
 
     constructor(
         _konvaObjects: KonvaObjectService,
         private _events: ViewPortEventsManager, 
         private boards: BoardsService,
-        private _urlExtractor: UrlExtractorService) {
+        private _urlExtractor: UrlExtractorService,
+        private _drawingObjects: DrawingObjectService) {
         this._drawingLayer = new Konva.Layer();
+        this._pencil = new PencilCommands(this._drawingLayer);
         _konvaObjects.viewPortChanges.subscribe(s => {
             this._viewPort = s;
             this._viewPort.add(this._drawingLayer);
         });
         
         this._startSubscribingEvents();
+        this._urlExtractor.currentBoardIdChanges()
+            .subscribe((id) => {
+                this._boardId = id;
+                this._loadExistingDrawings();
+            });
+    }
+
+    private _loadExistingDrawings() {
+        if (!this._boardId) {
+            return;
+        }
+
+        this._drawingObjects.index()
+            .then((all) => {
+                all.filter(x => x.boardId === this._boardId).map(x => x.konvaObject)
+                    .forEach(x => {
+                        if (!x) {
+                            return;
+                        }
+
+                        if (typeof x === 'string') {
+                            const parsed = JSON.parse(x) as Konva.Shape;
+                            this._recoverDrawingsOnLayer(parsed);
+                        } else {
+                            this._recoverDrawingsOnLayer(x);
+                        }
+                    });
+            });
     }
     
+    private _recoverDrawingsOnLayer(x: Konva.Shape) {
+        if (x?.className === 'Line') {
+            this._pencil.parseFromJson(x);
+        }
+    }
+
     private _startSubscribingEvents() {
-        this._pencil = new PencilCommands(this._drawingLayer);
         this._events.onTouchStart()
             .subscribe((p) => {
                 if (this._tool === PencilCommands.CommandName) {
@@ -61,16 +99,15 @@ export class UserDrawingLayerManager {
 
     private _handleDrawingEnd() {
         if (this._tool === PencilCommands.CommandName) {
-            // TODO: Store to local database as an event in case the site is refrehsed
             // TODO: Flow
             // TODO: Command via chat
             var brandNewDrawing = this._pencil.penUp();
-            this._urlExtractor.currentBoardIdChanges()
-                .subscribe((id) => {
-                    this.boards.detail(id)
-                        .then(currentBoard => {
-                            // currentBoard.
-                        });
+            const newDrawingObject = new DrawingObject();
+            newDrawingObject.boardId = this._boardId;
+            newDrawingObject.konvaObject = brandNewDrawing;
+            this._drawingObjects.create(newDrawingObject)
+                .then((x) =>{
+                    console.log('Saved', x);
                 });
         }
     }
