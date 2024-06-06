@@ -1,10 +1,16 @@
 import Konva from 'konva';
-import { Point } from '../../../ultilities/types/Point';
-import { PRIMARY_COLOR } from '../../configs/theme.constants';
+import { Point } from '../../../../ultilities/types/Point';
+import { PRIMARY_COLOR } from '../../../configs/theme.constants';
 import { LineConfig } from 'konva/lib/shapes/Line';
+import { KonvaObjectService } from '../../../services/3rds/konva-object.service';
+import { Injectable } from '@angular/core';
 
+@Injectable({
+    providedIn: 'root'
+})
 export class BackgroundLayerManager {
-    private _backgroundLayer: Konva.Layer;
+    private _backgroundLayer!: Konva.Layer;
+    private _viewPort!: Konva.Stage;
     private _theme =  {
         primary: PRIMARY_COLOR
     }
@@ -23,10 +29,12 @@ export class BackgroundLayerManager {
     _centerBottom: Point = { x: 0, y: 0 };
     _middleLeft: Point = { x: 0, y: 0 };
     _middleRight: Point = { x: 0, y: 0 };
-
-    constructor(private _viewPort: Konva.Stage) {
-        this._backgroundLayer = new Konva.Layer();
-        this._viewPort.add(this._backgroundLayer);
+    constructor(_konvaObjects: KonvaObjectService) {
+        _konvaObjects.viewPortChanges.subscribe((s) => {
+            this._backgroundLayer = new Konva.Layer();
+            s.add(this._backgroundLayer);
+            this._viewPort = s;
+        });
     }
 
     get rulersGroup () {

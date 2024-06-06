@@ -1,5 +1,6 @@
 import Konva from 'konva';
 import { Point } from '../../../../ultilities/types/Point';
+import { PREFERED_INK_COLOR } from '../../../configs/theme.constants';
 
 export interface StickyNote {
     navtive: Konva.Group;
@@ -8,7 +9,7 @@ export interface StickyNote {
 export class PencilCommands {
     public static readonly CommandName = "pencil";
     private _currentObject?: Konva.Line;
-    private _color = 'black';
+    private _color = PREFERED_INK_COLOR;
     private _size = 4;
 
     /**
