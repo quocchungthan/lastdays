@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, HostListener, OnDestroy, ViewChild } from '@angular/core';
 import { TopbarComponent } from '../../../ultilities/layout/topbar/topbar.component';
 import { KONVA_CONTAINER } from '../../configs/html-ids.constants';
 import { CanvasManager } from './managers/Canvas.manager';
@@ -16,12 +16,20 @@ import { UserDrawingLayerManager } from './managers/UserDrawingLayer.manager';
 import { BackgroundLayerManager } from './managers/BackgroundLayer.manager';
 import { ViewPortEventsManager } from './managers/ViewPortEvents.manager';
 import { CursorManager } from './managers/Cursor.manager';
+import { ViewportSizeService } from '../../services/browser/viewport-size.service';
 
 @Component({
   selector: 'app-board-detail',
   standalone: true,
   imports: [TopbarComponent, ChatboxComponent, BookmarkComponent, BookmarkedComponent, UiDropdownComponent],
-  providers: [ViewPortEventsManager, UserDrawingLayerManager, CursorManager, CanvasManager, BackgroundLayerManager, KonvaObjectService],
+  providers: [
+    ViewPortEventsManager, 
+    UserDrawingLayerManager, 
+    CursorManager, 
+    CanvasManager, 
+    BackgroundLayerManager, 
+    KonvaObjectService,
+    ViewportSizeService],
   templateUrl: './board-detail.component.html',
   styleUrl: './board-detail.component.scss'
 })
@@ -52,10 +60,16 @@ export class BoardDetailComponent implements AfterViewInit {
     private _urlExtractor: UrlExtractorService, 
     private _activatedRoute: ActivatedRoute,
     private _konvaObjectService: KonvaObjectService,
+    private _viewportSizeService: ViewportSizeService,
     private _canvasManager: CanvasManager) {
     this._activatedRoute.params.subscribe(x => {
       this._urlExtractor.setBoardId(x['id']);
     });
+  }
+
+  @HostListener('window:resize')
+  public onWindowResize(e: any) {
+    this._konvaObjectService.setYOffset(this.topBar?.height ?? 0);
   }
 
   onToolSelected(id: string) {
@@ -69,9 +83,8 @@ export class BoardDetailComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this._resetTheViewPort();
+    this._viewportSizeService.blockTheWheel();
   }
-
-  
 
   private _resetTheViewPort() {
     this._konvaObjectService.initKonvaObject();
