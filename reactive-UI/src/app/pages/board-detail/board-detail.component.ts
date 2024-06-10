@@ -39,7 +39,6 @@ export class BoardDetailComponent implements AfterViewInit {
   @ViewChild('topBar')
   topBar: TopbarComponent | undefined;
   isSaved = false;
-  selectedToolId = '';
   supportedDrawingTools: DropDownItem[] = [
     {
       id: '',
@@ -67,13 +66,16 @@ export class BoardDetailComponent implements AfterViewInit {
     });
   }
 
+  get selectedToolId() {
+    return this._canvasManager.tool;
+  }
+
   @HostListener('window:resize')
   public onWindowResize(e: any) {
     this._konvaObjectService.setYOffset(this.topBar?.height ?? 0);
   }
 
   onToolSelected(id: string) {
-    this.selectedToolId = id;
     this._canvasManager?.setTool(id);
   }
 

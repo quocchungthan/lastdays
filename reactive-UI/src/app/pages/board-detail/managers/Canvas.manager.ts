@@ -15,7 +15,6 @@ import { Wheel } from '../../../../ultilities/types/Wheel';
 @Injectable()
 export class CanvasManager {
     private _viewPort!: Konva.Stage;
-    private _tool: string = '';
 
     constructor(
         _konvaObjects: KonvaObjectService, 
@@ -28,6 +27,15 @@ export class CanvasManager {
         _konvaObjects.viewPortChanges.subscribe((s) => {
             this.initiateBasedOnBackgroundStage(s, boards, _urlExtractor);
         });
+
+        _userDrawing.onDrawingToolEnd()
+            .subscribe(() => {
+                this.setTool('');
+            })
+    }
+
+    public get tool () {
+        return this._userDrawing.tool;
     }
 
     private initiateBasedOnBackgroundStage(stage: Konva.Stage, boards: BoardsService, _urlExtractor: UrlExtractorService) {
@@ -41,7 +49,7 @@ export class CanvasManager {
         });
 
         this._viewPortEvents.onTouchEnd().subscribe(() => {
-            if (!this._tool) {
+            if (!this.tool) {
                 this._cursorManager.reset();
             }
         });
@@ -53,11 +61,10 @@ export class CanvasManager {
     }
 
     public setTool(tool: string) {
-        this._tool = tool;
         this._userDrawing.setTool(tool);
         // TODO: if Tool everywhere, need an interface, and put implementations 
         // that has the same condition in one class which is instance of that interface.
-        if (!this._tool) {
+        if (!this.tool) {
             this._cursorManager.reset();
             this._viewPort.draggable(true);
 
@@ -66,11 +73,11 @@ export class CanvasManager {
 
         this._viewPort.draggable(false);
 
-        if (this._tool == StickyNoteCommands.CommandName) {
+        if (this.tool == StickyNoteCommands.CommandName) {
             this._cursorManager.reset();
         }
 
-        if (this._tool == PencilCommands.CommandName) {
+        if (this.tool == PencilCommands.CommandName) {
             this._cursorManager.pencil();
         }
     }
