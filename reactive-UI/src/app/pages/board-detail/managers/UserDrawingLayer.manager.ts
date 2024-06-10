@@ -30,6 +30,9 @@ export class UserDrawingLayerManager implements OnDestroy {
         this._drawingLayer = new Konva.Layer();
         this._pencil = new PencilCommands(this._drawingLayer);
         _konvaObjects.viewPortChanges.subscribe(s => {
+            if (s.children.some(x => x === this._drawingLayer)) {
+                return;
+            }
             this._viewPort = s;
             this._viewPort.add(this._drawingLayer);
         });
