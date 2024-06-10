@@ -29,6 +29,10 @@ export class BackgroundLayerManager {
     _middleRight: Point = { x: 0, y: 0 };
     constructor(_konvaObjects: KonvaObjectService) {
         _konvaObjects.viewPortChanges.subscribe((s) => {
+            if (s.children.some(x => x === this._backgroundLayer)) {
+                return;
+            }
+
             this._backgroundLayer = new Konva.Layer();
             s.add(this._backgroundLayer);
             this._viewPort = s;
