@@ -10,6 +10,7 @@ import { BoardsService } from '../../../services/data-storages/boards.service';
 import { UrlExtractorService } from '../../../services/browser/url-extractor.service';
 import { Injectable } from '@angular/core';
 import { KonvaObjectService } from '../../../services/3rds/konva-object.service';
+import { Wheel } from '../../../../ultilities/types/Wheel';
 
 @Injectable()
 export class CanvasManager {
@@ -43,6 +44,11 @@ export class CanvasManager {
             if (!this._tool) {
                 this._cursorManager.reset();
             }
+        });
+
+        this._viewPortEvents.onWheel().subscribe((wheelEventData) => {
+            this._background.putTheRuler();
+            this._onRequestZooming(wheelEventData);
         });
     }
 
@@ -79,5 +85,29 @@ export class CanvasManager {
     drawBackground() {
       this.originateTopLeftCorner();
       this._background.putTheRuler();
+    }
+    
+    private _onRequestZooming(wheelData: Wheel) {
+        const scaleBy = 1.01;
+        const oldScale = this._viewPort.scaleX();
+        const pointer = this._viewPort.getPointerPosition();
+
+        if (pointer === null) {
+          console.log('Pointer can\'t be null');
+          return;
+        }
+
+        const mousePointTo = {
+          x: (pointer.x - this._viewPort.x()) / oldScale,
+          y: (pointer.y - this._viewPort.y()) / oldScale,
+        };
+
+        const zoomInPercentage = wheelData.direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+        this._viewPort.scale({ x: zoomInPercentage, y: zoomInPercentage });
+        const newPos = {
+          x: pointer.x - mousePointTo.x * zoomInPercentage,
+          y: pointer.y - mousePointTo.y * zoomInPercentage,
+        };
+        this._viewPort.position(newPos);
     }
 }
