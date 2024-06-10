@@ -4,11 +4,13 @@ import { Point } from '../../../../ultilities/types/Point';
 import { isNil } from 'lodash';
 import { KonvaObjectService } from '../../../services/3rds/konva-object.service';
 import { Injectable } from '@angular/core';
+import { Wheel } from '../../../../ultilities/types/Wheel';
 
 @Injectable()
 export class ViewPortEventsManager {
     private _dragStart: Subject<Point | null>;
     private _dragEnd: Subject<Point | null>;
+    private _wheel: Subject<Wheel | null>;
     private _mouseEnter: Subject<void>;
     private _mouseOut: Subject<void>;
     private _touchStart: Subject<Point | null>;
@@ -28,6 +30,7 @@ export class ViewPortEventsManager {
         this._touchMove = new Subject<Point | null>();
         this._mouseEnter = new Subject<void>();
         this._mouseOut = new Subject<void>();
+        this._wheel = new Subject<Wheel | null>();
     }
 
     public onMouseEnter() {
@@ -38,9 +41,29 @@ export class ViewPortEventsManager {
         return this._mouseOut.asObservable();
     }
 
+    public onWheel() {
+        return this._wheel.asObservable().pipe((filter(x => !isNil(x) && !isNil(x.cursor))), map(x => x as Wheel), debounceTime(1));
+    }
+
     private _registerEventListener() {
         this._viewPort.on('dragstart', () => {
             this._dragStart.next(this._currentRelativePosition());
+        });
+
+        this._viewPort.on('wheel', (e) => {
+            // how to scale? Zoom in? Or zoom out?
+            let direction: 1 | -1 = e.evt.deltaY > 0 ? 1 : -1;
+
+            // when we zoom on trackpad, e.evt.ctrlKey is true
+            // in that case lets revert direction
+            if (e.evt.ctrlKey) {
+                direction = direction > 0 ? -1 : 1;
+            }
+
+            this._wheel.next({
+                cursor: this._currentRelativePosition(),
+                direction
+            });
         });
 
         this._viewPort.on('dragend', () => {
