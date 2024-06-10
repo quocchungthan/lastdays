@@ -74,26 +74,29 @@ export class UserDrawingLayerManager implements OnDestroy {
         }
 
         this._drawingObjects.index()
-            .then((all) => {
-                all.filter(x => x.boardId === this._boardId).map(x => x.konvaObject)
-                    .forEach(x => {
-                        if (!x) {
-                            return;
-                        }
+            .then(async (all) => {
+                for (let o of all.filter(x => x.boardId === this._boardId).map(x => x.konvaObject)) {
+                    if (!o) {
+                        continue;
+                    }
 
-                        if (typeof x === 'string') {
-                            const parsed = JSON.parse(x) as Konva.Shape;
-                            this._recoverDrawingsOnLayer(parsed);
-                        } else {
-                            this._recoverDrawingsOnLayer(x);
-                        }
-                    });
+                    if (typeof o === 'string') {
+                        const parsed = JSON.parse(o) as Konva.Shape;
+                        await this._recoverDrawingsOnLayer(parsed);
+                    } else {
+                        await this._recoverDrawingsOnLayer(o);
+                    }
+                }
             });
     }
     
-    private _recoverDrawingsOnLayer(x: Konva.Shape) {
+    private async _recoverDrawingsOnLayer(x: Konva.Shape) {
         if (x?.className === 'Line') {
             this._pencil.parseFromJson(x);
+        }
+
+        if (x?.className === 'Image') {
+            await this._stickyNote.parseFromJson(x);
         }
     }
 
@@ -131,6 +134,7 @@ export class UserDrawingLayerManager implements OnDestroy {
 
         if (this._tool === StickyNoteCommands.CommandName) {
             const brandNewDrawing = this._stickyNote.putnew();
+            brandNewDrawing?.setAttr(StickyNoteCommands.UrlAttrName, brandNewDrawing.attrs.image.currentSrc);
             this._drawingToolEnd.next();
             this._syncToDb(brandNewDrawing);
         }
