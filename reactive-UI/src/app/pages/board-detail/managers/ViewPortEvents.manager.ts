@@ -12,6 +12,7 @@ export class ViewPortEventsManager {
     private _dragEnd: Subject<Point | null>;
     private _wheel: Subject<Wheel | null>;
     private _mouseEnter: Subject<void>;
+    private _cursorMove: Subject<Point | null>;
     private _mouseOut: Subject<void>;
     private _touchStart: Subject<Point | null>;
     private _touchEnd: Subject<Point | null>;
@@ -28,6 +29,7 @@ export class ViewPortEventsManager {
         this._touchStart = new Subject<Point | null>();
         this._touchEnd = new Subject<Point | null>();
         this._touchMove = new Subject<Point | null>();
+        this._cursorMove = new Subject<Point | null>();
         this._mouseEnter = new Subject<void>();
         this._mouseOut = new Subject<void>();
         this._wheel = new Subject<Wheel | null>();
@@ -39,6 +41,10 @@ export class ViewPortEventsManager {
 
     public onMouseOut() {
         return this._mouseOut.asObservable();
+    }
+
+    public onCursorMove() {
+        return this._notNilPointsAndRemoveDuplicatedEvents(this._cursorMove.asObservable());
     }
 
     public onWheel() {
@@ -68,6 +74,10 @@ export class ViewPortEventsManager {
 
         this._viewPort.on('dragend', () => {
             this._dragEnd.next(this._currentRelativePosition());
+        });
+
+        this._viewPort.on('mousemove', () => {
+            this._cursorMove.next(this._currentRelativePosition());
         });
 
         this._viewPort.on('mouseenter', () => {

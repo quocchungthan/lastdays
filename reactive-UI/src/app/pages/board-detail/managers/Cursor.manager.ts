@@ -16,6 +16,10 @@ export class CursorManager {
         this._setCursorByStringValue('default');
     }
 
+    hide() {
+        this._setCursorByStringValue('none');
+    }
+
     private _setCursorByStringValue(value: string) {
         this._getCssBearer().style.cursor = value;
     }
