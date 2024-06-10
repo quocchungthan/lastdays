@@ -48,31 +48,32 @@ export class BackgroundLayerManager {
             points: [],
             stroke: this._theme.primary,
             // Which never change
-            strokeWidth: this._rulerSize,
+            strokeWidth: this._rulerSize * this._getScale(),
             fill: 'transparent'
         } as LineConfig
     }
 
     public putTheRuler() {
+        const scale = this._getScale();
         this._backgroundLayer.removeChildren();
         this.rulersGroup?.removeChildren();
         this._centerTop = {
             x: 0,
-            y: - this._viewPort.y()
+            y: - this._viewPort.y() * scale
         };
 
         this._centerBottom = {
             x: 0,
-            y: this._viewPort.height() - this._viewPort.y()
+            y: (this._viewPort.height() - this._viewPort.y()) * scale
         };
 
         this._middleLeft = {
-            x: - this._viewPort.x(),
+            x: - this._viewPort.x() * scale,
             y: 0
         };
 
         this._middleRight = {
-            x: this._viewPort.width() - this._viewPort.x(),
+            x: (this._viewPort.width() - this._viewPort.x()) * scale,
             y: 0
         };
 
@@ -100,6 +101,10 @@ export class BackgroundLayerManager {
         this._drawTheSteps();
     }
 
+    private _getScaledRulerDashSize() {
+        return this._rulerDashSize * this._getScale();
+    }
+
     private _drawTheSteps() {
         let iterator = 0;
         do {
@@ -117,18 +122,24 @@ export class BackgroundLayerManager {
     }
 
     private _drawSmallDashOnVerticalRuler(iterator: number, direction: number) {
+        const dashSize = this._getScaledRulerDashSize();
         const rulerStepDash = new Konva.Line({
             ...this.primaryLineDefaultConfig,
-            points: [- this._rulerDashSize, direction * iterator * this._rulerStep, this._rulerDashSize, direction * iterator * this._rulerStep]
+            points: [- dashSize, direction * iterator * this._rulerStep, dashSize, direction * iterator * this._rulerStep]
         });
         this.rulersGroup.add(rulerStepDash);
     }
 
     private _drawSmallDashOnHorizontalRuler(iterator: number, direction: number) {
+        const dashSize = this._getScaledRulerDashSize();
         const rulerStepDash = new Konva.Line({
             ...this.primaryLineDefaultConfig,
-            points: [direction * iterator * this._rulerStep, - this._rulerDashSize, direction * iterator * this._rulerStep, this._rulerDashSize]
+            points: [direction * iterator * this._rulerStep, - dashSize, direction * iterator * this._rulerStep, dashSize]
         });
         this.rulersGroup.add(rulerStepDash);
+    }
+
+    private _getScale() {
+        return 1 / this._viewPort.scaleX();
     }
 }
