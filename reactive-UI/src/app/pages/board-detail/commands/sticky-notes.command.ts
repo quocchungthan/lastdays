@@ -1,6 +1,7 @@
 import Konva from 'konva';
 import { Point } from '../../../../ultilities/types/Point';
 import { isNil } from 'lodash';
+import { Shape, ShapeConfig } from 'konva/lib/Shape';
 
 export interface StickyNote {
     navtive: Konva.Group;
@@ -8,10 +9,13 @@ export interface StickyNote {
 
 export class StickyNoteCommands {
     public static readonly CommandName = "stickynote";
+    public static readonly UrlAttrName = "stickynoteUrl";
     private readonly _standardStickyNoteSize = 200;
     private readonly _placeholderName = "PLACEHOLDER";
 
-    private readonly _stickyNotePlaceHolderName = ["STICKY_NOTE", this._placeholderName];
+    private readonly _stickyNoteName = "STICKY_NOTE";
+
+    private readonly _stickyNotePlaceHolderName = [this._stickyNoteName, this._placeholderName];
 
     constructor(private _foundation: Konva.Layer, private _drawingLayer: Konva.Layer) {
     }
@@ -27,6 +31,23 @@ export class StickyNoteCommands {
         this._drawingLayer.add(placeholder?.clone());
 
         return newKonvaObject;
+    }
+
+    parseFromJson(shape: Shape<ShapeConfig>): Promise<void> {
+        if (shape.attrs.name !== this._stickyNoteName || !shape.attrs[StickyNoteCommands.UrlAttrName]) {
+            return Promise.resolve();
+        }
+
+        return new Promise<void>((res, rej) => {
+            Konva.Image.fromURL(shape.attrs[StickyNoteCommands.UrlAttrName], (image) => {
+                this._adjustImage(image);
+                image.x(shape.attrs.x);
+                image.y(shape.attrs.y);
+                image.addName(shape.attrs.name);
+                this._drawingLayer.add(image);
+                res();
+            });
+        });
     }
 
     public select(stickyNote: StickyNote) {
@@ -48,19 +69,24 @@ export class StickyNoteCommands {
     public attachedTo(stickynote: StickyNote, anotherStickyNote: StickyNote) {
 
     }
+    
 
     public attachStickyNotePlaceholder(): Promise<Konva.Image> {
         const stickyNoteImageUrl = `/assets/stickynotes/${Math.ceil(Math.random() * 12).toString().padStart(2, "0")}.png`;
         return new Promise<Konva.Image>((res, rej) => {
             Konva.Image.fromURL(stickyNoteImageUrl, (image) => {
-                const stickyNoteRatio = image.width() / image.height();
-                image.width(this._standardStickyNoteSize);
-                image.height(this._standardStickyNoteSize / stickyNoteRatio);
+                this._adjustImage(image);
                 this._stickyNotePlaceHolderName.forEach(n => image.addName(n));
                 this._foundation.add(image);
                 res(image);
             });
         });
+    }
+
+    private _adjustImage(image: Konva.Image) {
+        const stickyNoteRatio = image.width() / image.height();
+        image.width(this._standardStickyNoteSize);
+        image.height(this._standardStickyNoteSize / stickyNoteRatio);
     }
 
     public detachPlaceholder() {
