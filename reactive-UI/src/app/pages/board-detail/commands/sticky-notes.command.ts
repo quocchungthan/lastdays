@@ -147,7 +147,7 @@ export class StickyNoteCommands {
 
     private _isIntersect(shape: Shape<ShapeConfig>, stickyNote: Konva.Group): boolean {
         const rect1 = shape.getClientRect();
-        const rect2 = stickyNote.getClientRect();
+        const rect2 = this._extractBackground(stickyNote).getClientRect();
         
         return areRectanglesIntersecting(rect1, rect2);
     }
