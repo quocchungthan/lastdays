@@ -44,6 +44,7 @@ export class StickyNoteCommands {
         return newKonvaObject;
     }
 
+    // TODO: pass id of the pencil drawing, Pencil create guid before return, syncToDb method extract id from native id.
     attachToStickyNoteAsPossible(shape: Shape<ShapeConfig>) {
         const foundStickyNoteAsBackground = this._allPastedStickyNotes().find(stickyNote => {
             return this._isIntersect(shape, stickyNote);
@@ -120,6 +121,7 @@ export class StickyNoteCommands {
             .find(x => x.hasName(stickyNoteId))!;
     }
 
+    // TODO: accept only id, stickynotes must create id before return.
     registerMovingEvent(placeholder: Group) {
         placeholder.on('dragend', (e) => {
             this._justMovedStickyNote.next(this.extractId(placeholder));
