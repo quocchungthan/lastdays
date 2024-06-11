@@ -49,6 +49,10 @@ export class PencilCommands {
     }
 
     public parseFromJson(shape: Konva.Shape) {
+        if (shape?.className !== 'Line') {
+            return undefined;
+        }
+
         const instantObject = new Konva.Line({
             fill: 'transparent',
             stroke: shape.attrs.stroke,
@@ -57,5 +61,7 @@ export class PencilCommands {
             points: shape.attrs.points
         });
         this._layer.add(instantObject);
+
+        return instantObject;
     }
 }
