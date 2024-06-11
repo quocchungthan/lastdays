@@ -12,6 +12,8 @@ import { StickyNoteCommands } from "../commands/sticky-notes.command";
 import { CursorManager } from "./Cursor.manager";
 import { isNil } from "lodash";
 import { Subject } from "rxjs";
+import { Group } from "konva/lib/Group";
+import guid from "guid";
 
 @Injectable()
 export class UserDrawingLayerManager implements OnDestroy {
@@ -39,6 +41,10 @@ export class UserDrawingLayerManager implements OnDestroy {
         this._placeholderLayer = new Konva.Layer();
         this._pencil = new PencilCommands(this._drawingLayer);
         this._stickyNote = new StickyNoteCommands(this._placeholderLayer, this._drawingLayer);
+        this._stickyNote.onStickyNoteMoved()
+            .subscribe(id => {
+                this._updateStickyNoteById(id, this._stickyNote.getStickyNoteById(id));
+            });
         _konvaObjects.viewPortChanges.subscribe(s => {
             if (s.children.some(x => x === this._drawingLayer)) {
                 return;
@@ -47,7 +53,7 @@ export class UserDrawingLayerManager implements OnDestroy {
             this._viewPort.add(this._drawingLayer);
             this._viewPort.add(this._placeholderLayer);
         });
-        
+
         this._startSubscribingEvents();
         this._urlExtractor.currentBoardIdChanges()
             .subscribe((id) => {
@@ -81,7 +87,7 @@ export class UserDrawingLayerManager implements OnDestroy {
                     }
 
                     if (typeof o === 'string') {
-                        const parsed = JSON.parse(o) as Konva.Shape;
+                        const parsed = JSON.parse(o) as Konva.Shape | Konva.Group;
                         await this._recoverDrawingsOnLayer(parsed);
                     } else {
                         await this._recoverDrawingsOnLayer(o);
@@ -90,13 +96,10 @@ export class UserDrawingLayerManager implements OnDestroy {
             });
     }
     
-    private async _recoverDrawingsOnLayer(x: Konva.Shape) {
-        if (x?.className === 'Line') {
-            this._pencil.parseFromJson(x);
-        }
-
-        if (x?.className === 'Image') {
-            await this._stickyNote.parseFromJson(x);
+    private async _recoverDrawingsOnLayer(x: Konva.Shape | Konva.Group) {
+        let insertedPencil = this._pencil.parseFromJson(x as Konva.Shape);
+        if (x?.className === 'Group' && (x.attrs.name + "").split(" ").includes(StickyNoteCommands.StickyNoteName)) {
+            await this._stickyNote.parseFromJson(x as Konva.Group);
         }
     }
 
@@ -116,46 +119,82 @@ export class UserDrawingLayerManager implements OnDestroy {
 
         this._events.onTouchEnd()
             .subscribe((p) => {
-                this._handleDrawingEnd();
+                this._pencilEnd();
+                this._stickyNoteEnd();
             });
         this._events.onMouseOut()
             .subscribe((p) => {
-                this._handleDrawingEnd();
+                this._pencilEnd();
             });
     }
 
-    private _handleDrawingEnd() {
+    private _stickyNoteEnd() {
+        if (this._tool === StickyNoteCommands.CommandName) {
+            const brandNewDrawing = this._stickyNote.putnew();
+            this._drawingToolEnd.next();
+            if (!brandNewDrawing) {
+                return;
+            }
+            this._syncToDb(brandNewDrawing)
+                .then(innsertedId => {
+                    this._stickyNote.registerMovingEvent(brandNewDrawing);
+                });
+        }
+    }
+
+    private _pencilEnd() {
         if (this._tool === PencilCommands.CommandName) {
             // TODO: Flow
             // TODO: Command via chat
             const brandNewDrawing = this._pencil.penUp();
-            this._syncToDb(brandNewDrawing);
-        }
-
-        if (this._tool === StickyNoteCommands.CommandName) {
-            const brandNewDrawing = this._stickyNote.putnew();
-            brandNewDrawing?.setAttr(StickyNoteCommands.UrlAttrName, brandNewDrawing.attrs.image.currentSrc);
-            this._drawingToolEnd.next();
-            this._syncToDb(brandNewDrawing);
+            if (!brandNewDrawing) {
+                return;
+            }
+            if (!this._stickyNote.attachToStickyNoteAsPossible(brandNewDrawing)) {
+                this._syncToDb(brandNewDrawing)
+                    .then(innsertedId => {
+                        brandNewDrawing.addName(innsertedId);
+                    });
+            } else {
+                const attachedTo = brandNewDrawing.getParent() as Konva.Group;
+                const stickyNoteId = this._stickyNote.extractId(attachedTo);
+                this._updateStickyNoteById(stickyNoteId, attachedTo);
+            }
         }
     }
-
-    private _syncToDb(brandNewDrawing?: Konva.Shape) {
-        if (isNil(brandNewDrawing)) {
+    private _updateStickyNoteById(stickyNoteId: string | undefined, attachedTo: Group) {
+        if (!stickyNoteId) {
             return;
         }
+
+       this._drawingObjects.detail(stickyNoteId)
+        .then(drawingObject => {
+            if (!drawingObject) {
+                return;
+            }
+            drawingObject.konvaObject = attachedTo;
+            this._drawingObjects.update(drawingObject);
+        });
+    }
+
+    private _syncToDb(brandNewDrawing?: Konva.Shape | Konva.Group) {
+        if (isNil(brandNewDrawing)) {
+            return Promise.resolve("");
+        }
         const newDrawingObject = new DrawingObject();
+        const guid1 = guid.create();
+        brandNewDrawing.addName(guid1);
+        newDrawingObject.id = guid1.toString();
         newDrawingObject.boardId = this._boardId;
         newDrawingObject.konvaObject = brandNewDrawing;
-        this._drawingObjects.create(newDrawingObject)
-            .then((x) => {
-                console.log('Saved', x);
-            });
+        return this._drawingObjects.create(newDrawingObject)
+            .then((x) => x.id);
     }
 
     setTool(tool: string) {
         this._tool = tool;
         this._setupSpecialCursor();
+        this._stickyNote.setDraggable(this._tool !== PencilCommands.CommandName);
     }
 
     private _setupSpecialCursor() {
@@ -165,16 +204,12 @@ export class UserDrawingLayerManager implements OnDestroy {
         }
 
         this._stickyNote.attachStickyNotePlaceholder()
-            .then((placeholder) => {
+            .then(() => {
                 this._cursor.grabbing();
                 this._events.onCursorMove()
                     .subscribe((p) => {
-                        if (!placeholder.visible()) {
-                            return;
-                        }
-
-                        placeholder.position({x: p.x - placeholder.width() / 2, y: p.y - placeholder.height() / 2});
-                    })
+                        this._stickyNote.movePlaceholder(p);
+                    });
             })
     }
 }
