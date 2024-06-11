@@ -2,6 +2,7 @@ import Konva from 'konva';
 import { Point } from '../../../../ultilities/types/Point';
 import { isNil } from 'lodash';
 import { Shape, ShapeConfig } from 'konva/lib/Shape';
+import { Image } from 'konva/lib/shapes/Image';
 
 export interface StickyNote {
     navtive: Konva.Group;
@@ -26,10 +27,9 @@ export class StickyNoteCommands {
             return undefined;
         }
         const newKonvaObject = placeholder.clone() as Konva.Image;
-        console.log(newKonvaObject);
         newKonvaObject.removeName(this._placeholderName)
-        this._drawingLayer.add(placeholder?.clone());
-
+        this._drawingLayer.add(newKonvaObject);
+        this._draggableImage(newKonvaObject);
         return newKonvaObject;
     }
 
@@ -45,6 +45,7 @@ export class StickyNoteCommands {
                 image.y(shape.attrs.y);
                 image.addName(shape.attrs.name);
                 this._drawingLayer.add(image);
+                this._draggableImage(image);
                 res();
             });
         });
@@ -69,7 +70,6 @@ export class StickyNoteCommands {
     public attachedTo(stickynote: StickyNote, anotherStickyNote: StickyNote) {
 
     }
-    
 
     public attachStickyNotePlaceholder(): Promise<Konva.Image> {
         const stickyNoteImageUrl = `/assets/stickynotes/${Math.ceil(Math.random() * 12).toString().padStart(2, "0")}.png`;
@@ -81,6 +81,10 @@ export class StickyNoteCommands {
                 res(image);
             });
         });
+    }
+
+    private _draggableImage(newKonvaObject: Image) {
+        newKonvaObject.draggable(true);
     }
 
     private _adjustImage(image: Konva.Image) {
