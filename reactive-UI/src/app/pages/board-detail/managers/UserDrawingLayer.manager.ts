@@ -11,7 +11,7 @@ import { DrawingObject } from "../../../services/data-storages/entities/DrawingO
 import { StickyNoteCommands } from "../commands/sticky-notes.command";
 import { CursorManager } from "./Cursor.manager";
 import { isNil } from "lodash";
-import { Subject } from "rxjs";
+import { Subject, debounceTime } from "rxjs";
 import { Group } from "konva/lib/Group";
 import guid from "guid";
 
@@ -56,9 +56,12 @@ export class UserDrawingLayerManager implements OnDestroy {
 
         this._startSubscribingEvents();
         this._urlExtractor.currentBoardIdChanges()
+            .pipe(debounceTime(50))
             .subscribe((id) => {
-                this._boardId = id;
-                this._loadExistingDrawings();
+                if (this._boardId !== id) {
+                    this._boardId = id;
+                    this._loadExistingDrawings();
+                }
             });
     }
 
