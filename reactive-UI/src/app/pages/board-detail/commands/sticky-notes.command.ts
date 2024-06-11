@@ -181,7 +181,7 @@ export class StickyNoteCommands {
 
     private _allPastedStickyNotes() {
         return this._drawingLayer.children.filter((o) => {
-            return o.hasName(StickyNoteCommands.StickyNoteName) && !o.hasName(this._placeholderName) && o instanceof Konva.Group;
+            return o instanceof Konva.Group && o.hasName(StickyNoteCommands.StickyNoteName) && !o.hasName(this._placeholderName);
         })
         .map(s => s as Konva.Group);
     }
