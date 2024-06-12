@@ -113,6 +113,10 @@ export class BoardDetailComponent implements AfterViewInit {
     this._konvaObjectService.setYOffset(this.topBar?.height ?? 0);
   }
 
+  notSupportColor(toolId: string) {
+    return toolId !== PencilCommands.CommandName;
+  }
+
   onToolSelected(id: string) {
     if (id === this.selectedToolId) {
       return;
