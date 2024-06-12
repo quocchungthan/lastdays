@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { UserDrawingLayerManager } from '../../pages/board-detail/managers/UserDrawingLayer.manager';
 import { AbstractEventQueueItem, PureQueue } from './EventQueue';
 import { cloneDeep } from 'lodash';
 
@@ -7,7 +6,7 @@ import { cloneDeep } from 'lodash';
 export class EventsCompositionService {
   private _queue: PureQueue = [];
 
-  constructor(private _userDrawing: UserDrawingLayerManager) { }
+  constructor() { }
 
   build(queue: PureQueue) {
     this._queue = cloneDeep(queue);
