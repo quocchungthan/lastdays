@@ -73,7 +73,10 @@ export class EventsCompositionService {
 
   insert(event: AbstractEventQueueItem) {
     this._queue.push(cloneDeep(event));
-    // TODO: draw.
+    this._handleEvent(event)
+      .then(() => {
+        console.log('handle done');
+      });
     // TODO: interact with db outside of this service
     // TODO: send notification outside of this service.
   }

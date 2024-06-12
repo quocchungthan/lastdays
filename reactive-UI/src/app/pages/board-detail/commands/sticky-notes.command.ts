@@ -9,6 +9,7 @@ import { Group } from 'konva/lib/Group';
 import { ToolCompositionService } from '../../../services/states/tool-composition.service';
 import { InkAttachedToStickyNoteEvent, StickyNoteMovedEvent, StickyNotePastedEvent } from '../../../events/drawings/EventQueue';
 import { STANDARD_STICKY_NOTE_SIZE } from '../../../configs/size';
+import { IRect } from 'konva/lib/types';
 
 export interface StickyNote {
     navtive: Konva.Group;
@@ -45,7 +46,6 @@ export class StickyNoteCommands {
         }
         const newKonvaObject = placeholder.clone() as Konva.Group;
         newKonvaObject.removeName(this._placeholderName);
-        this._drawingLayer.add(newKonvaObject);
         this._draggableImage(newKonvaObject);
         return newKonvaObject;
     }
@@ -75,6 +75,17 @@ export class StickyNoteCommands {
         this._doAttach(shape, foundStickyNoteAsBackground);
 
         return true;
+    }
+
+    getFirstCollisionStickyNoteId(shape: Shape<ShapeConfig>) {
+        const foundStickyNoteAsBackground = this._allPastedStickyNotes().find(stickyNote => {
+            return this._isIntersect(shape, stickyNote);
+        });
+        if (foundStickyNoteAsBackground) {
+            return this.extractId(foundStickyNoteAsBackground);
+        }
+
+        return null;
     }
 
     private _doAttach(shape: Shape<ShapeConfig>, foundStickyNoteAsBackground: Group) {
@@ -189,8 +200,14 @@ export class StickyNoteCommands {
 
     private _isIntersect(shape: Shape<ShapeConfig>, stickyNote: Konva.Group): boolean {
         const rect1 = shape.getClientRect();
-        const rect2 = this.extractBackground(stickyNote).getClientRect();
-        
+        const bg = this.extractBackground(stickyNote);
+        const rect2: IRect = {
+            x: stickyNote.x(),
+            y: stickyNote.y(),
+            width: bg.width(),
+            height: bg.height(),
+        }
+
         return areRectanglesIntersecting(rect1, rect2);
     }
 

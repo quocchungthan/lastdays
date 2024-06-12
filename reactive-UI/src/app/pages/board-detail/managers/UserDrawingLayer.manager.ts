@@ -53,9 +53,12 @@ export class UserDrawingLayerManager implements OnDestroy {
         this._placeholderLayer = new Konva.Layer();
         this._pencil = new PencilCommands(this._drawingLayer, _toolComposition);
         this._stickyNote = new StickyNoteCommands(this._placeholderLayer, this._drawingLayer, _toolComposition);
+        this._eventsCompositionService
+            .setPencil(this._pencil)
+            .setStickyNote(this._stickyNote);
+
         this._stickyNote.onStickyNoteMoved()
             .subscribe(id => {
-                this._updateStickyNoteById(id, this._stickyNote.getStickyNoteById(id));
                 this._triggerEventStickyNoteMoved(id);
             });
         _konvaObjects.viewPortChanges.subscribe(s => {
@@ -127,8 +130,6 @@ export class UserDrawingLayerManager implements OnDestroy {
         const all = await this._eventsService.indexAndMap(this._boardId);
         console.log(all);
         this._eventsCompositionService
-            .setPencil(this._pencil)
-            .setStickyNote(this._stickyNote)
             .build(all);
     }
 
@@ -175,10 +176,6 @@ export class UserDrawingLayerManager implements OnDestroy {
             const newId = guid.create().toString();
             brandNewDrawing.addName(newId);
             this._triggerStickyNotePastedEvent(brandNewDrawing);
-            this._syncToDb(newId, brandNewDrawing)
-                .then(innsertedId => {
-                    this._stickyNote.registerMovingEvent(brandNewDrawing);
-                });
         }
     }
 
@@ -193,16 +190,9 @@ export class UserDrawingLayerManager implements OnDestroy {
             const newId = guid.create().toString();
             brandNewDrawing.addName(newId);
             this._triggerPencilUpEvent(brandNewDrawing);
-            if (!this._stickyNote.attachToStickyNoteAsPossible(brandNewDrawing)) {
-                this._syncToDb(newId, brandNewDrawing)
-                    .then(innsertedId => {
-                        brandNewDrawing.addName(innsertedId);
-                    });
-            } else {
-                const attachedTo = brandNewDrawing.getParent() as Konva.Group;
-                const stickyNoteId = this._stickyNote.extractId(attachedTo);
+            const stickyNoteId = this._stickyNote.getFirstCollisionStickyNoteId(brandNewDrawing);
+            if (stickyNoteId) {
                 this._triggerInkAttachedToStickyNoteEvent(brandNewDrawing, stickyNoteId);
-                this._updateStickyNoteById(stickyNoteId, attachedTo);
             }
         }
     }
