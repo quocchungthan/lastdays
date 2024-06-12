@@ -1,0 +1,27 @@
+@import '../../variables';
+
+/* tool-selector.component.css */
+.tool-selector {
+    display: flex;
+    gap: 10px;
+    align-items: center; /* Ensure icons align vertically */
+  }
+  
+  .tool {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  
+  .tool img {
+    width: calc($icon_standard_size * 0.8); /* Set a fixed width for consistency */
+    height: calc($icon_standard_size * 0.8); /* Set a fixed height for consistency */
+    object-fit: contain; /* Maintain aspect ratio without stretching */
+    margin: calc($icon_standard_size * 0.1)
+  }
+
+.tool.selected {
+    border-color: black;
+  }
