@@ -5,6 +5,7 @@ import { SupportedColors } from '../../events/drawings/EventQueue';
 @Injectable()
 export class ToolCompositionService {
   private _color = PREFERED_INK_COLOR;
+  private _tool: string = '';
 
   constructor() { }
 
@@ -12,7 +13,15 @@ export class ToolCompositionService {
     return this._color;
   }
 
+  get tool() {
+    return this._tool;
+  }
+
   setColor(color: SupportedColors) {
     this._color = color;
+  }
+
+  setTool(tool: SupportedColors) {
+    this._tool = tool;
   }
 }

@@ -29,7 +29,6 @@ export class UserDrawingLayerManager implements OnDestroy {
     private _theme =  {
         primary: PRIMARY_COLOR
     }
-    private _tool: string = '';
     private _pencil!: PencilCommands;
     private _stickyNote: StickyNoteCommands;
     private _viewPort!: Konva.Stage;
@@ -87,7 +86,7 @@ export class UserDrawingLayerManager implements OnDestroy {
     }
 
     get tool() {
-        return this._tool;
+        return this._toolComposition.tool;
     }
 
     onDrawingToolEnd() {
@@ -142,13 +141,13 @@ export class UserDrawingLayerManager implements OnDestroy {
     private _startSubscribingEvents() {
         this._events.onTouchStart()
             .subscribe((p) => {
-                if (this._tool === PencilCommands.CommandName) {
+                if (this._toolComposition.tool === PencilCommands.CommandName) {
                     this._pencil.penDown(p);
                 }
             });
         this._events.onTouchMove()
             .subscribe((p) => {
-                if (this._tool === PencilCommands.CommandName) {
+                if (this._toolComposition.tool === PencilCommands.CommandName) {
                     this._pencil.penMove(p);
                 }
             });
@@ -165,7 +164,7 @@ export class UserDrawingLayerManager implements OnDestroy {
     }
 
     private _stickyNoteEnd() {
-        if (this._tool === StickyNoteCommands.CommandName) {
+        if (this._toolComposition.tool === StickyNoteCommands.CommandName) {
             const brandNewDrawing = this._stickyNote.putnew();
             this._drawingToolEnd.next();
             if (!brandNewDrawing) {
@@ -179,7 +178,7 @@ export class UserDrawingLayerManager implements OnDestroy {
     }
 
     private _pencilEnd() {
-        if (this._tool === PencilCommands.CommandName) {
+        if (this._toolComposition.tool === PencilCommands.CommandName) {
             // TODO: Flow
             // TODO: Command via chat
             const brandNewDrawing = this._pencil.penUp();
@@ -281,13 +280,13 @@ export class UserDrawingLayerManager implements OnDestroy {
     }
 
     setTool(tool: string) {
-        this._tool = tool;
+        this._toolComposition.setTool(tool);
         this._setupSpecialCursor();
-        this._stickyNote.setDraggable(this._tool !== PencilCommands.CommandName);
+        this._stickyNote.setDraggable(this._toolComposition.tool !== PencilCommands.CommandName);
     }
 
     private _setupSpecialCursor() {
-        if (this._tool !== StickyNoteCommands.CommandName) {
+        if (this._toolComposition.tool !== StickyNoteCommands.CommandName) {
             this._stickyNote.detachPlaceholder();
             return;
         }
