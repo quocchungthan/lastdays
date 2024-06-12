@@ -125,6 +125,7 @@ export class UserDrawingLayerManager implements OnDestroy {
     
     private async _loadDrawingObjectsAsync() {
         const all = await this._eventsService.indexAndMap(this._boardId);
+        console.log(all);
         this._eventsCompositionService
             .setPencil(this._pencil)
             .setStickyNote(this._stickyNote)
@@ -250,7 +251,7 @@ export class UserDrawingLayerManager implements OnDestroy {
         const event = new PencilUpEvent();
         event.targetId = this._pencil.extractId(brandNewDrawing);
         event.boardId = this._boardId;
-        event.points = brandNewDrawing.points();
+        event.points = [...brandNewDrawing.points()];
         event.color = brandNewDrawing.stroke();
         event.width = brandNewDrawing.strokeWidth();
 
