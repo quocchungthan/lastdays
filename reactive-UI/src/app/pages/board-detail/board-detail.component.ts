@@ -30,6 +30,7 @@ import { ToolCompositionService } from '../../services/states/tool-composition.s
 import { ColorBoardComponent } from '../../../ultilities/painting/color-board/color-board.component';
 import { Tool, ToolSelectorComponent } from '../../../ultilities/painting/tool-selector/tool-selector.component';
 import { TOOL_ICON_FOLDER } from '../../configs/paths.constant';
+import { EventsCompositionService } from '../../events/drawings/events-composition.service';
 
 @Component({
   selector: 'app-board-detail',
@@ -52,6 +53,7 @@ import { TOOL_ICON_FOLDER } from '../../configs/paths.constant';
     KonvaObjectService,
     ViewportSizeService,
     ToolCompositionService,
+    EventsCompositionService
   ],
   templateUrl: './board-detail.component.html',
   styleUrl: './board-detail.component.scss',
@@ -115,7 +117,7 @@ export class BoardDetailComponent implements AfterViewInit {
     if (id === this.selectedToolId) {
       return;
     }
-    
+
     this._canvasManager?.setTool(id);
   }
 

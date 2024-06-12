@@ -18,6 +18,10 @@ export class PencilCommands {
     constructor(private _layer: Konva.Layer, private _toolComposition: ToolCompositionService) {
     }
 
+    extractId(stickyNote: Konva.Line) {
+        return stickyNote.name().split(" ").find(x => x !== "") ?? "";
+    }
+
     // Inteface common between the commands that matches the Events manager so that's make code much more simple, less switch case.
     public penDown(position: Point) {
         if (this._currentObject) {

@@ -80,12 +80,12 @@ export class StickyNoteCommands {
             return;
         }
 
-        const background = this._extractBackground(placeholder);
+        const background = this.extractBackground(placeholder);
         // only background has size
         placeholder.position({x: p.x - background.width() / 2, y: p.y - background.height() / 2});
     }
 
-    private _extractBackground(placeholder: Konva.Group) {
+    extractBackground(placeholder: Konva.Group) {
         return placeholder.children.find(x => x instanceof Konva.Image)!;
     }
 
@@ -153,7 +153,7 @@ export class StickyNoteCommands {
 
     private _isIntersect(shape: Shape<ShapeConfig>, stickyNote: Konva.Group): boolean {
         const rect1 = shape.getClientRect();
-        const rect2 = this._extractBackground(stickyNote).getClientRect();
+        const rect2 = this.extractBackground(stickyNote).getClientRect();
         
         return areRectanglesIntersecting(rect1, rect2);
     }
