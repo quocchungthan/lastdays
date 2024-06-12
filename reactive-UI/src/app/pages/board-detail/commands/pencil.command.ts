@@ -49,6 +49,7 @@ export class PencilCommands {
 
     public penUp() {
         const toBeSaved = this._currentObject;
+        this._currentObject?.destroy();
         this._currentObject = undefined;
 
         return toBeSaved;
