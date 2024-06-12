@@ -17,7 +17,7 @@ import guid from "guid";
 import { ToolCompositionService } from "../../../services/states/tool-composition.service";
 import { EventsCompositionService } from "../../../events/drawings/events-composition.service";
 import { Line, LineConfig } from "konva/lib/shapes/Line";
-import { AbstractEventQueueItem, BaseEvent, InkAttachedToStickyNoteEvent, PencilUpEvent, StickyNoteMovedEvent, StickyNotePastedEvent } from "../../../events/drawings/EventQueue";
+import { AbstractEventQueueItem, BaseEvent, GeneralUndoEvent, InkAttachedToStickyNoteEvent, PencilUpEvent, StickyNoteMovedEvent, StickyNotePastedEvent } from "../../../events/drawings/EventQueue";
 import { EventsService } from "../../../services/data-storages/events.service";
 import { SyncingService } from "../../../events/drawings/syncing.service";
 import { KeysService } from "../../../services/browser/keys.service";
@@ -82,7 +82,7 @@ export class UserDrawingLayerManager implements OnDestroy {
 
         this._keys.onUndo()
             .subscribe(() => {
-                alert('undo');
+                this._triggerUndoEvent();
             })
     }
 
@@ -202,6 +202,12 @@ export class UserDrawingLayerManager implements OnDestroy {
         event.targetId = id;
         event.boardId = this._boardId;
         event.newPosition = stickyNote.position();
+        this._generallyProcessNewEvent(event);
+    }
+    
+    private _triggerUndoEvent() {
+        const event = new GeneralUndoEvent();
+        event.boardId = this._boardId;
         this._generallyProcessNewEvent(event);
     }
 

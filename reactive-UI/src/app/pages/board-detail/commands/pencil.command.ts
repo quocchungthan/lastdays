@@ -24,6 +24,12 @@ export class PencilCommands {
         return stickyNote.name().split(" ").find(x => x !== "") ?? "";
     }
 
+    clearAll() {
+        // TODO: this remove the sticky notes and other components as well, consider to move this to more general place
+        // TODO: maybe Eraser
+        this._layer.removeChildren();
+    }
+
     // Inteface common between the commands that matches the Events manager so that's make code much more simple, less switch case.
     public penDown(position: Point) {
         if (this._currentObject) {
