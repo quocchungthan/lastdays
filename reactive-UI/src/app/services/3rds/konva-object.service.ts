@@ -25,6 +25,7 @@ export class KonvaObjectService {
   public setYOffset(offsetInPixel: number) {
     this._yOffset = offsetInPixel;
     this._viewPort.getValue()?.height(window.innerHeight - this._yOffset - this._scrollBarHeight);
+    this._viewPort.getValue()?.width(window.innerWidth);
     this._viewPort.next(this._viewPort.getValue());
   }
 
