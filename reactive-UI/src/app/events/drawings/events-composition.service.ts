@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { AbstractEventQueueItem, BoardedCreatedEvent, InkAttachedToStickyNoteEvent, PencilUpEvent, PureQueue, StickyNoteMovedEvent, StickyNotePastedEvent } from './EventQueue';
+import { AbstractEventQueueItem, BoardedCreatedEvent, GeneralUndoEvent, InkAttachedToStickyNoteEvent, PencilUpEvent, PureQueue, StickyNoteMovedEvent, StickyNotePastedEvent } from './EventQueue';
 import { cloneDeep } from 'lodash';
 import { PencilCommands } from '../../pages/board-detail/commands/pencil.command';
 import { StickyNoteCommands } from '../../pages/board-detail/commands/sticky-notes.command';
+import { EventCode } from './EventCode';
 
 @Injectable()
 export class EventsCompositionService {
@@ -26,11 +27,28 @@ export class EventsCompositionService {
   }
 
   build(queue: PureQueue) {
-    this._queue = cloneDeep(queue);
+    this._queue = [];
+    queue.forEach(element => {
+      if (element instanceof GeneralUndoEvent) {
+        this._rollbackOneAction();
+
+        return;
+      }
+
+      this._queue.push(cloneDeep(element));
+    });
+
     this._forAsync()
       .then(() => {
         console.log("Build done");
       });
+  }
+
+  private _rollbackOneAction() {
+    var last = this._queue.pop();
+    if (last?.code === EventCode.InkAttachedToStickyNote) {
+      this._queue.pop();
+    }
   }
 
   private async _forAsync() {
@@ -72,11 +90,24 @@ export class EventsCompositionService {
   }
 
   insert(event: AbstractEventQueueItem) {
-    this._queue.push(cloneDeep(event));
-    this._handleEvent(event)
-      .then(() => {
-        console.log('handle done');
-      });
+    if (event instanceof GeneralUndoEvent) {
+      if (this._queue.length < 2) {
+        return;
+      }
+
+      this._rollbackOneAction();
+      this._pencil.clearAll();
+      this._forAsync()
+        .then(() => {
+          console.log("Build done");
+        });
+    } else {
+      this._queue.push(cloneDeep(event));
+      this._handleEvent(event)
+        .then(() => {
+          console.log('handle done');
+        });
+    }
     // TODO: interact with db outside of this service
     // TODO: send notification outside of this service.
   }

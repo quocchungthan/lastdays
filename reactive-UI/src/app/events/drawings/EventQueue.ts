@@ -138,3 +138,20 @@ export class StickyNoteMovedEvent extends BaseEvent implements AbstractEventQueu
         this.newPosition = itself.newPosition;
     }
 }
+
+export class GeneralUndoEvent extends BaseEvent implements AbstractEventQueueItem {
+    code: EventCode = EventCode.GENERAL_UNDO;
+    targetId: string = '';
+    
+    constructor();
+    constructor(itself: GeneralUndoEvent);
+
+    constructor(itself?: GeneralUndoEvent) {
+        super(itself);
+        if (!itself) {
+            return;
+        }
+        this.code = itself.code;
+        this.targetId = itself.targetId;
+    }
+}
