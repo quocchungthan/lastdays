@@ -1,4 +1,5 @@
 /* color-board.component.css */
+@import '../../variables';
 
 .color-board {
     display: flex;
@@ -6,8 +7,8 @@
   }
   
   .color-box {
-    width: 20px;
-    height: 20px;
+    width: $icon_standard_size;
+    height: $icon_standard_size;
     cursor: pointer;
   }
   

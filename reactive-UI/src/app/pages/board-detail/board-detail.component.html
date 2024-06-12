@@ -1,6 +1,6 @@
 <topbar #topBar>
     <div class="flex justify-between">
-        <ui-dropdown (itemSelected)="onToolSelected($event)" [selectedId]="selectedToolId" [items]="supportedDrawingTools" label="Tools"></ui-dropdown>
+        <tool-selector [selectedToolId]="this.selectedToolId" [tools]="supportedDrawingTools" (toolSelected)="onToolSelected($event)"></tool-selector>
         <color-board (colorSelected)="setColor($event)" [selectedColor]="selectedColor"></color-board>
 
         @if (isSaved) {

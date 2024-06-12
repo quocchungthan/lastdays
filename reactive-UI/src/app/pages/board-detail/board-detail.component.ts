@@ -1,11 +1,20 @@
-import { AfterViewInit, Component, HostListener, OnDestroy, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  HostListener,
+  OnDestroy,
+  ViewChild,
+} from '@angular/core';
 import { TopbarComponent } from '../../../ultilities/layout/topbar/topbar.component';
 import { KONVA_CONTAINER } from '../../configs/html-ids.constants';
 import { CanvasManager } from './managers/Canvas.manager';
 import { ChatboxComponent } from '../../../ultilities/chat/chatbox/chatbox.component';
 import { BookmarkComponent } from '../../../ultilities/icons/bookmark/bookmark.component';
 import { BookmarkedComponent } from '../../../ultilities/icons/bookmarked/bookmarked.component';
-import { DropDownItem, UiDropdownComponent } from '../../../ultilities/controls/ui-dropdown/ui-dropdown.component';
+import {
+  DropDownItem,
+  UiDropdownComponent,
+} from '../../../ultilities/controls/ui-dropdown/ui-dropdown.component';
 import { StickyNoteCommands } from './commands/sticky-notes.command';
 import { PencilCommands } from './commands/pencil.command';
 import { BoardsService } from '../../services/data-storages/boards.service';
@@ -19,22 +28,33 @@ import { CursorManager } from './managers/Cursor.manager';
 import { ViewportSizeService } from '../../services/browser/viewport-size.service';
 import { ToolCompositionService } from '../../services/states/tool-composition.service';
 import { ColorBoardComponent } from '../../../ultilities/painting/color-board/color-board.component';
+import { Tool, ToolSelectorComponent } from '../../../ultilities/painting/tool-selector/tool-selector.component';
+import { TOOL_ICON_FOLDER } from '../../configs/paths.constant';
 
 @Component({
   selector: 'app-board-detail',
   standalone: true,
-  imports: [TopbarComponent, ChatboxComponent, BookmarkComponent, BookmarkedComponent, UiDropdownComponent, ColorBoardComponent],
+  imports: [
+    TopbarComponent,
+    ChatboxComponent,
+    BookmarkComponent,
+    BookmarkedComponent,
+    UiDropdownComponent,
+    ColorBoardComponent,
+    ToolSelectorComponent
+  ],
   providers: [
-    ViewPortEventsManager, 
-    UserDrawingLayerManager, 
-    CursorManager, 
-    CanvasManager, 
-    BackgroundLayerManager, 
+    ViewPortEventsManager,
+    UserDrawingLayerManager,
+    CursorManager,
+    CanvasManager,
+    BackgroundLayerManager,
     KonvaObjectService,
     ViewportSizeService,
-    ToolCompositionService],
+    ToolCompositionService,
+  ],
   templateUrl: './board-detail.component.html',
-  styleUrl: './board-detail.component.scss'
+  styleUrl: './board-detail.component.scss',
 })
 export class BoardDetailComponent implements AfterViewInit {
   KONVA_CONTAINER = KONVA_CONTAINER;
@@ -42,30 +62,34 @@ export class BoardDetailComponent implements AfterViewInit {
   @ViewChild('topBar')
   topBar: TopbarComponent | undefined;
   isSaved = false;
-  supportedDrawingTools: DropDownItem[] = [
+  supportedDrawingTools: Tool[] = [
     {
       id: '',
-      name: "Move"
+      label: 'Move',
+      iconUrl: `${TOOL_ICON_FOLDER}grab.png`
     },
     {
       id: StickyNoteCommands.CommandName,
-      name: "Sticky note"
+      label: 'Sticky note',
+      iconUrl: `${TOOL_ICON_FOLDER}sticky-note.png`
     },
     {
       id: PencilCommands.CommandName,
-      name: "Pencil"
-    }
+      label: 'Pencil',
+      iconUrl: `${TOOL_ICON_FOLDER}pencil.png`
+    },
   ];
 
   constructor(
-    private _boards: BoardsService, 
-    private _urlExtractor: UrlExtractorService, 
+    private _boards: BoardsService,
+    private _urlExtractor: UrlExtractorService,
     private _activatedRoute: ActivatedRoute,
     private _konvaObjectService: KonvaObjectService,
     private _viewportSizeService: ViewportSizeService,
     private _canvasManager: CanvasManager,
-    private _toolCompositionService: ToolCompositionService) {
-    this._activatedRoute.params.subscribe(x => {
+    private _toolCompositionService: ToolCompositionService
+  ) {
+    this._activatedRoute.params.subscribe((x) => {
       this._urlExtractor.setBoardId(x['id']);
     });
   }
@@ -88,6 +112,10 @@ export class BoardDetailComponent implements AfterViewInit {
   }
 
   onToolSelected(id: string) {
+    if (id === this.selectedToolId) {
+      return;
+    }
+    
     this._canvasManager?.setTool(id);
   }
 
@@ -103,9 +131,8 @@ export class BoardDetailComponent implements AfterViewInit {
   private _resetTheViewPort() {
     this._konvaObjectService.initKonvaObject();
     this._konvaObjectService.setYOffset(this.topBar?.height ?? 0);
-    this._konvaObjectService.viewPortChanges
-      .subscribe(() => {
-        this._canvasManager.drawBackground();
-      });
+    this._konvaObjectService.viewPortChanges.subscribe(() => {
+      this._canvasManager.drawBackground();
+    });
   }
 }
