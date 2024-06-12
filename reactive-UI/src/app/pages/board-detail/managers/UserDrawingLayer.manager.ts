@@ -20,6 +20,7 @@ import { Line, LineConfig } from "konva/lib/shapes/Line";
 import { AbstractEventQueueItem, BaseEvent, InkAttachedToStickyNoteEvent, PencilUpEvent, StickyNoteMovedEvent, StickyNotePastedEvent } from "../../../events/drawings/EventQueue";
 import { EventsService } from "../../../services/data-storages/events.service";
 import { SyncingService } from "../../../events/drawings/syncing.service";
+import { KeysService } from "../../../services/browser/keys.service";
 
 @Injectable()
 export class UserDrawingLayerManager implements OnDestroy {
@@ -46,7 +47,8 @@ export class UserDrawingLayerManager implements OnDestroy {
         private _toolComposition: ToolCompositionService,
         private _eventsCompositionService: EventsCompositionService,
         private _eventsService: EventsService,
-        private _syncingService: SyncingService) {
+        private _syncingService: SyncingService,
+        private _keys: KeysService) {
         this._drawingLayer = new Konva.Layer();
         this._placeholderLayer = new Konva.Layer();
         this._pencil = new PencilCommands(this._drawingLayer, _toolComposition);
@@ -74,6 +76,11 @@ export class UserDrawingLayerManager implements OnDestroy {
                     this._loadExistingDrawings();
                 }
             });
+
+        this._keys.onUndo()
+            .subscribe(() => {
+                alert('undo');
+            })
     }
 
     get tool() {

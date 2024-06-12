@@ -1,21 +1,25 @@
 import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs/internal/Subject';
 
 @Injectable({
   providedIn: 'root'
 })
 export class KeysService {
+  private _undo = new Subject<void>();
 
-  constructor() { }
-
-  onUndo() {
+  constructor() {
     // TODO: subscribe subject
-    document.addEventListener('keydown', function(event) {
+    document.addEventListener('keydown', (event) => {
       // Check if Ctrl+Z (Cmd+Z for Mac) is pressed
       if (event.ctrlKey && (event.key === 'z' || event.key === 'Z')) {
         // Prevent the default behavior (undo)
         event.preventDefault();
-        console.log("Ctrl+Z prevented!");
+        this._undo.next();
       }
     });
+   }
+
+  onUndo() {
+    return this._undo.asObservable();
   }
 }
