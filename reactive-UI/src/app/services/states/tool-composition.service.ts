@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { PREFERED_INK_COLOR, SUPPORTED_COLORS } from '../../configs/theme.constants';
-
-type SupportedColors = typeof SUPPORTED_COLORS[number];
+import { SupportedColors } from '../../events/drawings/EventQueue';
 
 @Injectable()
 export class ToolCompositionService {
