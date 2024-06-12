@@ -102,23 +102,35 @@ export class UserDrawingLayerManager implements OnDestroy {
 
         // TODO: feed the composition.build method here
         // this._eventsCompositionService.build()
-        this._drawingObjects.index()
-            .then(async (all) => {
-                for (let o of all.filter(x => x.boardId === this._boardId).map(x => x.konvaObject)) {
-                    if (!o) {
-                        continue;
-                    }
-
-                    if (typeof o === 'string') {
-                        const parsed = JSON.parse(o) as Konva.Shape | Konva.Group;
-                        await this._recoverDrawingsOnLayer(parsed);
-                    } else {
-                        await this._recoverDrawingsOnLayer(o);
-                    }
-                }
+        this._loadDrawingObjectsAsync()
+            .then(() => {
+                console.log('loaded');
             });
+        // this._drawingObjects.index()
+        //     .then(async (all) => {
+        //         for (let o of all.filter(x => x.boardId === this._boardId).map(x => x.konvaObject)) {
+        //             if (!o) {
+        //                 continue;
+        //             }
+
+        //             if (typeof o === 'string') {
+        //                 const parsed = JSON.parse(o) as Konva.Shape | Konva.Group;
+        //                 await this._recoverDrawingsOnLayer(parsed);
+        //             } else {
+        //                 await this._recoverDrawingsOnLayer(o);
+        //             }
+        //         }
+        //     });
     }
     
+    private async _loadDrawingObjectsAsync() {
+        const all = await this._eventsService.indexAndMap(this._boardId);
+        this._eventsCompositionService
+            .setPencil(this._pencil)
+            .setStickyNote(this._stickyNote)
+            .build(all);
+    }
+
     private async _recoverDrawingsOnLayer(x: Konva.Shape | Konva.Group) {
         let insertedPencil = this._pencil.parseFromJson(x as Konva.Shape);
         if (x?.className === 'Group' && (x.attrs.name + "").split(" ").includes(StickyNoteCommands.StickyNoteName)) {

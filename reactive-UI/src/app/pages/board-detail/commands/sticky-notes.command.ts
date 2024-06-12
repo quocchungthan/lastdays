@@ -7,6 +7,8 @@ import { PencilCommands } from './pencil.command';
 import { Subject } from 'rxjs';
 import { Group } from 'konva/lib/Group';
 import { ToolCompositionService } from '../../../services/states/tool-composition.service';
+import { InkAttachedToStickyNoteEvent, StickyNoteMovedEvent, StickyNotePastedEvent } from '../../../events/drawings/EventQueue';
+import { STANDARD_STICKY_NOTE_SIZE } from '../../../configs/size';
 
 export interface StickyNote {
     navtive: Konva.Group;
@@ -15,7 +17,7 @@ export interface StickyNote {
 export class StickyNoteCommands {
     public static readonly CommandName = "stickynote";
     public static readonly BackgroundUrlAttrName = "stickynoteUrl";
-    private readonly _standardStickyNoteSize = 200;
+    private readonly _standardStickyNoteSize = STANDARD_STICKY_NOTE_SIZE;
     private readonly _placeholderName = "PLACEHOLDER";
     public static StickyNoteName = "STICKY_NOTE";
     public static StickyNoteBackgroundName = "STICKY_NOTE_BACKGROUND";
@@ -48,6 +50,19 @@ export class StickyNoteCommands {
         return newKonvaObject;
     }
 
+    
+    attachInkToStickyNote(event: InkAttachedToStickyNoteEvent) {
+        const stickyNote = this.getStickyNoteById(event.targetStickyNoteId);
+        const ink = this._internalPencil.getInkById(event.targetId);
+
+        this._doAttach(ink, stickyNote);
+    }
+
+    moveStickyNote(event: StickyNoteMovedEvent) {
+        this.getStickyNoteById(event.targetId)
+            .position(event.newPosition);
+    }
+
     // TODO: pass id of the pencil drawing, Pencil create guid before return, syncToDb method extract id from native id.
     attachToStickyNoteAsPossible(shape: Shape<ShapeConfig>) {
         const foundStickyNoteAsBackground = this._allPastedStickyNotes().find(stickyNote => {
@@ -57,17 +72,21 @@ export class StickyNoteCommands {
         if (isNil(foundStickyNoteAsBackground)) {
             return false;
         }
+        this._doAttach(shape, foundStickyNoteAsBackground);
+
+        return true;
+    }
+
+    private _doAttach(shape: Shape<ShapeConfig>, foundStickyNoteAsBackground: Group) {
         if (shape instanceof Konva.Line) {
             const shapePointsWithinStickyNote = shape.points();
             for (let i = 0; i < shapePointsWithinStickyNote.length; i += 2) {
                 shapePointsWithinStickyNote[i] -= foundStickyNoteAsBackground.x();
                 shapePointsWithinStickyNote[i + 1] -= foundStickyNoteAsBackground.y();
             }
-            shape.points(shapePointsWithinStickyNote)
+            shape.points(shapePointsWithinStickyNote);
         }
         foundStickyNoteAsBackground.add(shape);
-
-        return true;
     }
 
     public movePlaceholder(p: Point) {
@@ -88,6 +107,23 @@ export class StickyNoteCommands {
     extractBackground(placeholder: Konva.Group) {
         return placeholder.children.find(x => x instanceof Konva.Image)!;
     }
+
+    parseFromEvent(event: StickyNotePastedEvent): Promise<void> {
+        return new Promise<void>((res, rej) => {
+            Konva.Image.fromURL(event.backgroundUrl, (image) => {
+                var placeholder = this._adjustImage(image);
+                placeholder.x(event.position.x);
+                placeholder.y(event.position.y);
+                placeholder.addName(StickyNoteCommands.StickyNoteName);
+                placeholder.addName(event.targetId);
+                this._drawingLayer.add(placeholder);
+                this._draggableImage(placeholder);
+                this.registerMovingEvent(placeholder);
+                res();
+            });
+        });
+    }
+    
 
     parseFromJson(shape: Konva.Group): Promise<void> {
         if (!(shape.attrs.name + "").includes(StickyNoteCommands.StickyNoteName) || !shape.attrs[StickyNoteCommands.BackgroundUrlAttrName]) {
