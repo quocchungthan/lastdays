@@ -1,6 +1,8 @@
 <topbar #topBar>
     <div class="flex justify-between">
         <ui-dropdown (itemSelected)="onToolSelected($event)" [selectedId]="selectedToolId" [items]="supportedDrawingTools" label="Tools"></ui-dropdown>
+        <color-board (colorSelected)="setColor($event)" [selectedColor]="selectedColor"></color-board>
+
         @if (isSaved) {
             <icon-bookmarked style="cursor: pointer" (click)="toggleSavedStatus()"></icon-bookmarked>
         } @else {
