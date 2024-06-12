@@ -1,5 +1,5 @@
-<topbar #topBar>
-    <div class="flex justify-between">
+<topbar #topBar size="minimal">
+    <div class="flex justify-between bg-white">
         <tool-selector [selectedToolId]="this.selectedToolId" [tools]="supportedDrawingTools" (toolSelected)="onToolSelected($event)"></tool-selector>
         <color-board (colorSelected)="setColor($event)" [selectedColor]="selectedColor"></color-board>
 
