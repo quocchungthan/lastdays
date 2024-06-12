@@ -128,7 +128,7 @@ export class StickyNoteCommands {
                 placeholder.addName(StickyNoteCommands.StickyNoteName);
                 placeholder.addName(event.targetId);
                 this._drawingLayer.add(placeholder);
-                this._draggableImage(placeholder);
+                this.setDraggable(this._toolComposition.tool !== PencilCommands.CommandName);
                 this.registerMovingEvent(placeholder);
                 res();
             });
