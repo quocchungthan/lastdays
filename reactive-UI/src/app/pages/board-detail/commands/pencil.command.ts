@@ -1,6 +1,7 @@
 import Konva from 'konva';
 import { Point } from '../../../../ultilities/types/Point';
 import { ToolCompositionService } from '../../../services/states/tool-composition.service';
+import { STROKE_WIDTH } from '../../../configs/size';
 
 export interface StickyNote {
     navtive: Konva.Group;
@@ -9,7 +10,7 @@ export interface StickyNote {
 export class PencilCommands {
     public static readonly CommandName = "pencil";
     private _currentObject?: Konva.Line;
-    private _size = 4;
+    private _size = STROKE_WIDTH;
 
     /**
      *

@@ -1,6 +1,6 @@
 import { Dimension } from "../../../ultilities/types/Dimension";
 import { Point } from "../../../ultilities/types/Point";
-import { STANDARD_STICKY_NOTE_SIZE } from "../../configs/size";
+import { STANDARD_STICKY_NOTE_SIZE, STROKE_WIDTH } from "../../configs/size";
 import { PREFERED_INK_COLOR, SUPPORTED_COLORS } from "../../configs/theme.constants";
 import { BaseEntity } from "../../services/data-storages/entities/Base.entity";
 import { Board } from "../../services/data-storages/entities/Board";
@@ -31,7 +31,7 @@ export class PencilUpEvent extends BaseEvent implements AbstractEventQueueItem {
     targetId: string = '';
     points: number[] = [];
     color: SupportedColors = PREFERED_INK_COLOR;
-    width: number = 4;
+    width: number = STROKE_WIDTH;
 }
 
 export class StickyNotePastedEvent extends BaseEvent implements AbstractEventQueueItem {
