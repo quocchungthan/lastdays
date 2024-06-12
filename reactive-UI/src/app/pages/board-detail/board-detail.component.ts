@@ -17,11 +17,13 @@ import { BackgroundLayerManager } from './managers/BackgroundLayer.manager';
 import { ViewPortEventsManager } from './managers/ViewPortEvents.manager';
 import { CursorManager } from './managers/Cursor.manager';
 import { ViewportSizeService } from '../../services/browser/viewport-size.service';
+import { ToolCompositionService } from '../../services/states/tool-composition.service';
+import { ColorBoardComponent } from '../../../ultilities/painting/color-board/color-board.component';
 
 @Component({
   selector: 'app-board-detail',
   standalone: true,
-  imports: [TopbarComponent, ChatboxComponent, BookmarkComponent, BookmarkedComponent, UiDropdownComponent],
+  imports: [TopbarComponent, ChatboxComponent, BookmarkComponent, BookmarkedComponent, UiDropdownComponent, ColorBoardComponent],
   providers: [
     ViewPortEventsManager, 
     UserDrawingLayerManager, 
@@ -29,7 +31,8 @@ import { ViewportSizeService } from '../../services/browser/viewport-size.servic
     CanvasManager, 
     BackgroundLayerManager, 
     KonvaObjectService,
-    ViewportSizeService],
+    ViewportSizeService,
+    ToolCompositionService],
   templateUrl: './board-detail.component.html',
   styleUrl: './board-detail.component.scss'
 })
@@ -60,7 +63,8 @@ export class BoardDetailComponent implements AfterViewInit {
     private _activatedRoute: ActivatedRoute,
     private _konvaObjectService: KonvaObjectService,
     private _viewportSizeService: ViewportSizeService,
-    private _canvasManager: CanvasManager) {
+    private _canvasManager: CanvasManager,
+    private _toolCompositionService: ToolCompositionService) {
     this._activatedRoute.params.subscribe(x => {
       this._urlExtractor.setBoardId(x['id']);
     });
@@ -68,6 +72,14 @@ export class BoardDetailComponent implements AfterViewInit {
 
   get selectedToolId() {
     return this._canvasManager.tool;
+  }
+
+  get selectedColor() {
+    return this._toolCompositionService.color;
+  }
+
+  setColor(value: string) {
+    this._toolCompositionService.setColor(value);
   }
 
   @HostListener('window:resize')

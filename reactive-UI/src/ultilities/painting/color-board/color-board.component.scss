@@ -1,0 +1,17 @@
+/* color-board.component.css */
+
+.color-board {
+    display: flex;
+    gap: 5px;
+  }
+  
+  .color-box {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+  }
+  
+  .selected {
+    border: 1px solid black;
+  }
+  

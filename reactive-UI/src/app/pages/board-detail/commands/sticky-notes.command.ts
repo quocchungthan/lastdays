@@ -6,6 +6,7 @@ import { areRectanglesIntersecting } from '../../../../ultilities/mathematicals/
 import { PencilCommands } from './pencil.command';
 import { Subject } from 'rxjs';
 import { Group } from 'konva/lib/Group';
+import { ToolCompositionService } from '../../../services/states/tool-composition.service';
 
 export interface StickyNote {
     navtive: Konva.Group;
@@ -24,8 +25,11 @@ export class StickyNoteCommands {
     private _internalPencil: PencilCommands;
     private _justMovedStickyNote = new Subject<string>();
 
-    constructor(private _foundation: Konva.Layer, private _drawingLayer: Konva.Layer) {
-        this._internalPencil = new PencilCommands(this._drawingLayer);
+    constructor(
+        private _foundation: Konva.Layer, 
+        private _drawingLayer: Konva.Layer,
+        private _toolComposition: ToolCompositionService) {
+        this._internalPencil = new PencilCommands(this._drawingLayer, _toolComposition);
     }
 
     public onStickyNoteMoved() {

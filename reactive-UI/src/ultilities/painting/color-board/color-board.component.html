@@ -1,0 +1,6 @@
+<!-- color-board.component.html -->
+
+<div class="color-board">
+    <div *ngFor="let color of colors" [class.selected]="isSelected(color)" class="color-box" [style.background-color]="color" (click)="selectColor(color)"></div>
+  </div>
+  

@@ -14,6 +14,7 @@ import { isNil } from "lodash";
 import { Subject, debounceTime } from "rxjs";
 import { Group } from "konva/lib/Group";
 import guid from "guid";
+import { ToolCompositionService } from "../../../services/states/tool-composition.service";
 
 @Injectable()
 export class UserDrawingLayerManager implements OnDestroy {
@@ -36,11 +37,12 @@ export class UserDrawingLayerManager implements OnDestroy {
         private boards: BoardsService,
         private _cursor: CursorManager,
         private _urlExtractor: UrlExtractorService,
-        private _drawingObjects: DrawingObjectService) {
+        private _drawingObjects: DrawingObjectService,
+        private _toolComposition: ToolCompositionService) {
         this._drawingLayer = new Konva.Layer();
         this._placeholderLayer = new Konva.Layer();
-        this._pencil = new PencilCommands(this._drawingLayer);
-        this._stickyNote = new StickyNoteCommands(this._placeholderLayer, this._drawingLayer);
+        this._pencil = new PencilCommands(this._drawingLayer, _toolComposition);
+        this._stickyNote = new StickyNoteCommands(this._placeholderLayer, this._drawingLayer, _toolComposition);
         this._stickyNote.onStickyNoteMoved()
             .subscribe(id => {
                 this._updateStickyNoteById(id, this._stickyNote.getStickyNoteById(id));

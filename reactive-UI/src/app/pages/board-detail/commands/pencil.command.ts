@@ -1,6 +1,6 @@
 import Konva from 'konva';
 import { Point } from '../../../../ultilities/types/Point';
-import { PREFERED_INK_COLOR } from '../../../configs/theme.constants';
+import { ToolCompositionService } from '../../../services/states/tool-composition.service';
 
 export interface StickyNote {
     navtive: Konva.Group;
@@ -9,13 +9,12 @@ export interface StickyNote {
 export class PencilCommands {
     public static readonly CommandName = "pencil";
     private _currentObject?: Konva.Line;
-    private _color = PREFERED_INK_COLOR;
     private _size = 4;
 
     /**
      *
      */
-    constructor(private _layer: Konva.Layer) {
+    constructor(private _layer: Konva.Layer, private _toolComposition: ToolCompositionService) {
     }
 
     // Inteface common between the commands that matches the Events manager so that's make code much more simple, less switch case.
@@ -26,7 +25,7 @@ export class PencilCommands {
 
         this._currentObject = new Konva.Line({
             fill: 'transparent',
-            stroke: this._color,
+            stroke: this._toolComposition.color,
             strokeWidth: this._size,
             points: [position.x, position.y, position.x, position.y]
         });
