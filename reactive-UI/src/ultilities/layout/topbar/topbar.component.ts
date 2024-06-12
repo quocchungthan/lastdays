@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { IdentitiesService } from '../../../app/services/data-storages/identities.service';
 import { RouterModule } from '@angular/router';
 import { SEGMENT_TO_IDENTITY_PAGE } from '../../../app/configs/routing.consants';
@@ -13,6 +13,8 @@ import { UserComponent } from '../../icons/user/user.component';
   styleUrl: './topbar.component.scss'
 })
 export class TopbarComponent {
+  @Input()
+  size: 'minimal' | 'expanded' = 'expanded';
   currentUserId: string | undefined;
   segmentToUserIdentity = SEGMENT_TO_IDENTITY_PAGE;
   TOP_BAR = TOP_BAR;

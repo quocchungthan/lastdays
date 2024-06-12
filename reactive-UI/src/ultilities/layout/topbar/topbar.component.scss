@@ -1,0 +1,12 @@
+::ng-deep .topbar.minimal {
+    .main-logo {
+        max-height: 20px;
+    }
+    
+}
+
+::ng-deep .topbar.expanded {
+    .main-logo {
+        max-height: 80px;
+    }
+}
