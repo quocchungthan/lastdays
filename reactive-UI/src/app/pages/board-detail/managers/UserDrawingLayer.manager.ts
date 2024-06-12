@@ -128,7 +128,6 @@ export class UserDrawingLayerManager implements OnDestroy {
     
     private async _loadDrawingObjectsAsync() {
         const all = await this._eventsService.indexAndMap(this._boardId);
-        console.log(all);
         this._eventsCompositionService
             .build(all);
     }
