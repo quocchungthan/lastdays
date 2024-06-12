@@ -2,6 +2,7 @@ import Konva from 'konva';
 import { Point } from '../../../../ultilities/types/Point';
 import { ToolCompositionService } from '../../../services/states/tool-composition.service';
 import { STROKE_WIDTH } from '../../../configs/size';
+import { PencilUpEvent } from '../../../events/drawings/EventQueue';
 
 export interface StickyNote {
     navtive: Konva.Group;
@@ -9,6 +10,7 @@ export interface StickyNote {
 
 export class PencilCommands {
     public static readonly CommandName = "pencil";
+    public static PENCIL_NAME = "SIMPLE_INK";
     private _currentObject?: Konva.Line;
     private _size = STROKE_WIDTH;
 
@@ -67,5 +69,24 @@ export class PencilCommands {
         this._layer.add(instantObject);
 
         return instantObject;
+    }
+
+    getInkById(id: string) {
+        return this._layer.children.filter((o) => {
+                return o instanceof Konva.Line && o.hasName(PencilCommands.PENCIL_NAME);
+            })
+            .map(s => s as Konva.Line)
+            .find(x => x.hasName(id))!;
+    }
+
+    public parseFromEvent(event: PencilUpEvent) {
+        const instantObject = new Konva.Line({
+            fill: 'transparent',
+            stroke: event.color,
+            name: `${PencilCommands.PENCIL_NAME} ${event.targetId}`,
+            strokeWidth: event.width,
+            points: event.points
+        });
+        this._layer.add(instantObject);
     }
 }

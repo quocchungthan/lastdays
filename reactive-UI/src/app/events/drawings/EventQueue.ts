@@ -16,6 +16,22 @@ export interface AbstractEventQueueItem {
 export class BaseEvent extends BaseEntity {
     createdByUserId: string = '';
     boardId: string = '';
+    constructor(itself?: BaseEvent) {
+        super();
+        if (!itself) {
+            return;
+        }
+
+        if (typeof(itself.modifiedTime) === 'string') {
+          this.modifiedTime = new Date(Date.parse(itself.modifiedTime));
+        } else {
+          this.modifiedTime = itself.modifiedTime;
+        }
+        this.boardId = itself.boardId;
+        this.createdByUserId = itself.createdByUserId;
+        this.id = itself.id;
+        
+    }
 }
 
 export type PureQueue = Array<AbstractEventQueueItem>;
@@ -24,6 +40,19 @@ export class BoardedCreatedEvent extends BaseEvent implements AbstractEventQueue
     code: EventCode = EventCode.BoardCreated;
     targetId: string = '';
     board: Board = new Board();
+
+    constructor();
+    constructor(itself: BoardedCreatedEvent);
+
+    constructor(itself?: BoardedCreatedEvent) {
+        super(itself);
+        if (!itself) {
+            return;
+        }
+        this.code = itself.code;
+        this.targetId = itself.targetId;
+        this.board = itself.board;
+    }
 }
 
 export class PencilUpEvent extends BaseEvent implements AbstractEventQueueItem {
@@ -32,6 +61,21 @@ export class PencilUpEvent extends BaseEvent implements AbstractEventQueueItem {
     points: number[] = [];
     color: SupportedColors = PREFERED_INK_COLOR;
     width: number = STROKE_WIDTH;
+
+    constructor();
+    constructor(itself: PencilUpEvent);
+
+    constructor(itself?: PencilUpEvent) {
+        super(itself);
+        if (!itself) {
+            return;
+        }
+        this.code = itself.code;
+        this.targetId = itself.targetId;
+        this.points = itself.points;
+        this.color = itself.color;
+        this.width = itself.width;
+    }
 }
 
 export class StickyNotePastedEvent extends BaseEvent implements AbstractEventQueueItem {
@@ -40,16 +84,57 @@ export class StickyNotePastedEvent extends BaseEvent implements AbstractEventQue
     backgroundUrl: string = '';
     position: Point = { x: 0, y: 0 };
     dimention: Dimension = { width: STANDARD_STICKY_NOTE_SIZE, height: STANDARD_STICKY_NOTE_SIZE };
+    
+    constructor();
+    constructor(itself: StickyNotePastedEvent);
+
+    constructor(itself?: StickyNotePastedEvent) {
+        super(itself);
+        if (!itself) {
+            return;
+        }
+        this.code = itself.code;
+        this.targetId = itself.targetId;
+        this.backgroundUrl = itself.backgroundUrl;
+        this.position = itself.position;
+        this.dimention = itself.dimention;
+    }
 }
 
 export class InkAttachedToStickyNoteEvent extends BaseEvent implements AbstractEventQueueItem {
     code: EventCode = EventCode.InkAttachedToStickyNote;
     targetId: string = '';
-    targetStickyNoteId: string = '';
+    targetStickyNoteId: string = '';    
+
+    constructor();
+    constructor(itself: InkAttachedToStickyNoteEvent);
+
+    constructor(itself?: InkAttachedToStickyNoteEvent) {
+        super(itself);
+        if (!itself) {
+            return;
+        }
+        this.code = itself.code;
+        this.targetId = itself.targetId;
+        this.targetStickyNoteId = itself.targetStickyNoteId;
+    }
 }
 
 export class StickyNoteMovedEvent extends BaseEvent implements AbstractEventQueueItem {
     code: EventCode = EventCode.StickyNoteMoved;
     targetId: string = '';
-    newPosition: Point = { x: 0, y: 0 };
+    newPosition: Point = { x: 0, y: 0 };    
+    
+    constructor();
+    constructor(itself: StickyNoteMovedEvent);
+
+    constructor(itself?: StickyNoteMovedEvent) {
+        super(itself);
+        if (!itself) {
+            return;
+        }
+        this.code = itself.code;
+        this.targetId = itself.targetId;
+        this.newPosition = itself.newPosition;
+    }
 }
