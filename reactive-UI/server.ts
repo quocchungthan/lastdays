@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import bootstrap from './src/main.server';
 import { injectWebSocket } from './src/websocket/event-syncing';
+import { WEB_SOCKET_PORT } from './src/app/configs/routing.consants';
 
 // The Express app is exported so that it can be used by serverless Functions.
 export function app(): express.Express {
@@ -45,14 +46,12 @@ export function app(): express.Express {
 }
 
 function run(): void {
-  const port = process.env['SSR_PORT'] || 4000;
-
   // Start up the Node server
   const server = app();
-  injectWebSocket(server);
-  server.listen(port, () => {
-    console.log(`Node Express server listening on http://localhost:${port}`);
-  });
+  injectWebSocket(server.listen(WEB_SOCKET_PORT, () => {
+    console.log(`Node Express server listening on http://localhost:${WEB_SOCKET_PORT}`);
+  }));
 }
 
 run();
+console.log('run');
