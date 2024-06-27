@@ -155,3 +155,82 @@ export class GeneralUndoEvent extends BaseEvent implements AbstractEventQueueIte
         this.targetId = itself.targetId;
     }
 }
+
+export function ToBaseEvent(abstractDrawingItem: AbstractEventQueueItem): BaseEvent | null {
+    if (abstractDrawingItem instanceof GeneralUndoEvent) {
+        return abstractDrawingItem;
+    }
+    if (abstractDrawingItem instanceof StickyNotePastedEvent) {
+        return abstractDrawingItem;
+    }
+    if (abstractDrawingItem instanceof StickyNoteMovedEvent) {
+        return abstractDrawingItem;
+    }
+    if (abstractDrawingItem instanceof PencilUpEvent) {
+        return abstractDrawingItem;
+    }
+    if (abstractDrawingItem instanceof InkAttachedToStickyNoteEvent) {
+        return abstractDrawingItem;
+    }
+    if (abstractDrawingItem instanceof BoardedCreatedEvent) {
+        return abstractDrawingItem;
+    }
+
+    if (Object.hasOwn(abstractDrawingItem, "createdByUserId") 
+        && Object.hasOwn(abstractDrawingItem, "boardId") 
+        && Object.hasOwn(abstractDrawingItem, "id") 
+        && Object.hasOwn(abstractDrawingItem, "modifiedTime")) {
+
+        // @ts-ignore
+        return abstractDrawingItem;
+    }
+
+    return null;
+}
+
+
+export function ToDrawingEvent(event: BaseEvent): AbstractEventQueueItem | null {
+    if (event instanceof GeneralUndoEvent) {
+        return event;
+    }
+    if (event instanceof StickyNotePastedEvent) {
+        return event;
+    }
+    if (event instanceof StickyNoteMovedEvent) {
+        return event;
+    }
+    if (event instanceof PencilUpEvent) {
+        return event;
+    }
+    if (event instanceof InkAttachedToStickyNoteEvent) {
+        return event;
+    }
+    if (event instanceof BoardedCreatedEvent) {
+        return event;
+    }
+
+    if (Object.hasOwn(event, "code") 
+        && Object.hasOwn(event, "targetId") ) {
+        // @ts-ignore
+        const casted = event as AbstractEventQueueItem;
+        if (casted.code === EventCode.BoardCreated) {
+            return new BoardedCreatedEvent(casted as BoardedCreatedEvent)
+        }
+        if (casted.code === EventCode.GENERAL_UNDO) {
+            return new GeneralUndoEvent(casted as GeneralUndoEvent)
+        }
+        if (casted.code === EventCode.InkAttachedToStickyNote) {
+            return new InkAttachedToStickyNoteEvent(casted as InkAttachedToStickyNoteEvent)
+        }
+        if (casted.code === EventCode.StickyNoteMoved) {
+            return new StickyNoteMovedEvent(casted as StickyNoteMovedEvent)
+        }
+        if (casted.code === EventCode.StickyNotePasted) {
+            return new StickyNotePastedEvent(casted as StickyNotePastedEvent)
+        }
+        if (casted.code === EventCode.PencilUp) {
+            return new PencilUpEvent(casted as PencilUpEvent)
+        }
+    }
+    return null;
+}
