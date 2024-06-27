@@ -8,15 +8,20 @@ import { EMPTY, catchError, tap } from 'rxjs';
   providedIn: 'root'
 })
 export class SyncingService {
-  private _ws: WebSocketSubject<any>;
+  private _ws?: WebSocketSubject<BaseEvent>;
 
   constructor() {
-    this._ws = webSocket(WEB_SOCKET_SERVER);
+  }
+
+  public listen(boardId: string) {
+    this._ws = webSocket(WEB_SOCKET_SERVER + '/' + boardId);
     this._listen();
+
+    return this;
   }
 
   public trySendEvent(event: BaseEvent) {
-    console.log('try sending event', event);
+    this._ws?.next(event);
   }
 
   public onEventAdded(boardId: string) {
@@ -28,7 +33,7 @@ export class SyncingService {
   }
 
   private _listen() {
-    this._ws.pipe(
+    this._ws?.pipe(
       tap({
         error: error => console.log(error),
       }), catchError(_ => EMPTY))
