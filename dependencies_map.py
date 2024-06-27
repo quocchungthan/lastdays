@@ -8,7 +8,7 @@ from plugs.consoleloggers.consolestream import ConsoleLogger
 from plugs.implementations.readDrawingService import ReadDrawingService
 from plugs.notion.queryOnTableService import QueryOnTableService
 from plugs.openai.chatCompeleteService import ChatCompeleteService
-
+from plugs.websocket.ConnectionManager import ConnectionManager
 
 @lru_cache
 def get_settings():
@@ -29,3 +29,13 @@ def get_notion_client(settings: Env = Depends(get_settings), logger: ILogger = D
 @lru_cache
 def get_read_drawing_service(chatCompelete: ChatCompeleteService = Depends(get_chat_complete)) -> IReadDrawingService:
     return ReadDrawingService(chatCompelete)
+
+# Singleton
+manager: ConnectionManager = None
+
+@lru_cache
+def get_connection_manager(logger: ILogger = Depends(get_logger)) -> ConnectionManager:
+    global manager
+    if (manager is None):
+        manager = ConnectionManager(logger)
+    return manager
