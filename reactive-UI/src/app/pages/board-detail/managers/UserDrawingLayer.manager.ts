@@ -15,9 +15,9 @@ import { Subject, debounceTime } from "rxjs";
 import { Group } from "konva/lib/Group";
 import guid from "guid";
 import { ToolCompositionService } from "../../../services/states/tool-composition.service";
-import { EventsCompositionService } from "../../../events/drawings/events-composition.service";
+import { ComparisonResult, EventsCompositionService } from "../../../events/drawings/events-composition.service";
 import { Line, LineConfig } from "konva/lib/shapes/Line";
-import { AbstractEventQueueItem, BaseEvent, GeneralUndoEvent, InkAttachedToStickyNoteEvent, PencilUpEvent, StickyNoteMovedEvent, StickyNotePastedEvent } from "../../../events/drawings/EventQueue";
+import { AbstractEventQueueItem, BaseEvent, GeneralUndoEvent, InkAttachedToStickyNoteEvent, PencilUpEvent, StickyNoteMovedEvent, StickyNotePastedEvent, ToBaseEvent, ToDrawingEvent } from "../../../events/drawings/EventQueue";
 import { EventsService } from "../../../services/data-storages/events.service";
 import { SyncingService } from "../../../events/drawings/syncing.service";
 import { KeysService } from "../../../services/browser/keys.service";
@@ -76,7 +76,6 @@ export class UserDrawingLayerManager implements OnDestroy {
                 if (this._boardId !== id) {
                     this._boardId = id;
                     this._loadExistingDrawings();
-                    this._syncingService.listen(this._boardId);
                 }
             });
 
@@ -128,8 +127,48 @@ export class UserDrawingLayerManager implements OnDestroy {
     
     private async _loadDrawingObjectsAsync() {
         const all = await this._eventsService.indexAndMap(this._boardId);
+        this._syncingService.listen(this._boardId)
+            .peerCheck(all.map(x => ToBaseEvent(x)!))
+            .onEventAdded()
+            .subscribe((allEvents) => {
+                this._compareToCurrentState(allEvents);
+            });
         this._eventsCompositionService
             .build(all);
+    }
+
+    private _compareToCurrentState(allEvents: BaseEvent[]) {
+        const comparison = this._eventsCompositionService.compare(allEvents.map(x => ToDrawingEvent(x)!));
+        switch (comparison){
+            // TODO: If they're equal -> ignore
+            case ComparisonResult.EQUAL:
+                return;
+            // TODO: If the up coming is more than all -> do render, do save
+            case ComparisonResult.ADDED:
+                for (let i = this._eventsCompositionService.getQueueLength(); i < allEvents.length; ++i) {
+                    this._insertIfNotExisted(allEvents, i);
+                }
+                return;
+            // TODO: If they're conflict at some point -> replace the local storage, build all again with the up coming
+            case ComparisonResult.CONFLICT:
+                return;
+            default:
+                throw Error("Not handled", comparison);
+        }
+        
+    }
+
+    private _insertIfNotExisted(allEvents: BaseEvent[], i: number) {
+        this._eventsService.detail(allEvents[i].id)
+            .then((existed) => {
+                console.log('existed? ', existed);
+                if (!existed) {
+                    this._eventsService.create(allEvents[i])
+                        .then((justCreated) => {
+                            this._eventsCompositionService.insert(ToDrawingEvent(allEvents[i])!);
+                        });
+                }
+            });
     }
 
     private async _recoverDrawingsOnLayer(x: Konva.Shape | Konva.Group) {
@@ -214,6 +253,7 @@ export class UserDrawingLayerManager implements OnDestroy {
     private _generallyProcessNewEvent(event: BaseEvent & AbstractEventQueueItem) {
         this._eventsService.create(event)
             .then((justCreated) => {
+                event.id = justCreated.id;
                 this._eventsCompositionService.insert(event);
                 this._syncingService.trySendEvent(event);
             });

@@ -1,9 +1,15 @@
 import { Injectable } from '@angular/core';
-import { AbstractEventQueueItem, BoardedCreatedEvent, GeneralUndoEvent, InkAttachedToStickyNoteEvent, PencilUpEvent, PureQueue, StickyNoteMovedEvent, StickyNotePastedEvent } from './EventQueue';
+import { AbstractEventQueueItem, BoardedCreatedEvent, GeneralUndoEvent, InkAttachedToStickyNoteEvent, PencilUpEvent, PureQueue, StickyNoteMovedEvent, StickyNotePastedEvent, ToBaseEvent, ToDrawingEvent } from './EventQueue';
 import { cloneDeep } from 'lodash';
 import { PencilCommands } from '../../pages/board-detail/commands/pencil.command';
 import { StickyNoteCommands } from '../../pages/board-detail/commands/sticky-notes.command';
 import { EventCode } from './EventCode';
+
+export enum ComparisonResult {
+  EQUAL,
+  ADDED,
+  CONFLICT
+}
 
 @Injectable()
 export class EventsCompositionService {
@@ -12,6 +18,31 @@ export class EventsCompositionService {
   private _stickyNote!: StickyNoteCommands;
 
   constructor() {
+  }
+
+  compare(allEvents: PureQueue): ComparisonResult {
+    let i = 0;
+    while (i < allEvents.length && i < this._queue.length) {
+      if (ToBaseEvent(allEvents[i])?.id !== ToBaseEvent(this._queue[i])?.id) {
+        return ComparisonResult.CONFLICT;
+      }
+
+      ++ i;
+    }
+
+    if (allEvents[i]) {
+      return ComparisonResult.ADDED;
+    }
+
+    if (this._queue[i]) {
+      return ComparisonResult.CONFLICT;
+    }
+
+    return ComparisonResult.EQUAL;
+  }
+
+  getQueueLength() {
+    return this._queue.length;
   }
 
   setPencil(pencil: PencilCommands) {
