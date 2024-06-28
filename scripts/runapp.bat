@@ -1,15 +1,18 @@
 @echo off
-cd /d %USERPROFILE%\Documents\lastdays\scripts
+
 REM Navigate to the directory where your Angular app is located
+cd /d %USERPROFILE%\Documents\lastdays\scripts
 if errorlevel 1 (
     echo Failed to navigate to the specified directory.
     exit /b 1
 )
 
-REM Checkout to the feature/web-socket branch
-git checkout feature/web-socket
+REM Checkout to the feature/web-socket branch >> log.txt
+
+git checkout feature/web-socket >> log.txt
+
 if errorlevel 1 (
-    echo Failed to checkout to feature/web-socket branch.
+    echo Failed to checkout to feature/web-socket branch. >> log.txt
     exit /b 1
 )
 
@@ -19,10 +22,6 @@ if errorlevel 1 (
     echo Failed to pull from Git repository.
     exit /b 1
 )
-
-
-create -n deploymentenv python=3.12.2 -y >> log.txt
-init cmd.exe >> log.txt
 
 REM Start ng serve in the same command window
 cd /d %USERPROFILE%\Documents\lastdays\reactive-UI
