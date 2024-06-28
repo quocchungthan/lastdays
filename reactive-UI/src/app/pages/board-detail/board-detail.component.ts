@@ -31,6 +31,7 @@ import { ColorBoardComponent } from '../../../ultilities/painting/color-board/co
 import { Tool, ToolSelectorComponent } from '../../../ultilities/painting/tool-selector/tool-selector.component';
 import { TOOL_ICON_FOLDER } from '../../configs/paths.constant';
 import { EventsCompositionService } from '../../events/drawings/events-composition.service';
+import { SyncingService } from '../../events/drawings/syncing.service';
 
 @Component({
   selector: 'app-board-detail',
@@ -53,7 +54,8 @@ import { EventsCompositionService } from '../../events/drawings/events-compositi
     KonvaObjectService,
     ViewportSizeService,
     ToolCompositionService,
-    EventsCompositionService
+    EventsCompositionService,
+    SyncingService
   ],
   templateUrl: './board-detail.component.html',
   styleUrl: './board-detail.component.scss',
