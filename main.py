@@ -38,6 +38,6 @@ async def websocket_endpoint(websocket: WebSocket, board_id: str, manager: Conne
     try:
         while True:
             dataInString = await websocket.receive_text()
-            await manager.to_board_users(board_id, dataInString)
+            await manager.to_board_users(board_id, dataInString, websocket)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
