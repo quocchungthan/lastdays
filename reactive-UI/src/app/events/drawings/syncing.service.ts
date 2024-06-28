@@ -3,12 +3,13 @@ import { BaseEvent } from './EventQueue';
 import { WebSocketSubject, webSocket } from 'rxjs/webSocket'
 import { WEB_SOCKET_SERVER } from '../../configs/routing.consants';
 import { BehaviorSubject, EMPTY, catchError, tap } from 'rxjs';
+import { WSEvent, WSEventType } from '../to-python-server/web-socket-model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SyncingService {
-  private _ws?: WebSocketSubject<BaseEvent>;
+  private _ws?: WebSocketSubject<WSEvent>;
   private _allEvents = new BehaviorSubject<BaseEvent[]>([]);
 
   constructor() {
@@ -23,20 +24,30 @@ export class SyncingService {
 
   public peerCheck(currentEvents: BaseEvent[]) {
     this._allEvents.next(currentEvents);
-
+    this._askOtherClients();
     return this;
   }
 
+  private _askOtherClients() {
+    
+  }
+
   public trySendEvent(event: BaseEvent) {
-    this._ws?.next(event);
+    this._ws?.next({
+      data: event,
+      type: WSEventType.DRAWING_EVENT
+    });
   }
 
   public onEventAdded() {
     return this._allEvents.asObservable();
   }
 
-  private _onMessageReceive(data: BaseEvent) {
-    this._allEvents.next([...this._allEvents.value, data])
+  private _onMessageReceive(data: WSEvent) {
+    switch (data.type) {
+      case WSEventType.DRAWING_EVENT:
+        this._allEvents.next([...this._allEvents.value, data.data as BaseEvent]);
+    }
   }
 
   private _listen() {
