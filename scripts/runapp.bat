@@ -25,14 +25,11 @@ if errorlevel 1 (
 
 REM Start ng serve in the same command window
 cd /d %USERPROFILE%\Documents\lastdays\reactive-UI
-start "Angular app" ng serve --port 4201 -o
+start "Angular app 1" ng serve --port 4201 -o
 
 REM Activate your Conda environment and start uvicorn in another window
 cd /d %USERPROFILE%\Documents\lastdays
-conda activate deploymentenv 
-conda install python=3.12.2 --quiet 
-pip install -r requirements.txt --quiet 
-uvicorn main:app --reload
+start "Python app 1" conda activate deploymentenv && conda install python=3.12.2 --quiet  && pip install -r requirements.txt --quiet && uvicorn main:app --reload
 
 REM Pause to keep the command windows open (optional)
 pause
