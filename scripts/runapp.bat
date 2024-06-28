@@ -29,10 +29,10 @@ start "Angular app 1" ng serve --port 4201 -o
 
 REM Activate your Conda environment and start uvicorn in another window
 cd /d %USERPROFILE%\Documents\lastdays
-conda activate deploymentenv 
-conda install python=3.12.2 --quiet 
-pip install -r requirements.txt --quiet 
-uvicorn main:app --reload
+conda activate deploymentenv >> log.txt
+conda install python=3.12.2 --quiet >> log.txt
+pip install -r requirements.txt --quiet >> log.txt
+uvicorn main:app --reload >> log.txt
 
 REM Pause to keep the command windows open (optional)
 pause
