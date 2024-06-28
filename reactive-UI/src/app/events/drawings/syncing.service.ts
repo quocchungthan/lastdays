@@ -47,6 +47,19 @@ export class SyncingService {
     switch (data.type) {
       case WSEventType.DRAWING_EVENT:
         this._allEvents.next([...this._allEvents.value, data.data as BaseEvent]);
+        break;
+      case WSEventType.ASK_OTHER_CLIENTS:
+        this._ws?.next({
+          type: WSEventType.OTHER_CLIENT_RESPONDED,
+          data: this._allEvents.value
+        });
+        break;
+      case WSEventType.OTHER_CLIENT_RESPONDED:
+        // To compare
+        break;
+      case WSEventType.CHAT:
+        // TODO: chat feature is not implemented
+        break;
     }
   }
 

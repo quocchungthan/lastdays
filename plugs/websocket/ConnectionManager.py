@@ -1,6 +1,6 @@
 from business.services.loggerInteface import ILogger
 from fastapi import WebSocket
-import json
+# import json
 
 class ConnectionModel:
     board_id: str
@@ -31,11 +31,12 @@ class ConnectionManager:
         for connection in self.active_connections:
             await connection.socket.send_text(message)
 
-    async def to_board_users(self, board_id: str, message: str):
-        data = json.loads(message)
-        if (data['type'] == "DRAWING_EVENT"):
-            for connection in filter(lambda x: x.board_id == board_id, self.active_connections):
-                await connection.socket.send_text(message)
-
+    async def to_board_users(self, board_id: str, message: str, currentUser: WebSocket):
+        # data = json.loads(message)
+        # if (data['type'] == "DRAWING_EVENT"):
+        #     for connection in filter(lambda x: x.board_id == board_id, self.active_connections):
+        #         await connection.socket.send_text(message)
+        for connection in filter(lambda x: x.board_id == board_id and x.socket != currentUser, self.active_connections):
+            await connection.socket.send_text(message)
     def _connection_count(self):
         self.logger.log(f"{len(self.active_connections)} connections left!")

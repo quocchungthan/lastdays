@@ -7,10 +7,8 @@ import { ViewPortEventsManager } from "./ViewPortEvents.manager";
 import { Injectable, OnDestroy } from "@angular/core";
 import { KonvaObjectService } from "../../../services/3rds/konva-object.service";
 import { DrawingObjectService } from "../../../services/data-storages/drawing-object.service";
-import { DrawingObject } from "../../../services/data-storages/entities/DrawingObject";
 import { StickyNoteCommands } from "../commands/sticky-notes.command";
 import { CursorManager } from "./Cursor.manager";
-import { isNil } from "lodash";
 import { Subject, debounceTime } from "rxjs";
 import { Group } from "konva/lib/Group";
 import guid from "guid";
@@ -161,7 +159,6 @@ export class UserDrawingLayerManager implements OnDestroy {
     private _insertIfNotExisted(allEvents: BaseEvent[], i: number) {
         this._eventsService.detail(allEvents[i].id)
             .then((existed) => {
-                console.log('existed? ', existed);
                 if (!existed) {
                     this._eventsService.create(allEvents[i])
                         .then((justCreated) => {
@@ -171,12 +168,12 @@ export class UserDrawingLayerManager implements OnDestroy {
             });
     }
 
-    private async _recoverDrawingsOnLayer(x: Konva.Shape | Konva.Group) {
-        let insertedPencil = this._pencil.parseFromJson(x as Konva.Shape);
-        if (x?.className === 'Group' && (x.attrs.name + "").split(" ").includes(StickyNoteCommands.StickyNoteName)) {
-            await this._stickyNote.parseFromJson(x as Konva.Group);
-        }
-    }
+    // private async _recoverDrawingsOnLayer(x: Konva.Shape | Konva.Group) {
+    //     let insertedPencil = this._pencil.parseFromJson(x as Konva.Shape);
+    //     if (x?.className === 'Group' && (x.attrs.name + "").split(" ").includes(StickyNoteCommands.StickyNoteName)) {
+    //         await this._stickyNote.parseFromJson(x as Konva.Group);
+    //     }
+    // }
 
     private _startSubscribingEvents() {
         this._events.onTouchStart()
@@ -293,32 +290,32 @@ export class UserDrawingLayerManager implements OnDestroy {
         this._generallyProcessNewEvent(event);
     }
 
-    private _updateStickyNoteById(stickyNoteId: string | undefined, attachedTo: Group) {
-        if (!stickyNoteId) {
-            return;
-        }
+    // private _updateStickyNoteById(stickyNoteId: string | undefined, attachedTo: Group) {
+    //     if (!stickyNoteId) {
+    //         return;
+    //     }
 
-       this._drawingObjects.detail(stickyNoteId)
-        .then(drawingObject => {
-            if (!drawingObject) {
-                return;
-            }
-            drawingObject.konvaObject = attachedTo;
-            this._drawingObjects.update(drawingObject);
-        });
-    }
+    //    this._drawingObjects.detail(stickyNoteId)
+    //     .then(drawingObject => {
+    //         if (!drawingObject) {
+    //             return;
+    //         }
+    //         drawingObject.konvaObject = attachedTo;
+    //         this._drawingObjects.update(drawingObject);
+    //     });
+    // }
 
-    private _syncToDb(predefineId: string, brandNewDrawing?: Konva.Shape | Konva.Group) {
-        if (isNil(brandNewDrawing)) {
-            return Promise.resolve("");
-        }
-        const newDrawingObject = new DrawingObject();
-        newDrawingObject.id = predefineId;
-        newDrawingObject.boardId = this._boardId;
-        newDrawingObject.konvaObject = brandNewDrawing;
-        return this._drawingObjects.create(newDrawingObject)
-            .then((x) => x.id);
-    }
+    // private _syncToDb(predefineId: string, brandNewDrawing?: Konva.Shape | Konva.Group) {
+    //     if (isNil(brandNewDrawing)) {
+    //         return Promise.resolve("");
+    //     }
+    //     const newDrawingObject = new DrawingObject();
+    //     newDrawingObject.id = predefineId;
+    //     newDrawingObject.boardId = this._boardId;
+    //     newDrawingObject.konvaObject = brandNewDrawing;
+    //     return this._drawingObjects.create(newDrawingObject)
+    //         .then((x) => x.id);
+    // }
 
     setTool(tool: string) {
         this._toolComposition.setTool(tool);
