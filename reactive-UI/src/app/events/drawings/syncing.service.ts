@@ -5,13 +5,14 @@ import { WEB_SOCKET_SERVER } from '../../configs/routing.consants';
 import { BehaviorSubject, EMPTY, catchError, tap } from 'rxjs';
 import { WSEvent, WSEventType } from '../to-python-server/web-socket-model';
 import { ComparisonResult, EventsCompositionService } from './events-composition.service';
+import { ConflictResolverService } from './conflict-resolver.service';
 
 @Injectable()
 export class SyncingService {
   private _ws?: WebSocketSubject<WSEvent>;
   private _allEvents = new BehaviorSubject<BaseEvent[]>([]);
 
-  constructor(private _eventsCompositionService: EventsCompositionService) {
+  constructor(private _eventsCompositionService: EventsCompositionService, private _conflictResolver: ConflictResolverService) {
   }
 
   public listen(boardId: string) {
@@ -35,6 +36,7 @@ export class SyncingService {
   }
 
   public trySendEvent(event: BaseEvent) {
+    this._allEvents.next([...this._allEvents.value, event]);
     this._ws?.next({
       data: event,
       type: WSEventType.DRAWING_EVENT
@@ -83,9 +85,7 @@ export class SyncingService {
         return;
       // TODO: If they're conflict at some point -> replace the local storage, build all again with the up coming
       case ComparisonResult.CONFLICT:
-        if ((data.data as BaseEvent[]).length > this._eventsCompositionService.getQueueLength()) {
-          this._allEvents.next(data.data as BaseEvent[]);
-        }
+        this._allEvents.next(this._conflictResolver.resolve(data.data as BaseEvent[], this._allEvents.value));
         return;
       default:
         throw Error("Not handled", comparison);

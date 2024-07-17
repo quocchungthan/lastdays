@@ -132,9 +132,9 @@ export class UserDrawingLayerManager implements OnDestroy {
             .peerCheck(all.map(x => ToBaseEvent(x)!))
             .onEventAdded()
             .subscribe((allEvents) => {
-                console.log(allEvents);
                 this._synceBoardData(allEvents.filter(x => x instanceof BoardedCreatedEvent) as BoardedCreatedEvent[]);
-                this._compareToCurrentState(allEvents);
+                this._eventsCompositionService
+                    .build(allEvents.map(x => ToDrawingEvent(x)!));
             });
         this._eventsCompositionService
             .build(all);
@@ -156,27 +156,6 @@ export class UserDrawingLayerManager implements OnDestroy {
                     this._metaService.setPageName("Board - " + e.board.name);
                 });
         });
-    }
-
-    private _compareToCurrentState(allEvents: BaseEvent[]) {
-        const comparison = this._eventsCompositionService.compare(allEvents.map(x => ToDrawingEvent(x)!));
-        switch (comparison){
-            // TODO: If they're equal -> ignore
-            case ComparisonResult.EQUAL:
-                return;
-            // TODO: If the up coming is more than all -> do render, do save
-            case ComparisonResult.ADDED:
-                for (let i = this._eventsCompositionService.getQueueLength(); i < allEvents.length; ++i) {
-                    this._insertIfNotExisted(allEvents, i);
-                }
-                return;
-            // TODO: If they're conflict at some point -> replace the local storage, build all again with the up coming
-            case ComparisonResult.CONFLICT:
-                return;
-            default:
-                throw Error("Not handled", comparison);
-        }
-        
     }
 
     private _insertIfNotExisted(allEvents: BaseEvent[], i: number) {

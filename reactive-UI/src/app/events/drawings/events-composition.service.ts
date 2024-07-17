@@ -24,6 +24,7 @@ export class EventsCompositionService {
     let i = 0;
     while (i < allEvents.length && i < this._queue.length) {
       if (ToBaseEvent(allEvents[i])?.id !== ToBaseEvent(this._queue[i])?.id) {
+        this._logConflictAt(i, allEvents);
         return ComparisonResult.CONFLICT;
       }
 
@@ -35,10 +36,15 @@ export class EventsCompositionService {
     }
 
     if (this._queue[i]) {
+      this._logConflictAt(i, allEvents);
       return ComparisonResult.CONFLICT;
     }
 
     return ComparisonResult.EQUAL;
+  }
+
+  private _logConflictAt(i: number, allEvents: PureQueue) {
+    console.log('conflict at', i, allEvents.slice(i), 'compare to current: ', this._queue.slice(i));
   }
 
   getQueueLength() {

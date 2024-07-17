@@ -47,17 +47,14 @@ export class SnapViewComponent implements AfterViewInit, OnChanges {
     }
 
     if (changes.stageDimention) {
-      console.log('dimention changed', this.stageDimention);
       this._guaranteeStageInitiated();
     }
 
     if (changes.stagePosition) {
-      console.log('position changed', this.stagePosition);
       this.reRenderRequests.next();
     }
 
     if (changes.stageScale) {
-      console.log('scale changed', this.stageScale);
       this.reRenderRequests.next();
     }
   }
