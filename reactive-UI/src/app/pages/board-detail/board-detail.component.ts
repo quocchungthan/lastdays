@@ -28,10 +28,15 @@ import { CursorManager } from './managers/Cursor.manager';
 import { ViewportSizeService } from '../../services/browser/viewport-size.service';
 import { ToolCompositionService } from '../../services/states/tool-composition.service';
 import { ColorBoardComponent } from '../../../ultilities/painting/color-board/color-board.component';
-import { Tool, ToolSelectorComponent } from '../../../ultilities/painting/tool-selector/tool-selector.component';
+import {
+  Tool,
+  ToolSelectorComponent,
+} from '../../../ultilities/painting/tool-selector/tool-selector.component';
 import { TOOL_ICON_FOLDER } from '../../configs/paths.constant';
 import { EventsCompositionService } from '../../events/drawings/events-composition.service';
 import { SyncingService } from '../../events/drawings/syncing.service';
+import { SavedBoardsService } from '../../services/data-storages/saved-boards.service';
+import { SavedBoard } from '../../services/data-storages/entities/SavedBoard';
 
 @Component({
   selector: 'app-board-detail',
@@ -43,7 +48,7 @@ import { SyncingService } from '../../events/drawings/syncing.service';
     BookmarkedComponent,
     UiDropdownComponent,
     ColorBoardComponent,
-    ToolSelectorComponent
+    ToolSelectorComponent,
   ],
   providers: [
     ViewPortEventsManager,
@@ -55,7 +60,7 @@ import { SyncingService } from '../../events/drawings/syncing.service';
     ViewportSizeService,
     ToolCompositionService,
     EventsCompositionService,
-    SyncingService
+    SyncingService,
   ],
   templateUrl: './board-detail.component.html',
   styleUrl: './board-detail.component.scss',
@@ -70,22 +75,22 @@ export class BoardDetailComponent implements AfterViewInit {
     {
       id: '',
       label: 'Move',
-      iconUrl: `${TOOL_ICON_FOLDER}grab.png`
+      iconUrl: `${TOOL_ICON_FOLDER}grab.png`,
     },
     {
       id: StickyNoteCommands.CommandName,
       label: 'Sticky note',
-      iconUrl: `${TOOL_ICON_FOLDER}sticky-note.png`
+      iconUrl: `${TOOL_ICON_FOLDER}sticky-note.png`,
     },
     {
       id: PencilCommands.CommandName,
       label: 'Pencil',
-      iconUrl: `${TOOL_ICON_FOLDER}pencil.png`
+      iconUrl: `${TOOL_ICON_FOLDER}pencil.png`,
     },
   ];
 
   constructor(
-    private _boards: BoardsService,
+    private _savedBoards: SavedBoardsService,
     private _urlExtractor: UrlExtractorService,
     private _activatedRoute: ActivatedRoute,
     private _konvaObjectService: KonvaObjectService,
@@ -129,6 +134,20 @@ export class BoardDetailComponent implements AfterViewInit {
 
   toggleSavedStatus() {
     this.isSaved = !this.isSaved;
+    this._urlExtractor.currentBoardIdChanges().subscribe((id) => {
+      if (this.isSaved) {
+        var newSavingAction = new SavedBoard();
+
+        newSavingAction.boardId = id;
+        this._savedBoards.create(newSavingAction).then(() => {
+          console.log('Saved the board ', id);
+        });
+      } else {
+        this._savedBoards.delete(id).then(() => {
+          console.log('Unsaved the board ', id);
+        });
+      }
+    });
   }
 
   ngAfterViewInit(): void {

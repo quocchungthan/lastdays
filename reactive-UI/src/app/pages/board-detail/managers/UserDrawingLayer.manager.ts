@@ -15,7 +15,7 @@ import guid from "guid";
 import { ToolCompositionService } from "../../../services/states/tool-composition.service";
 import { ComparisonResult, EventsCompositionService } from "../../../events/drawings/events-composition.service";
 import { Line, LineConfig } from "konva/lib/shapes/Line";
-import { AbstractEventQueueItem, BaseEvent, GeneralUndoEvent, InkAttachedToStickyNoteEvent, PencilUpEvent, StickyNoteMovedEvent, StickyNotePastedEvent, ToBaseEvent, ToDrawingEvent } from "../../../events/drawings/EventQueue";
+import { AbstractEventQueueItem, BaseEvent, BoardedCreatedEvent, GeneralUndoEvent, InkAttachedToStickyNoteEvent, PencilUpEvent, StickyNoteMovedEvent, StickyNotePastedEvent, ToBaseEvent, ToDrawingEvent } from "../../../events/drawings/EventQueue";
 import { EventsService } from "../../../services/data-storages/events.service";
 import { SyncingService } from "../../../events/drawings/syncing.service";
 import { KeysService } from "../../../services/browser/keys.service";
@@ -129,10 +129,27 @@ export class UserDrawingLayerManager implements OnDestroy {
             .peerCheck(all.map(x => ToBaseEvent(x)!))
             .onEventAdded()
             .subscribe((allEvents) => {
+                console.log(allEvents);
+                this._synceBoardData(allEvents.filter(x => x instanceof BoardedCreatedEvent) as BoardedCreatedEvent[]);
                 this._compareToCurrentState(allEvents);
             });
         this._eventsCompositionService
             .build(all);
+    }
+    private _synceBoardData(boardRelatedEvents: BoardedCreatedEvent[]) {
+        boardRelatedEvents.forEach(e => {
+            this.boards.detail(e.boardId)
+                .then(existed => {
+                    if (existed) {
+                        return;
+                    }
+
+                    return this.boards.create(e.board);
+                })
+                .then(synced => {
+                    console.log("sync", synced, e.board);
+                });
+        });
     }
 
     private _compareToCurrentState(allEvents: BaseEvent[]) {

@@ -28,7 +28,10 @@ export class SyncingService {
   }
 
   private _askOtherClients() {
-    
+    this._ws?.next({
+      type: WSEventType.ASK_OTHER_CLIENTS,
+      data: undefined
+    });
   }
 
   public trySendEvent(event: BaseEvent) {
@@ -66,6 +69,7 @@ export class SyncingService {
   }
 
   private _handleComparisionREsult(comparison: ComparisonResult, data: WSEvent) {
+    console.debug(comparison.toString());
     switch (comparison) {
       // TODO: If they're equal -> ignore
       case ComparisonResult.EQUAL:
@@ -79,7 +83,9 @@ export class SyncingService {
         return;
       // TODO: If they're conflict at some point -> replace the local storage, build all again with the up coming
       case ComparisonResult.CONFLICT:
-        this._allEvents.next(data.data as BaseEvent[]);
+        if ((data.data as BaseEvent[]).length > this._eventsCompositionService.getQueueLength()) {
+          this._allEvents.next(data.data as BaseEvent[]);
+        }
         return;
       default:
         throw Error("Not handled", comparison);
