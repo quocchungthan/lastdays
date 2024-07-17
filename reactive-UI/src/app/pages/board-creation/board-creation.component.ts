@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component } from '@angular/core';
 import { LastVisits } from '../../viewmodels/agile-domain/last-visits.viewmodel';
 import { TopbarComponent } from '../../../ultilities/layout/topbar/topbar.component';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -13,6 +13,7 @@ import { EventsService } from '../../services/data-storages/events.service';
 import { BoardedCreatedEvent } from '../../events/drawings/EventQueue';
 import { IdentitiesService } from '../../services/data-storages/identities.service';
 import { EventsCompositionService } from '../../events/drawings/events-composition.service';
+import { MetaService } from '../../services/browser/meta.service';
 
 @Component({
   selector: 'app-board-creation',
@@ -22,7 +23,7 @@ import { EventsCompositionService } from '../../events/drawings/events-compositi
   templateUrl: './board-creation.component.html',
   styleUrl: './board-creation.component.scss'
 })
-export class BoardCreationComponent {
+export class BoardCreationComponent implements AfterViewInit {
   lastVisits: LastVisits = new LastVisits;
   boardCreationForm: FormGroup<{name: FormControl<string | null>}>;
 
@@ -32,6 +33,7 @@ export class BoardCreationComponent {
     private _boards: BoardsService,
     private _router: Router,
     private _events: EventsService,
+    private _metaService: MetaService,
     private _identities: IdentitiesService) {
     this.boardCreationForm = this._formBuilder.group({
       name: ['', Validators.required]
@@ -41,6 +43,10 @@ export class BoardCreationComponent {
       .then((lastVisits) => {
         this.lastVisits = lastVisits;
       });
+  }
+
+  ngAfterViewInit(): void {
+    this._metaService.resetPageName();
   }
 
   onSubmit() {

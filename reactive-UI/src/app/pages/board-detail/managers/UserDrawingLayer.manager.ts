@@ -19,6 +19,8 @@ import { AbstractEventQueueItem, BaseEvent, BoardedCreatedEvent, GeneralUndoEven
 import { EventsService } from "../../../services/data-storages/events.service";
 import { SyncingService } from "../../../events/drawings/syncing.service";
 import { KeysService } from "../../../services/browser/keys.service";
+import { Board } from "../../../services/data-storages/entities/Board";
+import { MetaService } from "../../../services/browser/meta.service";
 
 @Injectable()
 export class UserDrawingLayerManager implements OnDestroy {
@@ -42,6 +44,7 @@ export class UserDrawingLayerManager implements OnDestroy {
         private _urlExtractor: UrlExtractorService,
         private _drawingObjects: DrawingObjectService,
         private _toolComposition: ToolCompositionService,
+        private _metaService: MetaService,
         private _eventsCompositionService: EventsCompositionService,
         private _eventsService: EventsService,
         private _syncingService: SyncingService,
@@ -148,6 +151,9 @@ export class UserDrawingLayerManager implements OnDestroy {
                 })
                 .then(synced => {
                     console.log("sync", synced, e.board);
+                })
+                .finally(() => {
+                    this._metaService.setPageName("Board - " + e.board.name);
                 });
         });
     }

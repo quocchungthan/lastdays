@@ -10,6 +10,7 @@ import { cloneDeep } from 'lodash';
 import { BoardBasicData } from '../../viewmodels/agile-domain/last-visits.viewmodel';
 import { BoardGridComponent } from '../../components/board-grid/board-grid.component';
 import { SavedBoardsService } from '../../services/data-storages/saved-boards.service';
+import { MetaService } from '../../services/browser/meta.service';
 
 @Component({
   selector: 'app-user-identity',
@@ -28,6 +29,7 @@ export class UserIdentityComponent {
     private _toaster: ToasterService, 
     private _identityService: IdentitiesService,
     private _boards: BoardsService,
+    private _metaService: MetaService,
     private _savedBoards: SavedBoardsService) {
     this.userForm = this._formBuilder.group({
       id: ['', Validators.required],
@@ -44,6 +46,7 @@ export class UserIdentityComponent {
         this.currentUser = currentUser;
         this.userForm.controls.displayName.setValue(currentUser?.displayName ?? '');
         this.userForm.controls.id.setValue(currentUser?.id ?? '');
+        this._metaService.setPageName("User - " + (currentUser?.displayName || currentUser?.id));
       })
   }
 
