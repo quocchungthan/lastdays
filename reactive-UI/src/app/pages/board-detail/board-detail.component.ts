@@ -134,17 +134,20 @@ export class BoardDetailComponent implements AfterViewInit {
 
   toggleSavedStatus() {
     this.isSaved = !this.isSaved;
-    this._urlExtractor.currentBoardIdChanges().subscribe((id) => {
+    const subscription = this._urlExtractor.currentBoardIdChanges().subscribe((id) => {
       if (this.isSaved) {
         var newSavingAction = new SavedBoard();
 
         newSavingAction.boardId = id;
         this._savedBoards.create(newSavingAction).then(() => {
           console.log('Saved the board ', id);
+
+          subscription.unsubscribe();
         });
       } else {
         this._savedBoards.delete(id).then(() => {
           console.log('Unsaved the board ', id);
+          subscription.unsubscribe();
         });
       }
     });
@@ -153,6 +156,13 @@ export class BoardDetailComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this._resetTheViewPort();
     this._viewportSizeService.blockTheWheel();
+    const subscription = this._urlExtractor.currentBoardIdChanges().subscribe((id) => {
+      this._savedBoards.index().then(savedBoards => {
+        this.isSaved = savedBoards.some(x => x.boardId === id);
+        subscription.unsubscribe();
+      });
+
+    });
   }
 
   private _resetTheViewPort() {
