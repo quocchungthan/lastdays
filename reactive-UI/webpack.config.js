@@ -1,5 +1,5 @@
 module.exports = {
-    target: "node",
+    target: "web",
     node: {
       __dirname: false,
     },

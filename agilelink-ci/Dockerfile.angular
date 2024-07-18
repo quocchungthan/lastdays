@@ -1,0 +1,23 @@
+# Dockerfile.angular
+FROM node:18 AS build
+
+WORKDIR /app
+
+COPY ./reactive-UI/package.json .
+COPY ./reactive-UI/package-lock.json .
+
+RUN npm install
+
+COPY ./reactive-UI/ .
+
+RUN npm run build --omit=dev
+
+FROM nginx:alpine
+
+COPY ./agilelink-ci/nginx.conf /etc/nginx/conf.d/default.conf
+
+COPY --from=build /app/dist/reactive-ui /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

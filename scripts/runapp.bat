@@ -28,7 +28,7 @@ cd /d %USERPROFILE%\Documents\lastdays\reactive-UI
 start "Angular app 1" ng serve --port 4201 -o
 
 REM Activate your Conda environment and start uvicorn in another window
-cd /d %USERPROFILE%\Documents\lastdays
+cd /d %USERPROFILE%\Documents\lastdays\fastapi
 call conda activate deploymentenv
 call conda install python=3.12.2 --quiet
 call pip install -r requirements.txt --quiet
