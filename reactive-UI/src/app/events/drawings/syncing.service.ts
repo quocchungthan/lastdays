@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BaseEvent, ToDrawingEvent } from './EventQueue';
+import { BaseEvent, ParseToBaseEvent, ToDrawingEvent } from './EventQueue';
 import { WebSocketSubject, webSocket } from 'rxjs/webSocket'
 import { WEB_SOCKET_SERVER } from '../../configs/routing.consants';
 import { BehaviorSubject, EMPTY, catchError, tap } from 'rxjs';
@@ -80,12 +80,12 @@ export class SyncingService {
       case ComparisonResult.ADDED:
         this._allEvents.next([
           ...this._allEvents.value,
-          ...(data.data as BaseEvent[]).slice(this._eventsCompositionService.getQueueLength())
+          ...((data.data as any[]).map(x => ParseToBaseEvent(x)!)).slice(this._allEvents.value.length)
         ]);
         return;
       // TODO: If they're conflict at some point -> replace the local storage, build all again with the up coming
       case ComparisonResult.CONFLICT:
-        this._allEvents.next(this._conflictResolver.resolve(data.data as BaseEvent[], this._allEvents.value));
+        this._allEvents.next(this._conflictResolver.resolve((data.data as any[]).map(x => ParseToBaseEvent(x)!) as BaseEvent[], this._allEvents.value));
         return;
       default:
         throw Error("Not handled", comparison);

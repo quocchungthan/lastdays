@@ -188,6 +188,37 @@ export function ToBaseEvent(abstractDrawingItem: AbstractEventQueueItem): BaseEv
     return null;
 }
 
+export function ParseToBaseEvent(rawEvent: any): BaseEvent | null {
+    if (Object.hasOwn(rawEvent,'code') && rawEvent.code === EventCode.GENERAL_UNDO) {
+        return new GeneralUndoEvent(rawEvent);
+    }
+    if (Object.hasOwn(rawEvent,'code') && rawEvent.code === EventCode.StickyNotePasted) {
+        return new StickyNotePastedEvent(rawEvent);
+    }
+    if (Object.hasOwn(rawEvent,'code') && rawEvent.code === EventCode.StickyNoteMoved) {
+        return new StickyNoteMovedEvent(rawEvent);
+    }
+    if (Object.hasOwn(rawEvent,'code') && rawEvent.code === EventCode.PencilUp) {
+        return new PencilUpEvent(rawEvent);
+    }
+    if (Object.hasOwn(rawEvent,'code') && rawEvent.code === EventCode.InkAttachedToStickyNote) {
+        return new InkAttachedToStickyNoteEvent(rawEvent);
+    }
+    if (Object.hasOwn(rawEvent,'code') && rawEvent.code === EventCode.BoardCreated) {
+        return new BoardedCreatedEvent(rawEvent);
+    }
+
+    if (Object.hasOwn(rawEvent, "createdByUserId") 
+        && Object.hasOwn(rawEvent, "boardId") 
+        && Object.hasOwn(rawEvent, "id") 
+        && Object.hasOwn(rawEvent, "modifiedTime")) {
+
+        // @ts-ignore
+        return abstractDrawingItem;
+    }
+
+    return null;
+}
 
 export function ToDrawingEvent(event: BaseEvent): AbstractEventQueueItem | null {
     if (event instanceof GeneralUndoEvent) {
