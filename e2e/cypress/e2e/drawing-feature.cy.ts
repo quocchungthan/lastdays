@@ -5,5 +5,6 @@ describe('Board', () => {
     const home = new HomePage();
     home.visit();
     home.fillBoardName('first board');
+    home.clickCreate();
   })
 })
