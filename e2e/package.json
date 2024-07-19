@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "openui": "cypress open"
+  },
+  "devDependencies": {
+    "@simonsmith/cypress-image-snapshot": "^9.1.0",
+    "cypress": "^13.13.1",
+    "typescript": "^5.5.3"
+  }
+}

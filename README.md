@@ -30,3 +30,14 @@ Command to start:
 uvicorn main:app --reload
 ```
 But for Vscode, it's much more simple since launch file already set. Just go to the tab "Debug" then click run at the configuration named "Python Debugger: FastAPI"
+
+#### Deploy on docker (or QA Testing local)
+- [] I hope to be able to find the domain https://agilel.ink
+- Link means connect the teams
+- Ink because this is a drawing tool
+- Agile is the business domain of the application.
+
+Run this within working dir agilelink-ci/
+```cmd
+docker-compose up --build -d && start http://localhost
+```

@@ -7,6 +7,9 @@ import { PencilCommands } from './pencil.command';
 import { Subject } from 'rxjs';
 import { Group } from 'konva/lib/Group';
 import { ToolCompositionService } from '../../../services/states/tool-composition.service';
+import { InkAttachedToStickyNoteEvent, StickyNoteMovedEvent, StickyNotePastedEvent } from '../../../events/drawings/EventQueue';
+import { STANDARD_STICKY_NOTE_SIZE } from '../../../configs/size';
+import { IRect } from 'konva/lib/types';
 
 export interface StickyNote {
     navtive: Konva.Group;
@@ -15,7 +18,7 @@ export interface StickyNote {
 export class StickyNoteCommands {
     public static readonly CommandName = "stickynote";
     public static readonly BackgroundUrlAttrName = "stickynoteUrl";
-    private readonly _standardStickyNoteSize = 200;
+    private readonly _standardStickyNoteSize = STANDARD_STICKY_NOTE_SIZE;
     private readonly _placeholderName = "PLACEHOLDER";
     public static StickyNoteName = "STICKY_NOTE";
     public static StickyNoteBackgroundName = "STICKY_NOTE_BACKGROUND";
@@ -43,9 +46,21 @@ export class StickyNoteCommands {
         }
         const newKonvaObject = placeholder.clone() as Konva.Group;
         newKonvaObject.removeName(this._placeholderName);
-        this._drawingLayer.add(newKonvaObject);
         this._draggableImage(newKonvaObject);
         return newKonvaObject;
+    }
+
+    
+    attachInkToStickyNote(event: InkAttachedToStickyNoteEvent) {
+        const stickyNote = this.getStickyNoteById(event.targetStickyNoteId);
+        const ink = this._internalPencil.getInkById(event.targetId);
+
+        this._doAttach(ink, stickyNote);
+    }
+
+    moveStickyNote(event: StickyNoteMovedEvent) {
+        this.getStickyNoteById(event.targetId)
+            .position(event.newPosition);
     }
 
     // TODO: pass id of the pencil drawing, Pencil create guid before return, syncToDb method extract id from native id.
@@ -57,17 +72,34 @@ export class StickyNoteCommands {
         if (isNil(foundStickyNoteAsBackground)) {
             return false;
         }
+        this._doAttach(shape, foundStickyNoteAsBackground);
+
+        return true;
+    }
+
+    getFirstCollisionStickyNoteId(shape: Shape<ShapeConfig>) {
+        const foundStickyNoteAsBackground = this._allPastedStickyNotes().find(stickyNote => {
+            return this._isIntersect(shape, stickyNote);
+        });
+        if (foundStickyNoteAsBackground) {
+            return this.extractId(foundStickyNoteAsBackground);
+        }
+
+        return null;
+    }
+
+    private _doAttach(shape: Shape<ShapeConfig>, foundStickyNoteAsBackground: Group) {
         if (shape instanceof Konva.Line) {
-            const shapePointsWithinStickyNote = shape.points();
+            const cloned = shape.clone();
+            const shapePointsWithinStickyNote = cloned.points();
             for (let i = 0; i < shapePointsWithinStickyNote.length; i += 2) {
                 shapePointsWithinStickyNote[i] -= foundStickyNoteAsBackground.x();
                 shapePointsWithinStickyNote[i + 1] -= foundStickyNoteAsBackground.y();
             }
-            shape.points(shapePointsWithinStickyNote)
+            cloned.points(shapePointsWithinStickyNote);
+            foundStickyNoteAsBackground.add(cloned);
+            shape.destroy();
         }
-        foundStickyNoteAsBackground.add(shape);
-
-        return true;
     }
 
     public movePlaceholder(p: Point) {
@@ -80,14 +112,31 @@ export class StickyNoteCommands {
             return;
         }
 
-        const background = this._extractBackground(placeholder);
+        const background = this.extractBackground(placeholder);
         // only background has size
         placeholder.position({x: p.x - background.width() / 2, y: p.y - background.height() / 2});
     }
 
-    private _extractBackground(placeholder: Konva.Group) {
+    extractBackground(placeholder: Konva.Group) {
         return placeholder.children.find(x => x instanceof Konva.Image)!;
     }
+
+    parseFromEvent(event: StickyNotePastedEvent): Promise<void> {
+        return new Promise<void>((res, rej) => {
+            Konva.Image.fromURL(event.backgroundUrl, (image) => {
+                var placeholder = this._adjustImage(image);
+                placeholder.x(event.position.x);
+                placeholder.y(event.position.y);
+                placeholder.addName(StickyNoteCommands.StickyNoteName);
+                placeholder.addName(event.targetId);
+                this._drawingLayer.add(placeholder);
+                this.setDraggable(this._toolComposition.tool !== PencilCommands.CommandName);
+                this.registerMovingEvent(placeholder);
+                res();
+            });
+        });
+    }
+    
 
     parseFromJson(shape: Konva.Group): Promise<void> {
         if (!(shape.attrs.name + "").includes(StickyNoteCommands.StickyNoteName) || !shape.attrs[StickyNoteCommands.BackgroundUrlAttrName]) {
@@ -153,8 +202,14 @@ export class StickyNoteCommands {
 
     private _isIntersect(shape: Shape<ShapeConfig>, stickyNote: Konva.Group): boolean {
         const rect1 = shape.getClientRect();
-        const rect2 = this._extractBackground(stickyNote).getClientRect();
-        
+        const bg = this.extractBackground(stickyNote);
+        const rect2: IRect = {
+            x: stickyNote.x(),
+            y: stickyNote.y(),
+            width: bg.width(),
+            height: bg.height(),
+        }
+
         return areRectanglesIntersecting(rect1, rect2);
     }
 

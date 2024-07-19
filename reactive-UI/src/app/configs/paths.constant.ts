@@ -1,1 +1,1 @@
-export const TOOL_ICON_FOLDER = '/assets/tools/'
+export const TOOL_ICON_FOLDER = '/assets/tools/';

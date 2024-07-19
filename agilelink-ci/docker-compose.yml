@@ -1,0 +1,24 @@
+services:
+  fastapi:
+    build:
+      context: ..
+      dockerfile: agilelink-ci/Dockerfile.fastapi
+    volumes:
+      - ../fastapi:/app
+    ports:
+      - "8000:8000"
+    networks:
+      - app-network
+
+  angular:
+    build:
+      context: ..
+      dockerfile: agilelink-ci/Dockerfile.angular
+    ports:
+      - "80:80"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,7 +1,7 @@
-<div id="{{TOP_BAR}}" class="grid grid-flow-col border-b-slate-100 border text-sm topbar {{size}}">
+<div id="{{TOP_BAR}}" class="grid grid-cols-12 grid-flow-col border-b-slate-100 border text-sm topbar {{size}}">
     <div class="col-span-2 bg-gray-50 p-1 flex justify-center"><a routerLink="/home">
         <img src="/assets/logo.png" class="main-logo" alt="Agile Link">
     </a></div>
-    <div class="col-span-8 p-1 bg-gray-50"><ng-content></ng-content></div>
+    <div class="col-span-8 p-1 bg-gray-50 topbar-content-parent"><ng-content></ng-content></div>
     <div class="align-middle items-center col-span-2 justify-end flex bg-gray-50 p-1"><a [routerLink]="'/' + segmentToUserIdentity + '/' + currentUserId"><icon-user></icon-user></a></div>
 </div>

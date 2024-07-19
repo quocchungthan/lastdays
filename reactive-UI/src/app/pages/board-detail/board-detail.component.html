@@ -1,7 +1,7 @@
 <topbar #topBar size="minimal">
-    <div class="flex justify-between bg-white">
+    <div class="flex justify-between bg-white" data-cy="tool-bar">
         <tool-selector [selectedToolId]="this.selectedToolId" [tools]="supportedDrawingTools" (toolSelected)="onToolSelected($event)"></tool-selector>
-        <color-board (colorSelected)="setColor($event)" [selectedColor]="selectedColor"></color-board>
+        <color-board [hidden]="notSupportColor(selectedToolId)" (colorSelected)="setColor($event)" [selectedColor]="selectedColor"></color-board>
 
         @if (isSaved) {
             <icon-bookmarked style="cursor: pointer" (click)="toggleSavedStatus()"></icon-bookmarked>
