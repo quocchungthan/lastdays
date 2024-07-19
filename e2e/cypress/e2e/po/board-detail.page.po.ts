@@ -7,11 +7,9 @@ export class BoardDetailPage {
         return this;
     }
 
-    screenshot() {
-        cy.get('body').toMatchImageSnapshot({
-            imageConfig: {
-                threshold: 0.001,
-            },
+    async screenshot() {
+        cy.matchImageSnapshot({
+            failureThreshold: 0.4
         });
     }
 }
