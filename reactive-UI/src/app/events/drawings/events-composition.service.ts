@@ -44,7 +44,7 @@ export class EventsCompositionService {
   }
 
   private _logConflictAt(i: number, allEvents: PureQueue) {
-    console.log('conflict at', i, allEvents.slice(i), 'compare to current: ', this._queue.slice(i));
+    // console.log('conflict at', i, allEvents.slice(i), 'compare to current: ', this._queue.slice(i));
   }
 
   getQueueLength() {
@@ -77,7 +77,7 @@ export class EventsCompositionService {
 
     this._forAsync()
       .then(() => {
-        console.log("Build done");
+        // console.log("Build done");
       });
   }
 
@@ -136,13 +136,13 @@ export class EventsCompositionService {
       this._pencil.clearAll();
       this._forAsync()
         .then(() => {
-          console.log("Build done");
+          // console.log("Build done");
         });
     } else {
       this._queue.push(cloneDeep(event));
       this._handleEvent(event)
         .then(() => {
-          console.log('handle done');
+          // console.log('handle done');
         });
     }
     // TODO: interact with db outside of this service

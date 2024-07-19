@@ -49,9 +49,8 @@ function run(): void {
   // Start up the Node server
   const server = app();
   injectWebSocket(server.listen(WEB_SOCKET_PORT, () => {
-    console.log(`Node Express server listening on http://localhost:${WEB_SOCKET_PORT}`);
+    // console.log(`Node Express server listening on http://localhost:${WEB_SOCKET_PORT}`);
   }));
 }
 
 run();
-console.log('run');

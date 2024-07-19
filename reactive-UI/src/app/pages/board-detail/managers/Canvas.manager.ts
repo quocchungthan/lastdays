@@ -100,7 +100,7 @@ export class CanvasManager {
         const pointer = this._viewPort.getPointerPosition();
 
         if (pointer === null) {
-          console.log('Pointer can\'t be null');
+        //   console.log('Pointer can\'t be null');
           return;
         }
 

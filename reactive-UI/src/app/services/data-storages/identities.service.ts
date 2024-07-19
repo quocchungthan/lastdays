@@ -23,7 +23,7 @@ export class IdentitiesService extends CrudBaseService<UserIdentity> {
         return this._createIdentityForThisMachine();
       })
       .then(() => {
-        console.log('Done!');
+        // console.log('Done!');
       });
   }
 
