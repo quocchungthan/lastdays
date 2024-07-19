@@ -1,6 +1,6 @@
 <!-- tool-selector.component.html -->
 
-<div class="tool-selector">
+<div class="tool-selector min-w-[100px]">
     <div *ngFor="let tool of tools"  [class.selected]="isSelected(tool.id)" class="tool" (click)="selectTool(tool)">
       <img [src]="tool.iconUrl" alt="{{ tool.label }}">
     </div>
