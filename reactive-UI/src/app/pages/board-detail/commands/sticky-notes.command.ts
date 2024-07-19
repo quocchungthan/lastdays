@@ -90,14 +90,16 @@ export class StickyNoteCommands {
 
     private _doAttach(shape: Shape<ShapeConfig>, foundStickyNoteAsBackground: Group) {
         if (shape instanceof Konva.Line) {
-            const shapePointsWithinStickyNote = shape.points();
+            const cloned = shape.clone();
+            const shapePointsWithinStickyNote = cloned.points();
             for (let i = 0; i < shapePointsWithinStickyNote.length; i += 2) {
                 shapePointsWithinStickyNote[i] -= foundStickyNoteAsBackground.x();
                 shapePointsWithinStickyNote[i + 1] -= foundStickyNoteAsBackground.y();
             }
-            shape.points(shapePointsWithinStickyNote);
+            cloned.points(shapePointsWithinStickyNote);
+            foundStickyNoteAsBackground.add(cloned);
+            shape.destroy();
         }
-        foundStickyNoteAsBackground.add(shape);
     }
 
     public movePlaceholder(p: Point) {
