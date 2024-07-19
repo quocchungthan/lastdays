@@ -7,9 +7,23 @@ export class BoardDetailPage {
         return this;
     }
 
-    async screenshot() {
+    screenshot() {
         cy.matchImageSnapshot({
-            failureThreshold: 0.4
+            failureThreshold: 0.2
         });
+    }
+
+    zoom(speed: number) {
+        cy.get('body')
+            .trigger('mousemove',  200, 200);
+        cy.wait(500);
+        cy.get('body')
+            .trigger("wheel", { 
+                deltaY: -66.666666 * speed, 
+                wheelDelta: 120 * speed, 
+                wheelDeltaX: 0 * speed, 
+                wheelDeltaY: 120 * speed, 
+                bubbles: true});
+        cy.wait(500);
     }
 }

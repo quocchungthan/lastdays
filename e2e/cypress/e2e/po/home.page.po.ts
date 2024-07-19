@@ -18,6 +18,7 @@ export class HomePage {
         cy.get('button[data-cy=create-button]')
             .should('exist')
             .click();
+        cy.wait(500);
         return new BoardDetailPage();
     }
 }
