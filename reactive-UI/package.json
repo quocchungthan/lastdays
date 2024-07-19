@@ -5,7 +5,7 @@
     "ng": "ng",
     "start": "ng serve --open",
     "build": "ng build",
-    "watch": "nodemon --ignore dist -e ts --exec npm run build && npm run serve:ssr:reactive-ui",
+    "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:reactive-ui": "node dist/reactive-ui/server/server.mjs"
   },
@@ -50,7 +50,6 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "node-loader": "^2.0.0",
-    "nodemon": "^3.1.3",
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.3",
     "typescript": "~5.4.2"

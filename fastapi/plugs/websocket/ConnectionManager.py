@@ -32,10 +32,6 @@ class ConnectionManager:
             await connection.socket.send_text(message)
 
     async def to_board_users(self, board_id: str, message: str, currentUser: WebSocket):
-        # data = json.loads(message)
-        # if (data['type'] == "DRAWING_EVENT"):
-        #     for connection in filter(lambda x: x.board_id == board_id, self.active_connections):
-        #         await connection.socket.send_text(message)
         for connection in filter(lambda x: x.board_id == board_id and x.socket != currentUser, self.active_connections):
             await connection.socket.send_text(message)
     def _connection_count(self):
