@@ -20,4 +20,12 @@ describe('Board', () => {
     boardDetail.zoom(4);
     boardDetail.screenshot();
   });
+
+  it ('Can draw with mouse', () => {
+    boardDetail
+      .getToolBar()
+      .clickPencil();
+    boardDetail.pressMouseToALineForm({x: 200, y: 200}, {x: 400, y: 400});
+    boardDetail.screenshot();
+  });
 })

@@ -1,0 +1,8 @@
+export class ToolBar {
+    clickPencil() {
+        cy.get('[data-cy=tool-bar]')
+            .should('exist')
+            .get('[data-cy=option-pencil]')
+            .click();
+    }
+}
