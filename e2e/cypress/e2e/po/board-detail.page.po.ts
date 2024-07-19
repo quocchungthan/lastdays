@@ -6,4 +6,12 @@ export class BoardDetailPage {
 
         return this;
     }
+
+    screenshot() {
+        cy.get('body').toMatchImageSnapshot({
+            imageConfig: {
+                threshold: 0.001,
+            },
+        });
+    }
 }
