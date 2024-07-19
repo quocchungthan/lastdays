@@ -76,21 +76,21 @@ export class TestKonvaNg2Component implements OnChanges, AfterViewInit, OnInit {
   ngOnChanges(changes: SimpleChanges): void {
     const sourceToRenderChanged = changes['data']?.currentValue;
     if (sourceToRenderChanged) {
-      console.log('Start drawing');
+      // console.log('Start drawing');
       this.reRenderRequests.next(true);
     }
   }
 
   handleZooming($event: Event) {
-    console.log($event);
+    // console.log($event);
   }
 
   handleInput($event: Event) {
-    console.log($event);
+    // console.log($event);
   }
 
   private _zoomAndDataChangeFireRerenderEvent() {
-    console.log('setup');
+    // console.log('setup');
     this.reRenderRequests
       // .pipe(debounceTime(GAP_BETWEEN_ACCEPTED_TRIGGERS))
       .subscribe(() => {
@@ -262,7 +262,7 @@ export class TestKonvaNg2Component implements OnChanges, AfterViewInit, OnInit {
         var pointer = stage.getPointerPosition();
 
         if (pointer === null) {
-          console.log('Pointer can\'t be null');
+          // console.log('Pointer can\'t be null');
           return;
         }
 

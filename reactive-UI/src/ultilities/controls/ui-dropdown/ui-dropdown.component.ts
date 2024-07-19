@@ -62,13 +62,13 @@ export class UiDropdownComponent implements OnInit {
       delay: 300,
       ignoreClickOutsideClass: false,
       onHide: () => {
-        console.log('dropdown has been hidden');
+        // console.log('dropdown has been hidden');
       },
       onShow: () => {
-        console.log('dropdown has been shown');
+        // console.log('dropdown has been shown');
       },
       onToggle: () => {
-        console.log('dropdown has been toggled');
+        // console.log('dropdown has been toggled');
       },
     };
 

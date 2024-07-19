@@ -56,13 +56,13 @@ export class SyncingService {
   }
 
   private _onMessageReceive(data: WSEvent) {
-    console.log('Receiving ', data);
+    // console.log('Receiving ', data);
     switch (data.type) {
       case WSEventType.DRAWING_EVENT:
         this._handleAdded(data.data);
         break;
       case WSEventType.ASK_OTHER_CLIENTS:
-        console.log('responding that', this._allEventsBaseEvent);
+        // console.log('responding that', this._allEventsBaseEvent);
         this._ws?.next({
           type: WSEventType.OTHER_CLIENT_RESPONDED,
           data:  this._allEventsBaseEvent

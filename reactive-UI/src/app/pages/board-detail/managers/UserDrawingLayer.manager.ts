@@ -107,7 +107,7 @@ export class UserDrawingLayerManager implements OnDestroy {
         // this._eventsCompositionService.build()
         this._loadDrawingObjectsAsync()
             .then(() => {
-                console.log('loaded');
+                // console.log('loaded');
             });
         // this._drawingObjects.index()
         //     .then(async (all) => {
@@ -158,7 +158,7 @@ export class UserDrawingLayerManager implements OnDestroy {
                     return this.boards.create(e.board);
                 })
                 .then(synced => {
-                    console.log("sync", synced, e.board);
+                    // console.log("sync", synced, e.board);
                 })
                 .finally(() => {
                     this._metaService.setPageName("Board - " + e.board.name);

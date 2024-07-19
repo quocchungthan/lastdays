@@ -140,13 +140,13 @@ export class BoardDetailComponent implements AfterViewInit {
 
         newSavingAction.boardId = id;
         this._savedBoards.create(newSavingAction).then(() => {
-          console.log('Saved the board ', id);
+          // console.log('Saved the board ', id);
 
           subscription.unsubscribe();
         });
       } else {
         this._savedBoards.delete(id).then(() => {
-          console.log('Unsaved the board ', id);
+          // console.log('Unsaved the board ', id);
           subscription.unsubscribe();
         });
       }
