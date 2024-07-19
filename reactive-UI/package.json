@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --open",
     "build": "ng build",
     "watch": "nodemon --ignore dist -e ts --exec npm run build && npm run serve:ssr:reactive-ui",
     "test": "ng test",

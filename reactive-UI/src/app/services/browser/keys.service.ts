@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { debounceTime } from 'rxjs';
 import { Subject } from 'rxjs/internal/Subject';
 
 @Injectable({
@@ -20,6 +21,6 @@ export class KeysService {
    }
 
   onUndo() {
-    return this._undo.asObservable();
+    return this._undo.pipe((debounceTime(50)));
   }
 }
