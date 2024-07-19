@@ -13,7 +13,7 @@ import { Subject, debounceTime } from "rxjs";
 import { Group } from "konva/lib/Group";
 import guid from "guid";
 import { ToolCompositionService } from "../../../services/states/tool-composition.service";
-import { ComparisonResult, EventsCompositionService } from "../../../events/drawings/events-composition.service";
+import { EventsCompositionService } from "../../../events/drawings/events-composition.service";
 import { Line, LineConfig } from "konva/lib/shapes/Line";
 import { AbstractEventQueueItem, BaseEvent, BoardedCreatedEvent, GeneralUndoEvent, InkAttachedToStickyNoteEvent, PencilUpEvent, StickyNoteMovedEvent, StickyNotePastedEvent, ToBaseEvent, ToDrawingEvent } from "../../../events/drawings/EventQueue";
 import { EventsService } from "../../../services/data-storages/events.service";
@@ -104,26 +104,10 @@ export class UserDrawingLayerManager implements OnDestroy {
         }
 
         // TODO: feed the composition.build method here
-        // this._eventsCompositionService.build()
         this._loadDrawingObjectsAsync()
             .then(() => {
                 // console.log('loaded');
             });
-        // this._drawingObjects.index()
-        //     .then(async (all) => {
-        //         for (let o of all.filter(x => x.boardId === this._boardId).map(x => x.konvaObject)) {
-        //             if (!o) {
-        //                 continue;
-        //             }
-
-        //             if (typeof o === 'string') {
-        //                 const parsed = JSON.parse(o) as Konva.Shape | Konva.Group;
-        //                 await this._recoverDrawingsOnLayer(parsed);
-        //             } else {
-        //                 await this._recoverDrawingsOnLayer(o);
-        //             }
-        //         }
-        //     });
     }
     
     private async _loadDrawingObjectsAsync() {
@@ -194,13 +178,6 @@ export class UserDrawingLayerManager implements OnDestroy {
                 this._eventsCompositionService.insert(ToDrawingEvent(event)!);
             });
     }
-
-    // private async _recoverDrawingsOnLayer(x: Konva.Shape | Konva.Group) {
-    //     let insertedPencil = this._pencil.parseFromJson(x as Konva.Shape);
-    //     if (x?.className === 'Group' && (x.attrs.name + "").split(" ").includes(StickyNoteCommands.StickyNoteName)) {
-    //         await this._stickyNote.parseFromJson(x as Konva.Group);
-    //     }
-    // }
 
     private _startSubscribingEvents() {
         this._events.onTouchStart()
@@ -316,33 +293,6 @@ export class UserDrawingLayerManager implements OnDestroy {
 
         this._generallyProcessNewEvent(event);
     }
-
-    // private _updateStickyNoteById(stickyNoteId: string | undefined, attachedTo: Group) {
-    //     if (!stickyNoteId) {
-    //         return;
-    //     }
-
-    //    this._drawingObjects.detail(stickyNoteId)
-    //     .then(drawingObject => {
-    //         if (!drawingObject) {
-    //             return;
-    //         }
-    //         drawingObject.konvaObject = attachedTo;
-    //         this._drawingObjects.update(drawingObject);
-    //     });
-    // }
-
-    // private _syncToDb(predefineId: string, brandNewDrawing?: Konva.Shape | Konva.Group) {
-    //     if (isNil(brandNewDrawing)) {
-    //         return Promise.resolve("");
-    //     }
-    //     const newDrawingObject = new DrawingObject();
-    //     newDrawingObject.id = predefineId;
-    //     newDrawingObject.boardId = this._boardId;
-    //     newDrawingObject.konvaObject = brandNewDrawing;
-    //     return this._drawingObjects.create(newDrawingObject)
-    //         .then((x) => x.id);
-    // }
 
     setTool(tool: string) {
         this._toolComposition.setTool(tool);
