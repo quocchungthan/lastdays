@@ -135,18 +135,32 @@ export class UserDrawingLayerManager implements OnDestroy {
                 if (newEvent instanceof BoardedCreatedEvent) {
                     this._synceBoardData([newEvent]);
                 }
-                this._eventsCompositionService
-                    .insert(ToDrawingEvent(newEvent)!);
+                this._insertIfNotExisted(newEvent);
             });
         this._syncingService.onEventsReset()
             .subscribe((allEvents) => {
                 this._synceBoardData(allEvents.filter(x => x instanceof BoardedCreatedEvent) as BoardedCreatedEvent[]);
+                this._overwriteEventsByBoardId(allEvents)
+                    .then(() => {
+                        console.log('after overwriting');
+                    });
                 this._eventsCompositionService
                     .build(allEvents.map(x => ToDrawingEvent(x)!));
             });
         this._eventsCompositionService
             .build(all);
     }
+    private async _overwriteEventsByBoardId(allEvents: BaseEvent[]) {
+        const listEventsOfCurrentBoard = await this._eventsService.indexAndMap(this._boardId);
+        for (let e of listEventsOfCurrentBoard) {
+            await this._eventsService.delete(e.id);
+        }
+        for (let e of allEvents) {
+            await this._eventsService.create(e);
+        }
+        console.log('done overwriting');
+    }
+
     private _synceBoardData(boardRelatedEvents: BoardedCreatedEvent[]) {
         boardRelatedEvents.forEach(e => {
             this.boards.detail(e.boardId)
@@ -166,15 +180,18 @@ export class UserDrawingLayerManager implements OnDestroy {
         });
     }
 
-    private _insertIfNotExisted(allEvents: BaseEvent[], i: number) {
-        this._eventsService.detail(allEvents[i].id)
+    private _insertIfNotExisted(event: BaseEvent) {
+        this._eventsService.detail(event.id)
             .then((existed) => {
                 if (!existed) {
-                    this._eventsService.create(allEvents[i])
-                        .then((justCreated) => {
-                            this._eventsCompositionService.insert(ToDrawingEvent(allEvents[i])!);
-                        });
+                    return this._eventsService.create(event)
+                        .then((justCreated) => {});
                 }
+
+                return Promise.resolve();
+            })
+            .finally(() => {
+                this._eventsCompositionService.insert(ToDrawingEvent(event)!);
             });
     }
 

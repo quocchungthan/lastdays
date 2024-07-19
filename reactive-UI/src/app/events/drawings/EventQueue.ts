@@ -11,6 +11,7 @@ export type SupportedColors = typeof SUPPORTED_COLORS[number];
 export interface AbstractEventQueueItem {
     code: EventCode;
     targetId: string;
+    id: string;
 }
 
 export class BaseEvent extends BaseEntity {
