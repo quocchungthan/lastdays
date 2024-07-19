@@ -86,9 +86,17 @@ export class SyncingService {
   }
 
   private _handleAddedMultiple(data: WSEvent) {
-    (data.data as any[]).forEach(element => {
-      this._handleAdded(element);
-    });
+    const events = data.data as any[];
+    let index = 0;
+    var internval = setInterval(() => {
+      if (index >=events.length) {
+        clearInterval(internval);
+      } else {
+        this._handleAdded(events[index]);
+        index ++;
+      }
+      // TODO: temporary solution for waiting promises
+    }, 50);
   }
 
   private _handleComparisionREsult(comparison: ComparisonResult, data: WSEvent) {
