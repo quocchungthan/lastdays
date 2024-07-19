@@ -5,6 +5,8 @@ services:
       dockerfile: agilelink-ci/Dockerfile.fastapi
     volumes:
       - ../fastapi:/app
+    ports:
+      - "8000:8000"
     networks:
       - app-network
 
