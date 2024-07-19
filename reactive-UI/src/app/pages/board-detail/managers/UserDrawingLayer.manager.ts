@@ -130,7 +130,15 @@ export class UserDrawingLayerManager implements OnDestroy {
         const all = await this._eventsService.indexAndMap(this._boardId);
         this._syncingService.listen(this._boardId)
             .peerCheck(all.map(x => ToBaseEvent(x)!))
-            .onEventAdded()
+        this._syncingService.onEventAdded()
+            .subscribe((newEvent) => {
+                if (newEvent instanceof BoardedCreatedEvent) {
+                    this._synceBoardData([newEvent]);
+                }
+                this._eventsCompositionService
+                    .insert(ToDrawingEvent(newEvent)!);
+            });
+        this._syncingService.onEventsReset()
             .subscribe((allEvents) => {
                 this._synceBoardData(allEvents.filter(x => x instanceof BoardedCreatedEvent) as BoardedCreatedEvent[]);
                 this._eventsCompositionService
