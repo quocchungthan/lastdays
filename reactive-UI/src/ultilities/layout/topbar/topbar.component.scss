@@ -10,3 +10,9 @@
         max-height: 80px;
     }
 }
+
+.topbar-content-parent {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Hides the scrollbar of the parent */
+}

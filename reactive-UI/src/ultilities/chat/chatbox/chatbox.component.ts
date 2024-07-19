@@ -10,7 +10,7 @@ import { ToasterService } from '../../../app/services/ui-notifications/toaster.s
   styleUrl: './chatbox.component.scss'
 })
 export class ChatboxComponent {
-  isExpandingChatBox = true;
+  isExpandingChatBox = false;
   chatBoxForm: FormGroup<{message: FormControl<string | null>}>;
 
   constructor(
