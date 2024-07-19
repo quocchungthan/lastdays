@@ -1,11 +1,23 @@
+import { BoardDetailPage } from './po/board-detail.page.po';
 import { HomePage } from "./po/home.page.po";
 
 describe('Board', () => {
-  it('Can be created and open immediately', () => {
-    const home = new HomePage();
+  let home = new HomePage();
+  let boardDetail = new BoardDetailPage();
+
+  beforeEach(() => {
     home.visit();
     home.fillBoardName('first board');
-    var boardDetail = home.clickCreate();
+    boardDetail = home.clickCreate();
+  });
+
+  it('Can be created and open immediately', () => {
     boardDetail.screenshot();
-  })
+
+  });
+
+  it ('Can be zoom', () => {
+    boardDetail.zoom(4);
+    boardDetail.screenshot();
+  });
 })
