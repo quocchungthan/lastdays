@@ -32,6 +32,13 @@ export class BoardDetailPage {
         cy.wait(500);
     }
 
+    
+    click(position: Point) {
+        cy.get('[data-cy=drawing-container]')
+            .click(position.x, position.y);
+        cy.wait(500);
+    }
+
     getToolBar() {
         return new ToolBar();
     }
