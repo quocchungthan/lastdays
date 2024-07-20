@@ -12,7 +12,7 @@ export class BoardDetailPage {
     }
 
     screenshot() {
-        cy.matchImageSnapshot({
+        cy.get('[data-cy=drawing-container]').matchImageSnapshot({
             failureThreshold: 0.2
         });
     }
