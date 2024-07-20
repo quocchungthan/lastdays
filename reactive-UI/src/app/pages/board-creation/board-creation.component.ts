@@ -14,11 +14,12 @@ import { BoardedCreatedEvent } from '../../events/drawings/EventQueue';
 import { IdentitiesService } from '../../services/data-storages/identities.service';
 import { EventsCompositionService } from '../../events/drawings/events-composition.service';
 import { MetaService } from '../../services/browser/meta.service';
+import { WarningBoxComponent } from '../../../ultilities/static-component/warning-box/warning-box.component';
 
 @Component({
   selector: 'app-board-creation',
   standalone: true,
-  imports: [TopbarComponent, ReactiveFormsModule, BoardGridComponent],
+  imports: [TopbarComponent, ReactiveFormsModule, BoardGridComponent, WarningBoxComponent],
   providers: [EventsCompositionService],
   templateUrl: './board-creation.component.html',
   styleUrl: './board-creation.component.scss'
