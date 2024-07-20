@@ -11,14 +11,15 @@ import { DEFAULT_BOARD_NAME } from '../../configs/default-value.constants';
 import { BoardGridComponent } from '../../components/board-grid/board-grid.component';
 import { EventsService } from '../../services/data-storages/events.service';
 import { BoardedCreatedEvent } from '../../events/drawings/EventQueue';
-import { IdentitiesService } from '../../services/data-storages/identities.service';
 import { EventsCompositionService } from '../../events/drawings/events-composition.service';
 import { MetaService } from '../../services/browser/meta.service';
+import { WarningBoxComponent } from '../../../ultilities/static-component/warning-box/warning-box.component';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-board-creation',
   standalone: true,
-  imports: [TopbarComponent, ReactiveFormsModule, BoardGridComponent],
+  imports: [TopbarComponent, ReactiveFormsModule, BoardGridComponent, WarningBoxComponent],
   providers: [EventsCompositionService],
   templateUrl: './board-creation.component.html',
   styleUrl: './board-creation.component.scss'
@@ -26,6 +27,7 @@ import { MetaService } from '../../services/browser/meta.service';
 export class BoardCreationComponent implements AfterViewInit {
   lastVisits: LastVisits = new LastVisits;
   boardCreationForm: FormGroup<{name: FormControl<string | null>}>;
+  warningDataIsPublic: string = 'WARNING_DATA_IS_PUBLIC';
 
   constructor(
     private _formBuilder: FormBuilder, 
@@ -34,7 +36,8 @@ export class BoardCreationComponent implements AfterViewInit {
     private _router: Router,
     private _events: EventsService,
     private _metaService: MetaService,
-    private _identities: IdentitiesService) {
+    private _translationService: TranslateService,
+    ) {
     this.boardCreationForm = this._formBuilder.group({
       name: ['', Validators.required]
     });
@@ -43,6 +46,10 @@ export class BoardCreationComponent implements AfterViewInit {
       .then((lastVisits) => {
         this.lastVisits = lastVisits;
       });
+    this._translationService.get(this.warningDataIsPublic)
+      .subscribe((translatedWarningMessage) => {
+        this.warningDataIsPublic = translatedWarningMessage;
+      })
   }
 
   ngAfterViewInit(): void {

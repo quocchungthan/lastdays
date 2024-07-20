@@ -11,4 +11,7 @@
         <h3 class="mb-4 mt-4">Last updated:</h3>
         <app-board-grid [boardList]="lastVisits"></app-board-grid>
     </div>
+    <div class="container max-w-[500px] m-auto mt-3">
+        <warning-box [warningMessage]="warningDataIsPublic"></warning-box>
+    </div>
 </div>
