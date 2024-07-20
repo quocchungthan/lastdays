@@ -12,6 +12,6 @@
         <app-board-grid [boardList]="lastVisits"></app-board-grid>
     </div>
     <div class="container max-w-[500px] m-auto mt-3">
-        <warning-box warningMessage="**Warning: Data stored in local storage is accessible via unique URLs, potentially making it public if shared. Exercise caution with sensitive information."></warning-box>
+        <warning-box [warningMessage]="warningDataIsPublic"></warning-box>
     </div>
 </div>
