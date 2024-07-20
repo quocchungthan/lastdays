@@ -41,3 +41,19 @@ Run this within working dir agilelink-ci/
 ```cmd
 docker-compose up --build -d && start http://localhost
 ```
+#### Automation test
+- make sure your Angular application already run at port 80:
+
+At fodler `reactive-UI/`
+```
+npm run start:e2e
+```
+
+Run this within working dir `e2e/`
+```cmd
+npm run openui
+```
+or if your machine run docker
+```cmd
+npm start
+```

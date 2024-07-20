@@ -12,7 +12,7 @@ export class BoardDetailPage {
     }
 
     screenshot() {
-        cy.matchImageSnapshot({
+        cy.get('[data-cy=drawing-container]').matchImageSnapshot({
             failureThreshold: 0.2
         });
     }
@@ -27,7 +27,15 @@ export class BoardDetailPage {
                 wheelDelta: 120 * speed, 
                 wheelDeltaX: 0 * speed, 
                 wheelDeltaY: 120 * speed, 
-                bubbles: true});
+                bubbles: true,
+                animationDistanceThreshold: 0.2 });
+        cy.wait(500);
+    }
+
+    
+    click(position: Point) {
+        cy.get('[data-cy=drawing-container]')
+            .click(position.x, position.y);
         cy.wait(500);
     }
 
@@ -35,11 +43,38 @@ export class BoardDetailPage {
         return new ToolBar();
     }
 
-    // TODO: stil not work properly
-    pressMouseToALineForm(from: Point, to: Point) {
+    hoverMouseToALineTo(to: Point) {
+        const container = cy.get('[data-cy=drawing-container]')
+            .get('canvas')
+            .eq(0);
+
+        this._performMouseOver(container, to);
+    }
+
+    ctrlZ() {
         cy.get('body')
-            .trigger('mousedown', { pageX: from.x, pageY: from.y })
-            .trigger('mousemove', { pageX: to.x, pageY: from.y})
-            .trigger('mouseup');
+            .type("{ctrl}z")
+        cy.wait(500);
+    }
+
+    pressMouseToALineForm(from: Point, to: Point) {
+        const container = cy.get('[data-cy=drawing-container]')
+            .get('canvas')
+            .eq(0);
+
+        this._performMousePress(container, from, to);
+    }
+
+    private _performMousePress(container: Cypress.Chainable<JQuery<HTMLElement>>, from: Point, to: Point) {
+        container.trigger("mouseover", from.x, from.y, { force: true, animationDistanceThreshold: 20 })
+            .trigger('mousedown', from.x, from.y, { force: true, animationDistanceThreshold: 20 })
+            .trigger('mousemove', to.x, to.y, { force: true, animationDistanceThreshold: 20 })
+            .trigger('mouseup', { force: true });
+        cy.wait(500);
+    }
+
+    private _performMouseOver(container: Cypress.Chainable<JQuery<HTMLElement>>, to: Point) {
+        container.trigger('mousemove', to.x, to.y, { force: true, animationDistanceThreshold: 20 });
+        cy.wait(500);
     }
 }
