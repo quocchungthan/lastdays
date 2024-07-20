@@ -51,6 +51,12 @@ export class BoardDetailPage {
         this._performMouseOver(container, to);
     }
 
+    ctrlZ() {
+        cy.get('body')
+            .type("{ctrl}z")
+        cy.wait(500);
+    }
+
     pressMouseToALineForm(from: Point, to: Point) {
         const container = cy.get('[data-cy=drawing-container]')
             .get('canvas')
