@@ -9,10 +9,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Change to e2e directory
-        shell: cmd
-        run: cd e2e/
-
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
@@ -20,8 +16,12 @@ jobs:
 
       - name: Install dependencies
         shell: cmd
-        run: npm install
+        run: |
+          cd e2e
+          npm install
 
       - name: Run Cypress tests
         shell: cmd
-        run: npm start
+        run: |
+          cd e2e
+          npm start
