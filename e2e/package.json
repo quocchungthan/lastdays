@@ -1,7 +1,7 @@
 {
   "scripts": {
     "openui": "cypress open",
-    "start": "cd ../agilelink-ci/ && docker-compose up --build -d && cd ../e2e/ && cypress run"
+    "start": "cd ../agilelink-ci/ && docker-compose up --build -d && cd ../e2e/ && cypress run --headless"
   },
   "devDependencies": {
     "@simonsmith/cypress-image-snapshot": "^9.1.0",
