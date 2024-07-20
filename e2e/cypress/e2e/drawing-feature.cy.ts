@@ -17,15 +17,24 @@ describe('Board', () => {
   });
 
   it ('Can be zoom', () => {
-    boardDetail.zoom(4);
+    boardDetail.zoom(10);
+    boardDetail.zoom(10);
+    boardDetail.zoom(10);
     boardDetail.screenshot();
   });
+
+  it ('Can pan', () => {
+    boardDetail.pressMouseToALineForm({x: 200, y: 200}, {x: 400, y: 400});
+    boardDetail.screenshot();
+  });
+
 
   it ('Can draw with mouse', () => {
     boardDetail
       .getToolBar()
       .clickPencil();
     boardDetail.pressMouseToALineForm({x: 200, y: 200}, {x: 400, y: 400});
+    boardDetail.pressMouseToALineForm({x: 400, y: 400}, {x: 410, y: 30});
     boardDetail.screenshot();
   });
 })

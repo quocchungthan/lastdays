@@ -27,7 +27,8 @@ export class BoardDetailPage {
                 wheelDelta: 120 * speed, 
                 wheelDeltaX: 0 * speed, 
                 wheelDeltaY: 120 * speed, 
-                bubbles: true});
+                bubbles: true,
+                animationDistanceThreshold: 0.2 });
         cy.wait(500);
     }
 
@@ -35,11 +36,19 @@ export class BoardDetailPage {
         return new ToolBar();
     }
 
-    // TODO: stil not work properly
     pressMouseToALineForm(from: Point, to: Point) {
-        cy.get('body')
-            .trigger('mousedown', { pageX: from.x, pageY: from.y })
-            .trigger('mousemove', { pageX: to.x, pageY: from.y})
-            .trigger('mouseup');
+        const container = cy.get('[data-cy=drawing-container]')
+            .get('canvas')
+            .eq(0);
+
+        this._performMousePress(container, from, to);
+    }
+
+    private _performMousePress(container: Cypress.Chainable<JQuery<HTMLElement>>, from: Point, to: Point) {
+        container.trigger("mouseover", from.x, from.y, { force: true, animationDistanceThreshold: 20 })
+            .trigger('mousedown', from.x, from.y, { force: true, animationDistanceThreshold: 20 })
+            .trigger('mousemove', to.x, to.y, { force: true, animationDistanceThreshold: 20 })
+            .trigger('mouseup', { force: true });
+        cy.wait(500);
     }
 }
