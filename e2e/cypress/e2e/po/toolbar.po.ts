@@ -5,4 +5,11 @@ export class ToolBar {
             .get('[data-cy=option-pencil]')
             .click();
     }
+
+    clickStickyNote() {
+        cy.get('[data-cy=tool-bar]')
+            .should('exist')
+            .get('[data-cy=option-stickynote]')
+            .click();
+    }
 }

@@ -36,6 +36,14 @@ export class BoardDetailPage {
         return new ToolBar();
     }
 
+    hoverMouseToALineTo(to: Point) {
+        const container = cy.get('[data-cy=drawing-container]')
+            .get('canvas')
+            .eq(0);
+
+        this._performMouseOver(container, to);
+    }
+
     pressMouseToALineForm(from: Point, to: Point) {
         const container = cy.get('[data-cy=drawing-container]')
             .get('canvas')
@@ -49,6 +57,11 @@ export class BoardDetailPage {
             .trigger('mousedown', from.x, from.y, { force: true, animationDistanceThreshold: 20 })
             .trigger('mousemove', to.x, to.y, { force: true, animationDistanceThreshold: 20 })
             .trigger('mouseup', { force: true });
+        cy.wait(500);
+    }
+
+    private _performMouseOver(container: Cypress.Chainable<JQuery<HTMLElement>>, to: Point) {
+        container.trigger('mousemove', to.x, to.y, { force: true, animationDistanceThreshold: 20 });
         cy.wait(500);
     }
 }
