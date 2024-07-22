@@ -28,6 +28,7 @@ export class BoardCreationComponent implements AfterViewInit {
   lastVisits: LastVisits = new LastVisits;
   boardCreationForm: FormGroup<{name: FormControl<string | null>}>;
   warningDataIsPublic: string = 'WARNING_DATA_IS_PUBLIC';
+  createBoardText: string = 'CREATE_BOARD';
 
   constructor(
     private _formBuilder: FormBuilder, 
@@ -46,9 +47,10 @@ export class BoardCreationComponent implements AfterViewInit {
       .then((lastVisits) => {
         this.lastVisits = lastVisits;
       });
-    this._translationService.get(this.warningDataIsPublic)
-      .subscribe((translatedWarningMessage) => {
-        this.warningDataIsPublic = translatedWarningMessage;
+    this._translationService.get([this.warningDataIsPublic, this.createBoardText])
+      .subscribe((translatedMessages) => {
+        this.warningDataIsPublic = translatedMessages[this.warningDataIsPublic];
+        this.createBoardText = translatedMessages[this.createBoardText];
       })
   }
 

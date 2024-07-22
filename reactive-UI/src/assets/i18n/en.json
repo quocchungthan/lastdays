@@ -1,5 +1,6 @@
 {
     "FORM_DIALOG_CANCEL": "Cancel",
     "FORM_DIALOG_SUBMIT": "Submit",
+    "CREATE_BOARD": "Create board",
     "WARNING_DATA_IS_PUBLIC": "**Warning: Data stored in local storage is accessible via unique URLs, potentially making it public if shared. Exercise caution with sensitive information."
 }
