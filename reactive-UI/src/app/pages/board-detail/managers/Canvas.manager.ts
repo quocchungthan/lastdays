@@ -11,6 +11,7 @@ import { UrlExtractorService } from '../../../services/browser/url-extractor.ser
 import { Injectable } from '@angular/core';
 import { KonvaObjectService } from '../../../services/3rds/konva-object.service';
 import { Wheel } from '../../../../ultilities/types/Wheel';
+import { TextInputCommands } from '../commands/text-input.command';
 
 @Injectable()
 export class CanvasManager {
@@ -73,12 +74,17 @@ export class CanvasManager {
 
         this._viewPort.draggable(false);
 
+        // TODO: move logic to the owner class
         if (this.tool == StickyNoteCommands.CommandName) {
             this._cursorManager.reset();
         }
 
+        // TODO: move logic to the owner class
         if (this.tool == PencilCommands.CommandName) {
             this._cursorManager.pencil();
+        }
+        if (this.tool == TextInputCommands.CommandName) {
+            this._cursorManager.textInput();
         }
     }
 
