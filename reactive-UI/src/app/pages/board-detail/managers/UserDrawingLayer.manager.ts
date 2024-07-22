@@ -324,7 +324,8 @@ export class UserDrawingLayerManager implements OnDestroy {
     setTool(tool: string) {
         this._toolComposition.setTool(tool);
         this._setupSpecialCursor();
-        this._stickyNote.setDraggable(this._toolComposition.tool !== PencilCommands.CommandName);
+        // TODO: write test to cover drag function when user picked not write tool
+        this._stickyNote.setDraggable(![PencilCommands.CommandName, TextInputCommands.CommandName].includes(this._toolComposition.tool));
     }
 
     private _setupSpecialCursor() {

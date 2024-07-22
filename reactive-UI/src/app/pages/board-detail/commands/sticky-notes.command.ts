@@ -10,6 +10,7 @@ import { ToolCompositionService } from '../../../services/states/tool-compositio
 import { InkAttachedToStickyNoteEvent, StickyNoteMovedEvent, StickyNotePastedEvent } from '../../../events/drawings/EventQueue';
 import { STANDARD_STICKY_NOTE_SIZE } from '../../../configs/size';
 import { IRect } from 'konva/lib/types';
+import { TextInputCommands } from './text-input.command';
 
 export interface StickyNote {
     navtive: Konva.Group;
@@ -133,7 +134,8 @@ export class StickyNoteCommands {
                 placeholder.addName(StickyNoteCommands.StickyNoteName);
                 placeholder.addName(event.targetId);
                 this._drawingLayer.add(placeholder);
-                this.setDraggable(this._toolComposition.tool !== PencilCommands.CommandName);
+                // duplicated code
+                this.setDraggable(![PencilCommands.CommandName, TextInputCommands.CommandName].includes(this._toolComposition.tool));
                 this.registerMovingEvent(placeholder);
                 res();
             });
