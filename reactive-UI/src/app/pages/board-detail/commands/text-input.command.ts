@@ -2,17 +2,20 @@ import Konva from "konva";
 import { Point } from "../../../../ultilities/types/Point";
 import { ToolCompositionService } from "../../../services/states/tool-composition.service";
 import { TextInputFinishedEvent } from "../../../events/drawings/EventQueue";
+import { Observable } from "rxjs";
+import { FormModalService } from "../../../../ultilities/control/form-modal.service";
 
 export class TextInputCommands {
     public static readonly CommandName = "text-input";
     public static readonly IconPng = 'input.png';
     public static CLASS_NAME = "TEXT_INPUT";
     private _currentObject?: Konva.Group;
+    private _triggerTextInputFinishedCallback?: () => void;
 
     /**
      *
      */
-    constructor(private _layer: Konva.Layer, private _toolComposition: ToolCompositionService) {
+    constructor(private _layer: Konva.Layer, private _toolComposition: ToolCompositionService, private _formModalService: FormModalService) {
     }
 
     extractId(nativeElement: Konva.Line) {
@@ -30,7 +33,12 @@ export class TextInputCommands {
     // #end region
 
     public renderComponentAndFocus() {
-        
+        return new Observable<Konva.Group>((observer) => {
+            this._formModalService.open();
+            this._triggerTextInputFinishedCallback = () => {
+                observer.next(this._currentObject);
+            }
+        });
     }
 
     public parseFromJson(shape: Konva.Shape) {
