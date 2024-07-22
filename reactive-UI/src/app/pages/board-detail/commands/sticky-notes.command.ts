@@ -17,6 +17,7 @@ export interface StickyNote {
 
 export class StickyNoteCommands {
     public static readonly CommandName = "stickynote";
+    public static readonly IconPng = 'sticky-note.png';
     public static readonly BackgroundUrlAttrName = "stickynoteUrl";
     private readonly _standardStickyNoteSize = STANDARD_STICKY_NOTE_SIZE;
     private readonly _placeholderName = "PLACEHOLDER";

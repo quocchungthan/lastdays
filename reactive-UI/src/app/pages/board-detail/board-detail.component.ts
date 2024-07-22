@@ -37,6 +37,7 @@ import { EventsCompositionService } from '../../events/drawings/events-compositi
 import { SyncingService } from '../../events/drawings/syncing.service';
 import { SavedBoardsService } from '../../services/data-storages/saved-boards.service';
 import { SavedBoard } from '../../services/data-storages/entities/SavedBoard';
+import { TextInputCommands } from './commands/text-input.command';
 
 @Component({
   selector: 'app-board-detail',
@@ -74,18 +75,27 @@ export class BoardDetailComponent implements AfterViewInit {
   supportedDrawingTools: Tool[] = [
     {
       id: '',
+      // TODO: i18n
       label: 'Move',
       iconUrl: `${TOOL_ICON_FOLDER}grab.png`,
     },
     {
       id: StickyNoteCommands.CommandName,
+      // TODO: i18n
       label: 'Sticky note',
-      iconUrl: `${TOOL_ICON_FOLDER}sticky-note.png`,
+      iconUrl: `${TOOL_ICON_FOLDER}${StickyNoteCommands.IconPng}`,
     },
     {
       id: PencilCommands.CommandName,
+      // TODO: i18n
       label: 'Pencil',
-      iconUrl: `${TOOL_ICON_FOLDER}pencil.png`,
+      iconUrl: `${TOOL_ICON_FOLDER}${PencilCommands.IconPng}`,
+    },
+    {
+      id: TextInputCommands.CommandName,
+      // TODO: i18n
+      label: 'Pencil',
+      iconUrl: `${TOOL_ICON_FOLDER}${TextInputCommands.IconPng}`,
     },
   ];
 
@@ -121,7 +131,8 @@ export class BoardDetailComponent implements AfterViewInit {
   }
 
   notSupportColor(toolId: string) {
-    return toolId !== PencilCommands.CommandName;
+    // TODO: add flags to command class to specify if the command supports Color
+    return ![PencilCommands.CommandName, TextInputCommands.CommandName].includes(toolId);
   }
 
   onToolSelected(id: string) {

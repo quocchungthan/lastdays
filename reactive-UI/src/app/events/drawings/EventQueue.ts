@@ -79,6 +79,27 @@ export class PencilUpEvent extends BaseEvent implements AbstractEventQueueItem {
     }
 }
 
+export class TextInputFinishedEvent extends BaseEvent implements AbstractEventQueueItem {
+    code: EventCode = EventCode.PencilUp;
+    targetId: string = '';
+    color: SupportedColors = PREFERED_INK_COLOR;
+    fontSize: number = STROKE_WIDTH;
+
+    constructor();
+    constructor(itself: TextInputFinishedEvent);
+
+    constructor(itself?: TextInputFinishedEvent) {
+        super(itself);
+        if (!itself) {
+            return;
+        }
+        this.code = itself.code;
+        this.targetId = itself.targetId;
+        this.color = itself.color;
+        this.fontSize = itself.fontSize;
+    }
+}
+
 export class StickyNotePastedEvent extends BaseEvent implements AbstractEventQueueItem {
     code: EventCode = EventCode.StickyNotePasted;
     targetId: string = '';
