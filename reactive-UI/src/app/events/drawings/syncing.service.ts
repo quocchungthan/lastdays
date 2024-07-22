@@ -100,7 +100,6 @@ export class SyncingService {
   }
 
   private _handleComparisionREsult(comparison: ComparisonResult, data: WSEvent) {
-    console.debug(comparison.toString());
     switch (comparison) {
       // TODO: If they're equal -> ignore
       case ComparisonResult.EQUAL:
