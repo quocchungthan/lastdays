@@ -1,6 +1,6 @@
 import { AfterViewInit, Component } from '@angular/core';
 import { LastVisits } from '../../viewmodels/agile-domain/last-visits.viewmodel';
-import { TopbarComponent } from '../../../ultilities/layout/topbar/topbar.component';
+import { TopbarComponent } from '../../../utilities/layout/topbar/topbar.component';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToasterService } from '../../services/ui-notifications/toaster.service';
 import { BoardsService } from '../../services/data-storages/boards.service';
@@ -13,7 +13,7 @@ import { EventsService } from '../../services/data-storages/events.service';
 import { BoardedCreatedEvent } from '../../events/drawings/EventQueue';
 import { EventsCompositionService } from '../../events/drawings/events-composition.service';
 import { MetaService } from '../../services/browser/meta.service';
-import { WarningBoxComponent } from '../../../ultilities/static-component/warning-box/warning-box.component';
+import { WarningBoxComponent } from '../../../utilities/static-component/warning-box/warning-box.component';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({

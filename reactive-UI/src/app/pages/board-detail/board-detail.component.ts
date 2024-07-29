@@ -5,16 +5,16 @@ import {
   OnDestroy,
   ViewChild,
 } from '@angular/core';
-import { TopbarComponent } from '../../../ultilities/layout/topbar/topbar.component';
+import { TopbarComponent } from '../../../utilities/layout/topbar/topbar.component';
 import { KONVA_CONTAINER } from '../../configs/html-ids.constants';
 import { CanvasManager } from './managers/Canvas.manager';
-import { ChatboxComponent } from '../../../ultilities/chat/chatbox/chatbox.component';
-import { BookmarkComponent } from '../../../ultilities/icons/bookmark/bookmark.component';
-import { BookmarkedComponent } from '../../../ultilities/icons/bookmarked/bookmarked.component';
+import { ChatboxComponent } from '../../../utilities/chat/chatbox/chatbox.component';
+import { BookmarkComponent } from '../../../utilities/icons/bookmark/bookmark.component';
+import { BookmarkedComponent } from '../../../utilities/icons/bookmarked/bookmarked.component';
 import {
   DropDownItem,
   UiDropdownComponent,
-} from '../../../ultilities/controls/ui-dropdown/ui-dropdown.component';
+} from '../../../utilities/controls/ui-dropdown/ui-dropdown.component';
 import { StickyNoteCommands } from './commands/sticky-notes.command';
 import { PencilCommands } from './commands/pencil.command';
 import { BoardsService } from '../../services/data-storages/boards.service';
@@ -27,11 +27,11 @@ import { ViewPortEventsManager } from './managers/ViewPortEvents.manager';
 import { CursorManager } from './managers/Cursor.manager';
 import { ViewportSizeService } from '../../services/browser/viewport-size.service';
 import { ToolCompositionService } from '../../services/states/tool-composition.service';
-import { ColorBoardComponent } from '../../../ultilities/painting/color-board/color-board.component';
+import { ColorBoardComponent } from '../../../utilities/painting/color-board/color-board.component';
 import {
   Tool,
   ToolSelectorComponent,
-} from '../../../ultilities/painting/tool-selector/tool-selector.component';
+} from '../../../utilities/painting/tool-selector/tool-selector.component';
 import { TOOL_ICON_FOLDER } from '../../configs/paths.constant';
 import { EventsCompositionService } from '../../events/drawings/events-composition.service';
 import { SyncingService } from '../../events/drawings/syncing.service';

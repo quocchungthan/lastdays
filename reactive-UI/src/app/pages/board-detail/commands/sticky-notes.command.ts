@@ -1,8 +1,8 @@
 import Konva from 'konva';
-import { Point } from '../../../../ultilities/types/Point';
+import { Point } from '../../../../utilities/types/Point';
 import { isNil } from 'lodash';
 import { Shape, ShapeConfig, shapes } from 'konva/lib/Shape';
-import { areRectanglesIntersecting } from '../../../../ultilities/mathematicals/collision';
+import { areRectanglesIntersecting } from '../../../../utilities/mathematicals/collision';
 import { PencilCommands } from './pencil.command';
 import { Subject } from 'rxjs';
 import { Group } from 'konva/lib/Group';

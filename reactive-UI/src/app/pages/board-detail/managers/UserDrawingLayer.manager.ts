@@ -19,10 +19,9 @@ import { AbstractEventQueueItem, BaseEvent, BoardedCreatedEvent, GeneralUndoEven
 import { EventsService } from "../../../services/data-storages/events.service";
 import { SyncingService } from "../../../events/drawings/syncing.service";
 import { KeysService } from "../../../services/browser/keys.service";
-import { Board } from "../../../services/data-storages/entities/Board";
 import { MetaService } from "../../../services/browser/meta.service";
 import { TextInputCommands } from "../commands/text-input.command";
-import { FormModalService } from "../../../../ultilities/control/form-modal.service";
+import { FormModalService } from '../../../../utilities/controls/form-modal.service';
 
 @Injectable()
 export class UserDrawingLayerManager implements OnDestroy {

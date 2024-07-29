@@ -1,10 +1,10 @@
 import Konva from 'konva';
 import { Observable, Subject, debounceTime, filter, map } from 'rxjs';
-import { Point } from '../../../../ultilities/types/Point';
+import { Point } from '../../../../utilities/types/Point';
 import { isNil } from 'lodash';
 import { KonvaObjectService } from '../../../services/3rds/konva-object.service';
 import { Injectable } from '@angular/core';
-import { Wheel } from '../../../../ultilities/types/Wheel';
+import { Wheel } from '../../../../utilities/types/Wheel';
 
 export enum KonvaMouseButton {
     LEFT = 0,

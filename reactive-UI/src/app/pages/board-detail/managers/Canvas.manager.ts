@@ -10,7 +10,7 @@ import { BoardsService } from '../../../services/data-storages/boards.service';
 import { UrlExtractorService } from '../../../services/browser/url-extractor.service';
 import { Injectable } from '@angular/core';
 import { KonvaObjectService } from '../../../services/3rds/konva-object.service';
-import { Wheel } from '../../../../ultilities/types/Wheel';
+import { Wheel } from '../../../../utilities/types/Wheel';
 import { TextInputCommands } from '../commands/text-input.command';
 
 @Injectable()

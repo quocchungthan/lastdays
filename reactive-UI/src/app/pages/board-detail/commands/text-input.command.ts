@@ -1,9 +1,9 @@
 import Konva from "konva";
-import { Point } from "../../../../ultilities/types/Point";
+import { Point } from "../../../../utilities/types/Point";
 import { ToolCompositionService } from "../../../services/states/tool-composition.service";
 import { TextInputFinishedEvent } from "../../../events/drawings/EventQueue";
 import { Observable } from "rxjs";
-import { FormModalService } from "../../../../ultilities/control/form-modal.service";
+import { FormModalService } from '../../../../utilities/controls/form-modal.service';
 
 export class TextInputCommands {
     public static readonly CommandName = "text-input";
