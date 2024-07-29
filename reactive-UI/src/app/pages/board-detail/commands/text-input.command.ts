@@ -4,6 +4,8 @@ import { ToolCompositionService } from "../../../services/states/tool-compositio
 import { TextInputFinishedEvent } from "../../../events/drawings/EventQueue";
 import { Observable } from "rxjs";
 import { FormModalService } from '../../../../utilities/controls/form-modal.service';
+import { ComponentFactory, ComponentFactoryResolver, ViewContainerRef } from '@angular/core';
+import { TextInputCommandsFormComponent } from '../../../components/text-input-commands-form/text-input-commands-form.component';
 
 export class TextInputCommands {
     public static readonly CommandName = "text-input";
@@ -15,7 +17,10 @@ export class TextInputCommands {
     /**
      *
      */
-    constructor(private _layer: Konva.Layer, private _toolComposition: ToolCompositionService, private _formModalService: FormModalService) {
+    constructor(
+        private _layer: Konva.Layer, 
+        private _toolComposition: ToolCompositionService, 
+        private _formModalService: FormModalService) {
     }
 
     extractId(nativeElement: Konva.Line) {
@@ -34,7 +39,7 @@ export class TextInputCommands {
 
     public renderComponentAndFocus() {
         return new Observable<Konva.Group>((observer) => {
-            this._formModalService.open();
+            this._formModalService.open(TextInputCommandsFormComponent);
             this._triggerTextInputFinishedCallback = () => {
                 observer.next(this._currentObject);
             }
