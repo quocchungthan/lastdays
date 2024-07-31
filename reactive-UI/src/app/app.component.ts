@@ -1,8 +1,9 @@
-import { AfterViewInit, Component } from '@angular/core';
+import { AfterViewInit, Component, Inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from '../ultilities/layout/sidebar/sidebar.component';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
 import { BackendConfigurationService } from '../configurations/backend-configuration.service';
+import { IStationsService, TOKEN } from './services/3rds/i-stations.service';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +16,11 @@ import { BackendConfigurationService } from '../configurations/backend-configura
 export class AppComponent implements AfterViewInit {
   title = 'reactive-ui';
 
-  constructor(public translate: TranslateService, private _configurations: BackendConfigurationService) {
+  constructor(
+    public translate: TranslateService,
+    private _configurations: BackendConfigurationService,
+    @Inject(TOKEN) private _stationsService: IStationsService
+  ) {
     translate.addLangs(['en']);
     translate.setDefaultLang('en');
 
@@ -24,6 +29,10 @@ export class AppComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
+    this._stationsService.fetchStationListAsync()
+      .subscribe((stations) => {
+        console.log(stations);
+      });
     window.alert(this._configurations.preconfigMessage);
   }
 }

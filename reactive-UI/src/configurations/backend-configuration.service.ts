@@ -1,6 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BACKEND_ORIGIN } from '../app/configs/routing.consants';
+import { REST_ENDPOINT_PREFIX } from '../app/configs/routing.consants';
+
+export enum SiteType {
+  Undefined = 0,
+  Commercial = 1,
+  Golf = 2,
+};
 
 @Injectable({
   providedIn: 'root'
@@ -8,6 +14,7 @@ import { BACKEND_ORIGIN } from '../app/configs/routing.consants';
 export class BackendConfigurationService {
 
   private _preConfigMessage: string = '';
+  private _siteType: SiteType = SiteType.Commercial;
 
   constructor(private httpClient: HttpClient) { }
 
@@ -15,7 +22,10 @@ export class BackendConfigurationService {
     return new Promise<void>((res, rej) => {
       this.httpClient.get(REST_ENDPOINT_PREFIX)
       .subscribe((response) => {
-        this._preConfigMessage = (response as any)['message'];
+        const reponseData = response as any;
+        
+        this._preConfigMessage = reponseData['message'];
+        this._siteType = reponseData['siteType'];
         res();
       });
     });
@@ -23,5 +33,9 @@ export class BackendConfigurationService {
 
   get preconfigMessage() {
     return this._preConfigMessage;
+  }
+
+  get isGolf() {
+    return this._siteType === SiteType.Golf;
   }
 }

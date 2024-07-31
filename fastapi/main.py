@@ -16,7 +16,7 @@ app = FastAPI(lifespan=lifespan)
 
 @app.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Hello World", "siteType": 1}
 
 @app.get("/hello-ai")
 async def rootAI(chatCompleteClient: ChatCompeleteService = Depends(get_chat_complete)):

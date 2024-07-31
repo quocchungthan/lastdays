@@ -10,6 +10,7 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { HttpClient, provideHttpClient } from '@angular/common/http';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { BackendConfigurationService } from '../configurations/backend-configuration.service';
+import { provideStationsService } from './stationServiceProvider';
 // import { provideClientHydration } from '@angular/platform-browser';
 
 // AoT requires an exported function for factories
@@ -26,6 +27,7 @@ export const appConfig: ApplicationConfig = {
       deps: [BackendConfigurationService],
       multi: true,
     },
+    provideStationsService(),
     provideRouter(routes),
     provideHttpClient(),
     importProvidersFrom(
