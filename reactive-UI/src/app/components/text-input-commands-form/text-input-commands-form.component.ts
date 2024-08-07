@@ -3,6 +3,7 @@ import { ModalContentComponent } from '../../../utilities/controls/form-modal/IM
 import { TextEditorComponent } from '../../../utilities/controls/text-editor/text-editor.component';
 import { TEXT_PREVIEW_CONTAINER } from '../../configs/html-ids.constants';
 import Konva from 'konva';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-text-input-commands-form',
@@ -12,12 +13,21 @@ import Konva from 'konva';
   styleUrl: './text-input-commands-form.component.scss'
 })
 export class TextInputCommandsFormComponent extends ModalContentComponent implements AfterViewInit, OnDestroy {
+  override dialogTitle = 'DIALOG_TITLE_TEXT_INPUT';
   currentText: string = '';
   textPreviewContainerId = TEXT_PREVIEW_CONTAINER;
   @ViewChild('textEditor')
   textEditor!: TextEditorComponent;
   private _konvaText!: Konva.Text;
   private _konvaStage!: Konva.Stage;
+
+  constructor(private _translateService: TranslateService) {
+    super(_translateService);
+    this._translateService.getTranslation(this.dialogTitle)
+      .subscribe((translated) => {
+        this.dialogTitle = translated;
+      });
+  }
 
   ngAfterViewInit(): void {
     this.renderPreview();
@@ -46,7 +56,8 @@ export class TextInputCommandsFormComponent extends ModalContentComponent implem
       text: this.currentText,
       width: 250,
       lineHeight: 1,
-      draggable: true
+      draggable: true,
+      fontFamily: 'Baelast'
     });
 
     const textLayer = new Konva.Layer();

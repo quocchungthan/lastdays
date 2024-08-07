@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, inject, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { ChangeDetectorRef, Component, ComponentRef, inject, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormModalService } from '../form-modal.service';
 import { filter } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
+import { ModalContentComponent } from './IModalContentComponent';
 
 @Component({
   selector: 'form-modal',
@@ -19,6 +20,11 @@ export class FormModalComponent implements OnInit {
   @ViewChild('vcr', { static: true, read: ViewContainerRef })
   vcr!: ViewContainerRef;
   cdr = inject(ChangeDetectorRef);
+  private _component!: ComponentRef<ModalContentComponent>;
+
+  get dialogTitle() {
+    return this._component.instance.dialogTitle;
+  }
 
   constructor(private _formModalService: FormModalService, private _translateService: TranslateService) {
     this._translateService.get([this.cancelText, this.submitText])
@@ -46,7 +52,7 @@ export class FormModalComponent implements OnInit {
     const componentType = this._formModalService.getComponentType();
     // clear dynamic components shown in the container previously    
     this.vcr.clear();
-    this.vcr.createComponent(componentType);
+    this._component = this.vcr.createComponent(componentType);
     this.cdr.detectChanges();
   }
 
