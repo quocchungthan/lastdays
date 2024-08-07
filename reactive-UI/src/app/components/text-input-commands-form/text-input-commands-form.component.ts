@@ -4,15 +4,18 @@ import { TextEditorComponent } from '../../../utilities/controls/text-editor/tex
 import { TEXT_PREVIEW_CONTAINER } from '../../configs/html-ids.constants';
 import Konva from 'konva';
 import { TranslateService } from '@ngx-translate/core';
+import { ColorBoardComponent } from "../../../utilities/painting/color-board/color-board.component";
+import { SUPPORTED_COLORS } from '../../configs/theme.constants';
 
 @Component({
   selector: 'app-text-input-commands-form',
   standalone: true,
-  imports: [TextEditorComponent],
+  imports: [TextEditorComponent, ColorBoardComponent, ColorBoardComponent],
   templateUrl: './text-input-commands-form.component.html',
   styleUrl: './text-input-commands-form.component.scss'
 })
 export class TextInputCommandsFormComponent extends ModalContentComponent implements AfterViewInit, OnDestroy {
+  selectedColor: string = SUPPORTED_COLORS[0];
   override dialogTitle = 'DIALOG_TITLE_TEXT_INPUT';
   currentText: string = '';
   textPreviewContainerId = TEXT_PREVIEW_CONTAINER;
@@ -27,6 +30,11 @@ export class TextInputCommandsFormComponent extends ModalContentComponent implem
       .subscribe((translated) => {
         this.dialogTitle = translated;
       });
+  }
+  
+  setColor($event: string) {
+    this.selectedColor = $event;
+    this._konvaText.fill(this.selectedColor);
   }
 
   ngAfterViewInit(): void {

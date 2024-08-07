@@ -1,6 +1,6 @@
 <!-- color-board.component.html -->
 
-<div class="color-board overflow-x-hidden">
+<div class="color-board overflow-x-hidden" [ngClass]="{'flex-wrap': multipleLine}">
     <div *ngFor="let color of colors" [class.selected]="isSelected(color)" class="color-box" [style.background-color]="color" (click)="selectColor(color)"></div>
 </div>
   
