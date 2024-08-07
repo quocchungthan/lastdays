@@ -58,11 +58,12 @@ export class TextInputCommandsFormComponent extends ModalContentComponent implem
     });
 
     this._konvaText = new Konva.Text({
-      x: 10,
-      y: 50,
+      x: 30,
+      y: 60,
       fontSize: 20,
       text: this.currentText,
       width: 250,
+      height: 60,
       lineHeight: 1,
       draggable: true,
       fontFamily: 'Baelast'
