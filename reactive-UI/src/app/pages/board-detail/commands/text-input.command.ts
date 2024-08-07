@@ -4,7 +4,6 @@ import { ToolCompositionService } from "../../../services/states/tool-compositio
 import { TextInputFinishedEvent } from "../../../events/drawings/EventQueue";
 import { Observable } from "rxjs";
 import { FormModalService } from '../../../../utilities/controls/form-modal.service';
-import { ComponentFactory, ComponentFactoryResolver, ViewContainerRef } from '@angular/core';
 import { TextInputCommandsFormComponent } from '../../../components/text-input-commands-form/text-input-commands-form.component';
 
 export class TextInputCommands {

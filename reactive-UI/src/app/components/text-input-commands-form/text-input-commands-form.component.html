@@ -1,3 +1,4 @@
 <div class="p-3">
-    <text-editor></text-editor>
+    <text-editor (onTextChanged)="setText($event)" #textEditor></text-editor>
+    <div id="{{textPreviewContainerId}}"></div>
 </div>
