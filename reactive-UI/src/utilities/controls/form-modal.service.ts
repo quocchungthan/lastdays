@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { filter, Subject } from 'rxjs';
 import { ModalContentComponent } from './form-modal/IModalContentComponent';
+import { isNil } from 'lodash';
 
 export enum DialogFeedback {
   None,
@@ -15,12 +16,24 @@ export enum DialogFeedback {
 export class FormModalService {
   private _dialogFeedbacks = new Subject<DialogFeedback>();
   private _contentType?: typeof ModalContentComponent;
+  private _contentComponent?: ModalContentComponent;
 
   constructor() { }
 
   open(contentType: (typeof ModalContentComponent)) {
     this._contentType = contentType;
     this._dialogFeedbacks.next(DialogFeedback.Open);
+  }
+
+  storeDialogContentComponent(component: ModalContentComponent) {
+    this._contentComponent = component;
+  }
+
+  getDialogContentComponent() {
+    if (isNil(this._contentComponent)) {
+      throw 'This should never happened, the content should be set in FormModalComponent before the command getting this';
+    }
+    return this._contentComponent;
   }
 
   getComponentType() {

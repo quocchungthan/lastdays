@@ -11,6 +11,7 @@ import { InkAttachedToStickyNoteEvent, StickyNoteMovedEvent, StickyNotePastedEve
 import { STANDARD_STICKY_NOTE_SIZE } from '../../../configs/size';
 import { IRect } from 'konva/lib/types';
 import { TextInputCommands } from './text-input.command';
+import { FormModalService } from '../../../../utilities/controls/form-modal.service';
 
 export interface StickyNote {
     navtive: Konva.Group;
@@ -29,14 +30,17 @@ export class StickyNoteCommands {
 
     private readonly _stickyNotePlaceHolderName = [StickyNoteCommands.StickyNoteName, this._placeholderName];
     private _internalPencil: PencilCommands;
+    private _internalTextInput: TextInputCommands;
     private _justMovedStickyNote = new Subject<string>();
     private _randomAttempt = 0;
 
     constructor(
         private _foundation: Konva.Layer, 
         private _drawingLayer: Konva.Layer,
-        private _toolComposition: ToolCompositionService) {
+        private _toolComposition: ToolCompositionService,
+        private _formModalService: FormModalService) {
         this._internalPencil = new PencilCommands(this._drawingLayer, _toolComposition);
+        this._internalTextInput = new TextInputCommands(this._drawingLayer, _toolComposition, _formModalService);
     }
 
     public onStickyNoteMoved() {
@@ -57,9 +61,16 @@ export class StickyNoteCommands {
     
     attachInkToStickyNote(event: InkAttachedToStickyNoteEvent) {
         const stickyNote = this.getStickyNoteById(event.targetStickyNoteId);
-        const ink = this._internalPencil.getInkById(event.targetId);
+        const attachable = this._internalPencil.getInkById(event.targetId);
 
-        this._doAttach(ink, stickyNote);
+        this._doAttach(attachable, stickyNote);
+    }
+
+    attachTextToStickyNote(event: InkAttachedToStickyNoteEvent) {
+        const stickyNote = this.getStickyNoteById(event.targetStickyNoteId);
+        const attachable = this._internalTextInput.getNativeElementById(event.targetId);
+
+        this._doAttach(attachable, stickyNote);
     }
 
     moveStickyNote(event: StickyNoteMovedEvent) {
@@ -93,14 +104,10 @@ export class StickyNoteCommands {
     }
 
     private _doAttach(shape: Shape<ShapeConfig>, foundStickyNoteAsBackground: Group) {
-        if (shape instanceof Konva.Line) {
+        if (shape instanceof Konva.Text) {
             const cloned = shape.clone();
-            const shapePointsWithinStickyNote = cloned.points();
-            for (let i = 0; i < shapePointsWithinStickyNote.length; i += 2) {
-                shapePointsWithinStickyNote[i] -= foundStickyNoteAsBackground.x();
-                shapePointsWithinStickyNote[i + 1] -= foundStickyNoteAsBackground.y();
-            }
-            cloned.points(shapePointsWithinStickyNote);
+            cloned.x(shape.x() - foundStickyNoteAsBackground.x());
+            cloned.y(shape.y() - foundStickyNoteAsBackground.y());
             foundStickyNoteAsBackground.add(cloned);
             shape.destroy();
         }

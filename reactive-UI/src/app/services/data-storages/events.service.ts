@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CrudBaseService } from './crudbase.service';
-import { AbstractEventQueueItem, BaseEvent, BoardedCreatedEvent, GeneralUndoEvent, InkAttachedToStickyNoteEvent, PencilUpEvent, StickyNoteMovedEvent, StickyNotePastedEvent } from '../../events/drawings/EventQueue';
+import { AbstractEventQueueItem, BaseEvent, BoardedCreatedEvent, GeneralUndoEvent, InkAttachedToStickyNoteEvent, PencilUpEvent, StickyNoteMovedEvent, StickyNotePastedEvent, TextAttachedToStickyNoteEvent, TextEnteredEvent } from '../../events/drawings/EventQueue';
 import { IdentitiesService } from './identities.service';
 import { UserIdentity } from './entities/Identity';
 import { EventCode } from '../../events/drawings/EventCode';
@@ -33,6 +33,10 @@ export class EventsService extends CrudBaseService<BaseEvent> {
           return new StickyNoteMovedEvent(x as StickyNoteMovedEvent);
         case EventCode.GENERAL_UNDO:
           return new GeneralUndoEvent(x as GeneralUndoEvent);
+        case EventCode.TextEntered:
+          return new TextEnteredEvent(x as TextEnteredEvent);
+        case EventCode.TextAttachedToStickyNote:
+          return new TextAttachedToStickyNoteEvent(x as TextAttachedToStickyNoteEvent);
         default:
           throw Error("Please handle this code" + (x as unknown as AbstractEventQueueItem).code);
       }

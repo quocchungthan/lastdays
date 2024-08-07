@@ -23,7 +23,7 @@ export class FormModalComponent implements OnInit {
   private _component!: ComponentRef<ModalContentComponent>;
 
   get dialogTitle() {
-    return this._component.instance.dialogTitle;
+    return this._component?.instance?.dialogTitle ?? "";
   }
 
   constructor(private _formModalService: FormModalService, private _translateService: TranslateService) {
@@ -45,6 +45,7 @@ export class FormModalComponent implements OnInit {
   
   handleSubmit() {
     this._formModalService.submitHitted();
+    this.isOpening = false;
   }
 
   
@@ -54,6 +55,7 @@ export class FormModalComponent implements OnInit {
     this.vcr.clear();
     this._component = this.vcr.createComponent(componentType);
     this.cdr.detectChanges();
+    this._formModalService.storeDialogContentComponent(this._component.instance);
   }
 
   handleCancel() {

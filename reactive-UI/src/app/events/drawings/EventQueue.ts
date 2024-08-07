@@ -79,24 +79,49 @@ export class PencilUpEvent extends BaseEvent implements AbstractEventQueueItem {
     }
 }
 
-export class TextInputFinishedEvent extends BaseEvent implements AbstractEventQueueItem {
-    code: EventCode = EventCode.PencilUp;
+export class TextEnteredEvent extends BaseEvent implements AbstractEventQueueItem {
+    code: EventCode = EventCode.TextEntered;
     targetId: string = '';
+    text: string = '';
     color: SupportedColors = PREFERED_INK_COLOR;
-    fontSize: number = STROKE_WIDTH;
+    position: Point = { x: 0, y: 0 };
+    containerWidth: number = 0;
+    containerheight: number = 0;
 
     constructor();
-    constructor(itself: TextInputFinishedEvent);
+    constructor(itself: TextEnteredEvent);
 
-    constructor(itself?: TextInputFinishedEvent) {
+    constructor(itself?: TextEnteredEvent) {
         super(itself);
         if (!itself) {
             return;
         }
         this.code = itself.code;
         this.targetId = itself.targetId;
+        this.text = itself.text;
         this.color = itself.color;
-        this.fontSize = itself.fontSize;
+        this.containerWidth = itself.containerWidth;
+        this.containerheight = itself.containerheight;
+        this.position = itself.position;
+    }
+}
+
+export class TextAttachedToStickyNoteEvent extends BaseEvent implements AbstractEventQueueItem {
+    code: EventCode = EventCode.TextAttachedToStickyNote;
+    targetId: string = '';
+    targetStickyNoteId: string = '';    
+
+    constructor();
+    constructor(itself: TextAttachedToStickyNoteEvent);
+
+    constructor(itself?: TextAttachedToStickyNoteEvent) {
+        super(itself);
+        if (!itself) {
+            return;
+        }
+        this.code = itself.code;
+        this.targetId = itself.targetId;
+        this.targetStickyNoteId = itself.targetStickyNoteId;
     }
 }
 

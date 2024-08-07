@@ -5,5 +5,7 @@ export enum EventCode {
     InkAttachedToStickyNote = 'INK_ATTACHED_TO_STICKY_NOTE',
     StickyNoteMoved = 'STICKY_NOTE_MOVED',
     TextInputFinished = 'TEXT_INPUT_FINISHED',
-    GENERAL_UNDO = 'GENERAL_UNDO'
+    GENERAL_UNDO = 'GENERAL_UNDO',
+    TextEntered = "TextEntered",
+    TextAttachedToStickyNote = "TextAttachedToStickyNote"
 }

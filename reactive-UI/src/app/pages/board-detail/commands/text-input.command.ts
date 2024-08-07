@@ -1,16 +1,15 @@
 import Konva from "konva";
 import { Point } from "../../../../utilities/types/Point";
 import { ToolCompositionService } from "../../../services/states/tool-composition.service";
-import { TextInputFinishedEvent } from "../../../events/drawings/EventQueue";
 import { Observable } from "rxjs";
 import { FormModalService } from '../../../../utilities/controls/form-modal.service';
 import { TextInputCommandsFormComponent } from '../../../components/text-input-commands-form/text-input-commands-form.component';
+import { TextEnteredEvent } from "../../../events/drawings/EventQueue";
 
 export class TextInputCommands {
     public static readonly CommandName = "text-input";
     public static readonly IconPng = 'input.png';
     public static CLASS_NAME = "TEXT_INPUT";
-    private _currentObject?: Konva.Group;
     private _triggerTextInputFinishedCallback?: () => void;
 
     /**
@@ -20,9 +19,11 @@ export class TextInputCommands {
         private _layer: Konva.Layer, 
         private _toolComposition: ToolCompositionService, 
         private _formModalService: FormModalService) {
+            this._formModalService.onOk()
+                .subscribe(() => this._triggerTextInputFinishedCallback?.());
     }
 
-    extractId(nativeElement: Konva.Line) {
+    extractId(nativeElement: Konva.Text) {
         return nativeElement.name().split(" ").find(x => x !== "" && x !== TextInputCommands.CLASS_NAME) ?? "";
     }
 
@@ -37,10 +38,16 @@ export class TextInputCommands {
     // #end region
 
     public renderComponentAndFocus() {
-        return new Observable<Konva.Group>((observer) => {
+        return new Observable<Konva.Text>((observer) => {
             this._formModalService.open(TextInputCommandsFormComponent);
             this._triggerTextInputFinishedCallback = () => {
-                observer.next(this._currentObject);
+                const contentComponent = this._formModalService.getDialogContentComponent();
+                if (contentComponent instanceof TextInputCommandsFormComponent) {
+                    observer.next(contentComponent.builtComponent);
+                    contentComponent.ngOnDestroy();
+                } else {
+                    throw new Error("The native component should be ready right now when user hit submit button on the dialog");
+                }
             }
         });
     }
@@ -50,10 +57,25 @@ export class TextInputCommands {
     }
 
     public getNativeElementById(id: string) {
-        
+        return this._layer.children.filter((o) => {
+            return o instanceof Konva.Text && o.hasName(TextInputCommands.CLASS_NAME);
+        })
+        .map(s => s as Konva.Text)
+        .find(x => x.hasName(id))!;
     }
 
-    public parseFromEvent(event: TextInputFinishedEvent) {
-
+    public parseFromEvent(event: TextEnteredEvent) {
+        const konvaText = TextInputCommandsFormComponent.BuildTextComponent(
+            event.text,
+            event.color,
+            event.position,
+            {
+              width: event.containerWidth,
+              height: event.containerheight,
+            }
+          );
+        konvaText.addName(event.targetId);
+        konvaText.draggable(false);
+        this._layer.add(konvaText);
     }
 }
