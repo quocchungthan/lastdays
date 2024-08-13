@@ -233,6 +233,7 @@ export class UserDrawingLayerManager implements OnDestroy {
                     const stickyNoteId = this._stickyNote.getFirstCollisionStickyNoteId(newObjectNeedToBeSaved);
                     if (stickyNoteId) {
                         this._triggerTextAttachedToStickyNoteEvent(newObjectNeedToBeSaved, stickyNoteId);
+                        this._drawingToolEnd.next();
                     }
                 });
         }

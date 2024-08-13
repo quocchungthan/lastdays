@@ -20,6 +20,11 @@ export class TextEditorComponent {
     }
   }
 
+  focus() {
+    document.getElementById(this.id)
+      ?.focus();
+  }
+
   get width() {
     return document.getElementById(this.id)?.clientWidth ?? 100;
   }

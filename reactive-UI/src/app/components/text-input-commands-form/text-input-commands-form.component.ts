@@ -2,7 +2,6 @@ import {
   AfterViewInit,
   Component,
   OnDestroy,
-  OnInit,
   ViewChild,
 } from '@angular/core';
 import { ModalContentComponent } from '../../../utilities/controls/form-modal/IModalContentComponent';
@@ -49,10 +48,12 @@ export class TextInputCommandsFormComponent
   setColor($event: string) {
     this.selectedColor = $event;
     this._konvaText.fill(this.selectedColor);
+    this.textEditor.focus();
   }
 
   ngAfterViewInit(): void {
     this.renderPreview();
+    this.textEditor.focus();
   }
 
   ngOnDestroy(): void {
@@ -94,6 +95,7 @@ export class TextInputCommandsFormComponent
       };
       this._konvaText.scale({ x: 1, y: 1 });
       this._konvaText.size(newSize);
+      this.textEditor.focus();
     });
     textLayer.add(transformer);
     this._konvaStage.add(textLayer);
