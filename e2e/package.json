@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "openui": "cypress open",
+    "openui": "cypress open --config-file cypress.local.config.ts",
     "start": "cd ../agilelink-ci/ && docker-compose up --build -d && cd ../e2e/ && cypress run --headless",
     "test": "cypress run --headless --config-file cypress.local.config.ts"
   },
