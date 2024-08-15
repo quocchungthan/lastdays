@@ -4,9 +4,10 @@
     "test": "cypress run --headless --config-file cypress.local.config.ts",
     "open:gherkin": "cypress open --config-file cypress.gherkin.local.config.ts",
     "test:gherkin": "cypress run --headless --config-file cypress.gherkin.local.config.ts",
-    "start:regular": "cd ../agilelink-ci/ && docker-compose up --build -d && cd ../e2e/ && cypress run --headless",
-    "start:gherkin": "cd ../agilelink-ci/ && docker-compose up --build -d && cd ../e2e/ && cypress run --headless --config-file cypress.gherkin.config.ts",
-    "start": "cd ../agilelink-ci/ && docker-compose up --build -d && cd ../e2e/ && cypress run --headless &&  cypress run --headless --config-file cypress.gherkin.config.ts"
+    "start:regular": "npm run run-app:docker && cypress run --headless",
+    "start:gherkin": "npm run run-app:docker && cypress run --headless --config-file cypress.gherkin.config.ts",
+    "start": "npm run run-app:docker && cypress run --headless &&  cypress run --headless --config-file cypress.gherkin.config.ts",
+    "run-app:docker": "cd ../agilelink-ci/ && docker-compose up --build -d && cd ../e2e/"
   },
   "devDependencies": {
     "@simonsmith/cypress-image-snapshot": "^9.1.0",
