@@ -15,6 +15,8 @@ export const defaultConfiguration: Cypress.ConfigOptions<any> = {
         on('file:preprocessor', cucumber());
       },
       specPattern: "**/*.feature",
-      baseUrl: 'http://localhost:81'
+      baseUrl: 'http://localhost:81',
+      viewportHeight: 720,
+      viewportWidth: 1280
     },
  };
