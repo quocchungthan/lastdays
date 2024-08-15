@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { SidebarComponent } from '../ultilities/layout/sidebar/sidebar.component';
+import { SidebarComponent } from '../utilities/layout/sidebar/sidebar.component';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import { FormModalComponent } from '../utilities/controls/form-modal/form-modal.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   providers: [],
-  imports: [RouterOutlet, SidebarComponent, TranslateModule],
+  imports: [RouterOutlet, SidebarComponent, TranslateModule, FormModalComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })

@@ -1,0 +1,24 @@
+
+<div
+    [ngClass]="{'opacity-0 pointer-events-none': !isOpening}"
+    class="fixed inset-0 z-[999] grid h-screen w-screen place-items-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300">
+    <div
+    data-cy="form-modal"
+    class="relative m-4 w-1/4 min-w-[25%] max-w-[25%] rounded-lg bg-white font-sans text-base font-light leading-relaxed text-blue-gray-500 antialiased shadow-2xl">
+    <div
+        class="flex items-center p-4 font-sans text-2xl antialiased font-semibold leading-snug shrink-0 text-blue-gray-900">
+        {{dialogTitle}}
+    </div>
+    <ng-container #vcr></ng-container>
+    <div class="flex flex-wrap items-center justify-end p-4 shrink-0 text-blue-gray-500">
+        <button data-cy="cancel-button" data-ripple-dark="true" (click)="handleCancel()"
+        class="px-6 py-3 mr-1 font-sans text-xs font-bold transition-all rounded-lg middle none center hover:bg-blue-500/10 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none">
+        {{cancelText}}
+        </button>
+        <button data-cy="submit-button" data-ripple-light="true"  (click)="handleSubmit()"
+        class="px-6 py-3 mr-1 font-sans text-xs font-bold transition-all rounded-lg middle none cente disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none bg-blue-500 hover:bg-blue-700 text-white">
+        {{submitText}}
+        </button>
+    </div>
+    </div>
+</div>

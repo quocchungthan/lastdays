@@ -1,10 +1,16 @@
 import Konva from 'konva';
 import { Observable, Subject, debounceTime, filter, map } from 'rxjs';
-import { Point } from '../../../../ultilities/types/Point';
+import { Point } from '../../../../utilities/types/Point';
 import { isNil } from 'lodash';
 import { KonvaObjectService } from '../../../services/3rds/konva-object.service';
 import { Injectable } from '@angular/core';
-import { Wheel } from '../../../../ultilities/types/Wheel';
+import { Wheel } from '../../../../utilities/types/Wheel';
+
+export enum KonvaMouseButton {
+    LEFT = 0,
+    MIDDLE = 1,
+    RIGHT = 2,
+}
 
 @Injectable()
 export class ViewPortEventsManager {
@@ -88,15 +94,25 @@ export class ViewPortEventsManager {
             this._mouseOut.next();
         });
 
-        this._viewPort.on('mousedown touchstart', () => {
+        this._viewPort.on('mousedown touchstart', (e) => {
+            // TODO: right test to cover right click cuz we use it later for menu context
+            if (e.evt?.button === KonvaMouseButton.RIGHT) {
+                return;
+            }
             this._touchStart.next(this._currentRelativePosition());
         });
           
         this._viewPort.on('mousemove touchmove', (e) => {
+            if (e.evt?.button === KonvaMouseButton.RIGHT) {
+                return;
+            }
             this._touchMove.next(this._currentRelativePosition());
         });
         
         this._viewPort.on('mouseup touchend', (e) => {
+            if (e.evt?.button === KonvaMouseButton.RIGHT) {
+                return;
+            }
             this._touchEnd.next(this._currentRelativePosition());
         });
     }

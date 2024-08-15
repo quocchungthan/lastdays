@@ -1,5 +1,5 @@
-import { Dimension } from "../../../ultilities/types/Dimension";
-import { Point } from "../../../ultilities/types/Point";
+import { Dimension } from "../../../utilities/types/Dimension";
+import { Point } from "../../../utilities/types/Point";
 import { STANDARD_STICKY_NOTE_SIZE, STROKE_WIDTH } from "../../configs/size";
 import { PREFERED_INK_COLOR, SUPPORTED_COLORS } from "../../configs/theme.constants";
 import { BaseEntity } from "../../services/data-storages/entities/Base.entity";
@@ -76,6 +76,52 @@ export class PencilUpEvent extends BaseEvent implements AbstractEventQueueItem {
         this.points = itself.points;
         this.color = itself.color;
         this.width = itself.width;
+    }
+}
+
+export class TextEnteredEvent extends BaseEvent implements AbstractEventQueueItem {
+    code: EventCode = EventCode.TextEntered;
+    targetId: string = '';
+    text: string = '';
+    color: SupportedColors = PREFERED_INK_COLOR;
+    position: Point = { x: 0, y: 0 };
+    containerWidth: number = 0;
+    containerheight: number = 0;
+
+    constructor();
+    constructor(itself: TextEnteredEvent);
+
+    constructor(itself?: TextEnteredEvent) {
+        super(itself);
+        if (!itself) {
+            return;
+        }
+        this.code = itself.code;
+        this.targetId = itself.targetId;
+        this.text = itself.text;
+        this.color = itself.color;
+        this.containerWidth = itself.containerWidth;
+        this.containerheight = itself.containerheight;
+        this.position = itself.position;
+    }
+}
+
+export class TextAttachedToStickyNoteEvent extends BaseEvent implements AbstractEventQueueItem {
+    code: EventCode = EventCode.TextAttachedToStickyNote;
+    targetId: string = '';
+    targetStickyNoteId: string = '';    
+
+    constructor();
+    constructor(itself: TextAttachedToStickyNoteEvent);
+
+    constructor(itself?: TextAttachedToStickyNoteEvent) {
+        super(itself);
+        if (!itself) {
+            return;
+        }
+        this.code = itself.code;
+        this.targetId = itself.targetId;
+        this.targetStickyNoteId = itself.targetStickyNoteId;
     }
 }
 

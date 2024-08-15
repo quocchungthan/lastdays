@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { AbstractEventQueueItem, BoardedCreatedEvent, GeneralUndoEvent, InkAttachedToStickyNoteEvent, PencilUpEvent, PureQueue, StickyNoteMovedEvent, StickyNotePastedEvent, ToBaseEvent, ToDrawingEvent } from './EventQueue';
+import { AbstractEventQueueItem, BoardedCreatedEvent, GeneralUndoEvent, InkAttachedToStickyNoteEvent, PencilUpEvent, PureQueue, StickyNoteMovedEvent, StickyNotePastedEvent, TextAttachedToStickyNoteEvent, TextEnteredEvent, ToBaseEvent, ToDrawingEvent } from './EventQueue';
 import { cloneDeep } from 'lodash';
 import { PencilCommands } from '../../pages/board-detail/commands/pencil.command';
 import { StickyNoteCommands } from '../../pages/board-detail/commands/sticky-notes.command';
 import { EventCode } from './EventCode';
+import { TextInputCommands } from '../../pages/board-detail/commands/text-input.command';
 
 export enum ComparisonResult {
   EQUAL,
@@ -16,6 +17,7 @@ export class EventsCompositionService {
   private _queue: PureQueue = [];
   private _pencil!: PencilCommands;
   private _stickyNote!: StickyNoteCommands;
+  private _textInput!: TextInputCommands;
 
   constructor() {
   }
@@ -59,6 +61,12 @@ export class EventsCompositionService {
 
   setStickyNote(stickyNote: StickyNoteCommands) {
     this._stickyNote = stickyNote;
+
+    return this;
+  }
+
+  setTextInputCommand(command: TextInputCommands) {
+    this._textInput = command;
 
     return this;
   }
@@ -117,8 +125,20 @@ export class EventsCompositionService {
       return;
     }
 
+    if (event instanceof TextAttachedToStickyNoteEvent) {
+      this._stickyNote.attachTextToStickyNote(event);
+
+      return;
+    }
+
     if (event instanceof StickyNoteMovedEvent) {
       this._stickyNote.moveStickyNote(event);
+
+      return;
+    }
+
+    if (event instanceof TextEnteredEvent) {
+      this._textInput.parseFromEvent(event);
 
       return;
     }

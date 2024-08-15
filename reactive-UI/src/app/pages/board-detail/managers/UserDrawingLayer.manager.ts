@@ -15,12 +15,14 @@ import guid from "guid";
 import { ToolCompositionService } from "../../../services/states/tool-composition.service";
 import { EventsCompositionService } from "../../../events/drawings/events-composition.service";
 import { Line, LineConfig } from "konva/lib/shapes/Line";
-import { AbstractEventQueueItem, BaseEvent, BoardedCreatedEvent, GeneralUndoEvent, InkAttachedToStickyNoteEvent, PencilUpEvent, StickyNoteMovedEvent, StickyNotePastedEvent, ToBaseEvent, ToDrawingEvent } from "../../../events/drawings/EventQueue";
+import { AbstractEventQueueItem, BaseEvent, BoardedCreatedEvent, GeneralUndoEvent, InkAttachedToStickyNoteEvent, PencilUpEvent, StickyNoteMovedEvent, StickyNotePastedEvent, TextAttachedToStickyNoteEvent, TextEnteredEvent, ToBaseEvent, ToDrawingEvent } from "../../../events/drawings/EventQueue";
 import { EventsService } from "../../../services/data-storages/events.service";
 import { SyncingService } from "../../../events/drawings/syncing.service";
 import { KeysService } from "../../../services/browser/keys.service";
-import { Board } from "../../../services/data-storages/entities/Board";
 import { MetaService } from "../../../services/browser/meta.service";
+import { TextInputCommands } from "../commands/text-input.command";
+import { FormModalService } from '../../../../utilities/controls/form-modal.service';
+import { Point } from "../../../../utilities/types/Point";
 
 @Injectable()
 export class UserDrawingLayerManager implements OnDestroy {
@@ -35,7 +37,9 @@ export class UserDrawingLayerManager implements OnDestroy {
     private _boardId: string = '';
     private _placeholderLayer: Konva.Layer;
     private _drawingToolEnd = new Subject<void>();
+    private _textInput: TextInputCommands;
 
+    // TODO: bloaster
     constructor(
         _konvaObjects: KonvaObjectService,
         private _events: ViewPortEventsManager, 
@@ -48,14 +52,17 @@ export class UserDrawingLayerManager implements OnDestroy {
         private _eventsCompositionService: EventsCompositionService,
         private _eventsService: EventsService,
         private _syncingService: SyncingService,
+        private _formModalService: FormModalService,
         private _keys: KeysService) {
         this._drawingLayer = new Konva.Layer();
         this._placeholderLayer = new Konva.Layer();
         this._pencil = new PencilCommands(this._drawingLayer, _toolComposition);
-        this._stickyNote = new StickyNoteCommands(this._placeholderLayer, this._drawingLayer, _toolComposition);
+        this._textInput = new TextInputCommands(this._drawingLayer, _toolComposition, this._formModalService);
+        this._stickyNote = new StickyNoteCommands(this._placeholderLayer, this._drawingLayer, _toolComposition, this._formModalService);
         this._eventsCompositionService
             .setPencil(this._pencil)
-            .setStickyNote(this._stickyNote);
+            .setStickyNote(this._stickyNote)
+            .setTextInputCommand(this._textInput);
 
         this._stickyNote.onStickyNoteMoved()
             .subscribe(id => {
@@ -197,13 +204,42 @@ export class UserDrawingLayerManager implements OnDestroy {
             .subscribe((p) => {
                 this._pencilEnd();
                 this._stickyNoteEnd();
+                this._textInputStart(p);
             });
         this._events.onMouseOut()
             .subscribe((p) => {
                 this._pencilEnd();
             });
     }
+    /* TODO: move to command class, tool should owns its logic, DI necessary?
+    - If so, we manage the dependency of the Commands in a special service.
+    - So far some Layer we created by the `new` keyword
+        this._drawingLayer = new Konva.Layer();
+        this._placeholderLayer = new Konva.Layer();
+    */
+    private _textInputStart(p: Point) {
+        if (this._toolComposition.tool === TextInputCommands.CommandName) {
+            this._textInput.renderComponentAndFocus()
+                .subscribe((newObjectNeedToBeSaved) => {
+                    // New guid
+                    // Check if it can paste onto a sticky note
+                    // Trigger event
+                    // Save to db
+                    // Sync to others
+                    newObjectNeedToBeSaved.position(p);
+                    const newId = guid.create().toString();
+                    newObjectNeedToBeSaved.addName(newId);
+                    this._triggerTextEnteredEvent(newObjectNeedToBeSaved);
+                    const stickyNoteId = this._stickyNote.getFirstCollisionStickyNoteId(newObjectNeedToBeSaved);
+                    if (stickyNoteId) {
+                        this._triggerTextAttachedToStickyNoteEvent(newObjectNeedToBeSaved, stickyNoteId);
+                        this._drawingToolEnd.next();
+                    }
+                });
+        }
+    }
 
+    // TODO: move to command class, tool should owns its logic
     private _stickyNoteEnd() {
         if (this._toolComposition.tool === StickyNoteCommands.CommandName) {
             const brandNewDrawing = this._stickyNote.putnew();
@@ -218,6 +254,7 @@ export class UserDrawingLayerManager implements OnDestroy {
         }
     }
 
+    // TODO: move to command class, tool should owns its logic
     private _pencilEnd() {
         if (this._toolComposition.tool === PencilCommands.CommandName) {
             // TODO: Flow
@@ -283,6 +320,15 @@ export class UserDrawingLayerManager implements OnDestroy {
         this._generallyProcessNewEvent(event);
     }
 
+    private _triggerTextAttachedToStickyNoteEvent(brandNewDrawing: Konva.Text, stickyNoteId: string) {
+        const event = new TextAttachedToStickyNoteEvent();
+        event.targetId = this._textInput.extractId(brandNewDrawing);
+        event.boardId = this._boardId;
+        event.targetStickyNoteId = stickyNoteId;
+
+        this._generallyProcessNewEvent(event);
+    }
+
     private _triggerPencilUpEvent(brandNewDrawing: Line<LineConfig>) {
         const event = new PencilUpEvent();
         event.targetId = this._pencil.extractId(brandNewDrawing);
@@ -294,10 +340,24 @@ export class UserDrawingLayerManager implements OnDestroy {
         this._generallyProcessNewEvent(event);
     }
 
+    private _triggerTextEnteredEvent(brandNewDrawing: Konva.Text) {
+        const event = new TextEnteredEvent();
+        event.targetId = this._textInput.extractId(brandNewDrawing);
+        event.boardId = this._boardId;
+        event.text = brandNewDrawing.text();
+        event.color = brandNewDrawing.fill();
+        event.position = brandNewDrawing.position();
+        event.containerWidth = brandNewDrawing.width();
+        event.containerheight = brandNewDrawing.height();
+
+        this._generallyProcessNewEvent(event);
+    }
+
     setTool(tool: string) {
         this._toolComposition.setTool(tool);
         this._setupSpecialCursor();
-        this._stickyNote.setDraggable(this._toolComposition.tool !== PencilCommands.CommandName);
+        // TODO: write test to cover drag function when user picked not write tool
+        this._stickyNote.setDraggable(![PencilCommands.CommandName, TextInputCommands.CommandName].includes(this._toolComposition.tool));
     }
 
     private _setupSpecialCursor() {

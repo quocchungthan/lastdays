@@ -1,8 +1,8 @@
 import Konva from 'konva';
-import { Point } from '../../../../ultilities/types/Point';
+import { Point } from '../../../../utilities/types/Point';
 import { isNil } from 'lodash';
 import { Shape, ShapeConfig, shapes } from 'konva/lib/Shape';
-import { areRectanglesIntersecting } from '../../../../ultilities/mathematicals/collision';
+import { areRectanglesIntersecting } from '../../../../utilities/mathematicals/collision';
 import { PencilCommands } from './pencil.command';
 import { Subject } from 'rxjs';
 import { Group } from 'konva/lib/Group';
@@ -10,6 +10,8 @@ import { ToolCompositionService } from '../../../services/states/tool-compositio
 import { InkAttachedToStickyNoteEvent, StickyNoteMovedEvent, StickyNotePastedEvent } from '../../../events/drawings/EventQueue';
 import { STANDARD_STICKY_NOTE_SIZE } from '../../../configs/size';
 import { IRect } from 'konva/lib/types';
+import { TextInputCommands } from './text-input.command';
+import { FormModalService } from '../../../../utilities/controls/form-modal.service';
 
 export interface StickyNote {
     navtive: Konva.Group;
@@ -17,6 +19,7 @@ export interface StickyNote {
 
 export class StickyNoteCommands {
     public static readonly CommandName = "stickynote";
+    public static readonly IconPng = 'sticky-note.png';
     public static readonly BackgroundUrlAttrName = "stickynoteUrl";
     private readonly _standardStickyNoteSize = STANDARD_STICKY_NOTE_SIZE;
     private readonly _placeholderName = "PLACEHOLDER";
@@ -27,14 +30,17 @@ export class StickyNoteCommands {
 
     private readonly _stickyNotePlaceHolderName = [StickyNoteCommands.StickyNoteName, this._placeholderName];
     private _internalPencil: PencilCommands;
+    private _internalTextInput: TextInputCommands;
     private _justMovedStickyNote = new Subject<string>();
     private _randomAttempt = 0;
 
     constructor(
         private _foundation: Konva.Layer, 
         private _drawingLayer: Konva.Layer,
-        private _toolComposition: ToolCompositionService) {
+        private _toolComposition: ToolCompositionService,
+        private _formModalService: FormModalService) {
         this._internalPencil = new PencilCommands(this._drawingLayer, _toolComposition);
+        this._internalTextInput = new TextInputCommands(this._drawingLayer, _toolComposition, _formModalService);
     }
 
     public onStickyNoteMoved() {
@@ -55,9 +61,16 @@ export class StickyNoteCommands {
     
     attachInkToStickyNote(event: InkAttachedToStickyNoteEvent) {
         const stickyNote = this.getStickyNoteById(event.targetStickyNoteId);
-        const ink = this._internalPencil.getInkById(event.targetId);
+        const attachable = this._internalPencil.getInkById(event.targetId);
 
-        this._doAttach(ink, stickyNote);
+        this._doAttach(attachable, stickyNote);
+    }
+
+    attachTextToStickyNote(event: InkAttachedToStickyNoteEvent) {
+        const stickyNote = this.getStickyNoteById(event.targetStickyNoteId);
+        const attachable = this._internalTextInput.getNativeElementById(event.targetId);
+
+        this._doAttach(attachable, stickyNote);
     }
 
     moveStickyNote(event: StickyNoteMovedEvent) {
@@ -102,6 +115,14 @@ export class StickyNoteCommands {
             foundStickyNoteAsBackground.add(cloned);
             shape.destroy();
         }
+        
+        if (shape instanceof Konva.Text) {
+            const cloned = shape.clone();
+            cloned.x(shape.x() - foundStickyNoteAsBackground.x());
+            cloned.y(shape.y() - foundStickyNoteAsBackground.y());
+            foundStickyNoteAsBackground.add(cloned);
+            shape.destroy();
+        }
     }
 
     public movePlaceholder(p: Point) {
@@ -132,7 +153,8 @@ export class StickyNoteCommands {
                 placeholder.addName(StickyNoteCommands.StickyNoteName);
                 placeholder.addName(event.targetId);
                 this._drawingLayer.add(placeholder);
-                this.setDraggable(this._toolComposition.tool !== PencilCommands.CommandName);
+                // duplicated code
+                this.setDraggable(![PencilCommands.CommandName, TextInputCommands.CommandName].includes(this._toolComposition.tool));
                 this.registerMovingEvent(placeholder);
                 res();
             });

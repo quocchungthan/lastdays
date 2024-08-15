@@ -12,9 +12,7 @@ export class BoardDetailPage {
     }
 
     screenshot() {
-        cy.get('[data-cy=drawing-container]').matchImageSnapshot({
-            failureThreshold: 0.2
-        });
+        cy.get('[data-cy=drawing-container]').matchImageSnapshot();
     }
 
     zoom(speed: number) {

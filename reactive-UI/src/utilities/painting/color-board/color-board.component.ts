@@ -14,6 +14,9 @@ export class ColorBoardComponent {
   @Input() selectedColor: string = '';
   colors: string[] = SUPPORTED_COLORS;
 
+  @Input()
+  multipleLine = false;
+
   selectColor(color: string) {
     this.colorSelected.emit(color);
   }

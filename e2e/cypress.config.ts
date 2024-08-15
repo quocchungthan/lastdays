@@ -1,11 +1,4 @@
 import { defineConfig } from "cypress";
-import {addMatchImageSnapshotPlugin} from '@simonsmith/cypress-image-snapshot/plugin'
+import { defaultConfiguration } from "./cypress.default.config";
 
-export default defineConfig({
-  e2e: {
-    setupNodeEvents(on, config) {
-      // implement node event listeners here
-      addMatchImageSnapshotPlugin(on);
-    },
-  },
-});
+export default defineConfig(defaultConfiguration);

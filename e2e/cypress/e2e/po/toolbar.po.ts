@@ -1,21 +1,29 @@
 export class ToolBar {
+    clickTextInput() {
+        this._getToolbar()
+            .get('[data-cy=option-text-input]')
+            .click();
+    }
+
     clickPencil() {
-        cy.get('[data-cy=tool-bar]')
-            .should('exist')
+        this._getToolbar()
             .get('[data-cy=option-pencil]')
             .click();
     }
 
+    private _getToolbar() {
+        return cy.get('[data-cy=tool-bar]')
+            .should('exist');
+    }
+
     clickStickyNote() {
-        cy.get('[data-cy=tool-bar]')
-            .should('exist')
+        this._getToolbar()
             .get('[data-cy=option-stickynote]')
             .click();
     }
 
     clickMove() {
-        cy.get('[data-cy=tool-bar]')
-            .should('exist')
+        this._getToolbar()
             .get('[data-cy=option-]')
             .click();
     }

@@ -1,15 +1,12 @@
 import Konva from 'konva';
-import { Point } from '../../../../ultilities/types/Point';
+import { Point } from '../../../../utilities/types/Point';
 import { ToolCompositionService } from '../../../services/states/tool-composition.service';
 import { STROKE_WIDTH } from '../../../configs/size';
 import { PencilUpEvent } from '../../../events/drawings/EventQueue';
 
-export interface StickyNote {
-    navtive: Konva.Group;
-}
-
 export class PencilCommands {
     public static readonly CommandName = "pencil";
+    public static readonly IconPng = 'pencil.png';
     public static PENCIL_NAME = "SIMPLE_INK";
     private _currentObject?: Konva.Line;
     private _size = STROKE_WIDTH;

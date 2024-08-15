@@ -3,9 +3,13 @@ import { KONVA_CONTAINER } from '../../../configs/html-ids.constants';
 
 @Injectable()
 export class CursorManager {
+    textInput() {
+        this._setCursorByStringValue('text');
+    }
+
     pencil(): void {
         // TODO: do not wait for mouse down, just show it.
-        this._setCursorByStringValue("url('/assets/marker.png') 0 32, auto");
+        this._setCursorByStringValue("url('/assets/marker.png') 0 16, auto");
     }
 
     grabbing() {
