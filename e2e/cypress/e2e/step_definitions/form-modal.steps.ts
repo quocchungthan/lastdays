@@ -11,3 +11,11 @@ When('I click the Submit button of form modal', () => {
       .should('exist')
       .click();
 });
+
+When('I click the Cancel button of form modal', () => {
+   cy.get('[data-cy=form-modal]')
+      .should('exist')
+      .find('[data-cy=cancel-button]')
+      .should('exist')
+      .click();
+});

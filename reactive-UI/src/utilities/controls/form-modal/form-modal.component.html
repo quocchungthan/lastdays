@@ -11,7 +11,7 @@
     </div>
     <ng-container #vcr></ng-container>
     <div class="flex flex-wrap items-center justify-end p-4 shrink-0 text-blue-gray-500">
-        <button data-ripple-dark="true" (click)="handleCancel()"
+        <button data-cy="cancel-button" data-ripple-dark="true" (click)="handleCancel()"
         class="px-6 py-3 mr-1 font-sans text-xs font-bold transition-all rounded-lg middle none center hover:bg-blue-500/10 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none">
         {{cancelText}}
         </button>
