@@ -1,5 +1,5 @@
 <div class="p-3">
-    <text-editor (onTextChanged)="setText($event)" #textEditor></text-editor>
+    <text-editor data-cy="text-input-command-text-editor" (onTextChanged)="setText($event)" #textEditor></text-editor>
     <div id="{{textPreviewContainerId}}"></div>
     <color-board (colorSelected)="setColor($event)" [multipleLine]="true" [selectedColor]="selectedColor"></color-board>
 </div>
