@@ -219,6 +219,12 @@ export function ToBaseEvent(abstractDrawingItem: AbstractEventQueueItem): BaseEv
     if (abstractDrawingItem instanceof InkAttachedToStickyNoteEvent) {
         return abstractDrawingItem;
     }
+    if (abstractDrawingItem instanceof TextEnteredEvent) {
+        return abstractDrawingItem;
+    }
+    if (abstractDrawingItem instanceof TextAttachedToStickyNoteEvent) {
+        return abstractDrawingItem;
+    }
     if (abstractDrawingItem instanceof BoardedCreatedEvent) {
         return abstractDrawingItem;
     }
@@ -250,6 +256,12 @@ export function ParseToBaseEvent(rawEvent: any): BaseEvent | null {
     }
     if (Object.hasOwn(rawEvent,'code') && rawEvent.code === EventCode.InkAttachedToStickyNote) {
         return new InkAttachedToStickyNoteEvent(rawEvent);
+    }
+    if (Object.hasOwn(rawEvent,'code') && rawEvent.code === EventCode.TextEntered) {
+        return new TextEnteredEvent(rawEvent);
+    }
+    if (Object.hasOwn(rawEvent,'code') && rawEvent.code === EventCode.TextAttachedToStickyNote) {
+        return new TextAttachedToStickyNoteEvent(rawEvent);
     }
     if (Object.hasOwn(rawEvent,'code') && rawEvent.code === EventCode.BoardCreated) {
         return new BoardedCreatedEvent(rawEvent);
@@ -283,6 +295,12 @@ export function ToDrawingEvent(event: BaseEvent): AbstractEventQueueItem | null 
     if (event instanceof InkAttachedToStickyNoteEvent) {
         return event;
     }
+    if (event instanceof TextEnteredEvent) {
+        return event;
+    }
+    if (event instanceof TextAttachedToStickyNoteEvent) {
+        return event;
+    }
     if (event instanceof BoardedCreatedEvent) {
         return event;
     }
@@ -297,9 +315,6 @@ export function ToDrawingEvent(event: BaseEvent): AbstractEventQueueItem | null 
         if (casted.code === EventCode.GENERAL_UNDO) {
             return new GeneralUndoEvent(casted as GeneralUndoEvent)
         }
-        if (casted.code === EventCode.InkAttachedToStickyNote) {
-            return new InkAttachedToStickyNoteEvent(casted as InkAttachedToStickyNoteEvent)
-        }
         if (casted.code === EventCode.StickyNoteMoved) {
             return new StickyNoteMovedEvent(casted as StickyNoteMovedEvent)
         }
@@ -308,6 +323,15 @@ export function ToDrawingEvent(event: BaseEvent): AbstractEventQueueItem | null 
         }
         if (casted.code === EventCode.PencilUp) {
             return new PencilUpEvent(casted as PencilUpEvent)
+        }
+        if (casted.code === EventCode.InkAttachedToStickyNote) {
+            return new InkAttachedToStickyNoteEvent(casted as InkAttachedToStickyNoteEvent)
+        }
+        if (casted.code === EventCode.TextEntered) {
+            return new TextEnteredEvent(casted as TextEnteredEvent)
+        }
+        if (casted.code === EventCode.TextAttachedToStickyNote) {
+            return new TextAttachedToStickyNoteEvent(casted as TextAttachedToStickyNoteEvent)
         }
     }
     return null;
