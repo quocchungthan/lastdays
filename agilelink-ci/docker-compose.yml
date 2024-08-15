@@ -15,7 +15,7 @@ services:
       context: ..
       dockerfile: agilelink-ci/Dockerfile.angular
     ports:
-      - "80:80"
+      - "81:81"
     networks:
       - app-network
 

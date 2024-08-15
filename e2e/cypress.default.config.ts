@@ -6,6 +6,6 @@ export const defaultConfiguration: Cypress.ConfigOptions<any> = {
        // implement node event listeners here
        addMatchImageSnapshotPlugin(on);
      },
-     baseUrl: 'http://localhost'
+     baseUrl: 'http://localhost:81'
    },
  };
