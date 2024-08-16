@@ -1,7 +1,7 @@
 <div id="live-chat">
 		
     <header class="clearfix" (click)="minimizeChat($event)">
-        <h4>Draw with Commands</h4>
+        <h4 class="{{rawStatusClass}}">{{onlineStatusAsString}}</h4>
 
         <span class="chat-message-counter">3</span>
 

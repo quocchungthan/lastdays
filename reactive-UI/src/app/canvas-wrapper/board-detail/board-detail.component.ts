@@ -24,7 +24,7 @@ import {
 } from '../../../utilities/painting/tool-selector/tool-selector.component';
 import { TOOL_ICON_FOLDER } from '../../configs/paths.constant';
 import { EventsCompositionService } from '../../events/drawings/events-composition.service';
-import { SyncingService } from '../../events/drawings/syncing.service';
+import { SyncingService } from '../../../dependencies/syncing.service';
 import { SavedBoardsService } from '../../services/data-storages/saved-boards.service';
 import { SavedBoard } from '../../services/data-storages/entities/SavedBoard';
 import { PencilCommands } from '../commands/pencil.command';

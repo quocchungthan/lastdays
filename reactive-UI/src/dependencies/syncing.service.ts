@@ -1,12 +1,18 @@
 import { Injectable } from '@angular/core';
-import { BaseEvent, ParseToBaseEvent, ToBaseEvent, ToDrawingEvent } from './EventQueue';
+import { BaseEvent, ParseToBaseEvent, ToBaseEvent, ToDrawingEvent } from '../app/events/drawings/EventQueue';
 import { WebSocketSubject, webSocket } from 'rxjs/webSocket'
-import { WEB_SOCKET_SERVER } from '../../configs/routing.consants';
+import { WEB_SOCKET_SERVER } from '../app/configs/routing.consants';
 import { BehaviorSubject, EMPTY, Subject, catchError, filter, map, tap } from 'rxjs';
-import { WSEvent, WSEventType } from '../to-python-server/web-socket-model';
-import { ComparisonResult, EventsCompositionService } from './events-composition.service';
-import { ConflictResolverService } from './conflict-resolver.service';
+import { WSEvent, WSEventType } from '../app/events/to-python-server/web-socket-model';
+import { ComparisonResult, EventsCompositionService } from '../app/events/drawings/events-composition.service';
+import { ConflictResolverService } from '../app/events/drawings/conflict-resolver.service';
 import { isNil } from 'lodash';
+
+export const StatusTranslatatbleString = {
+  Offline: "OFFLINE",
+  Online: "ONLINE",
+  ParticipantsCount: "PARTICIPANTS"
+}
 
 @Injectable()
 export class SyncingService {
@@ -15,14 +21,52 @@ export class SyncingService {
   private _allEventsReset = new Subject<void>();
   private _allEventsBaseEvent: BaseEvent[] = [];
 
+  /**
+   * 0 => disconnected
+   * 1 => 1 participant = the current user
+   * > 1 => other participants are online
+   */
+  private _onlineStatusChanged = new BehaviorSubject<number>(0);
+
   constructor(private _eventsCompositionService: EventsCompositionService, private _conflictResolver: ConflictResolverService) {
   }
 
   public listen(boardId: string) {
-    this._ws = webSocket(WEB_SOCKET_SERVER + '/' + boardId);
+    const self = this;
+    this._ws = webSocket({
+      url: WEB_SOCKET_SERVER + '/' + boardId,
+      closeObserver: {
+        next() {
+          self._onlineStatusChanged.next(0);
+        }
+      },
+      openObserver: {
+        next() {
+          self._onlineStatusChanged.next(1);
+        }
+      }
+    });
     this._listen();
 
     return this;
+  }
+
+  get participantCount() {
+    return this._onlineStatusChanged.value;
+  }
+
+  public getOnlineStatus() {
+    return this._onlineStatusChanged
+      .pipe(map((status) => {
+        switch (status) {
+          case 0:
+            return StatusTranslatatbleString.Offline;
+          case 1:
+            return StatusTranslatatbleString.Online;
+          default:
+            return StatusTranslatatbleString.ParticipantsCount
+        }
+      }));
   }
 
   public peerCheck(currentEvents: BaseEvent[]) {

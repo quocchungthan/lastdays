@@ -76,6 +76,18 @@ p { margin: 0; }
 	width: 8px;
 }
 
+#live-chat h4.ONLINE:before {
+	background: #1a8a34;
+}
+
+#live-chat h4.OFFLINE:before {
+	background: #555756;
+}
+
+#live-chat h4.PARTICIPANTS:before {
+	background: #5e2aeb;
+}
+
 #live-chat h4 {
 	font-size: 12px;
 }
