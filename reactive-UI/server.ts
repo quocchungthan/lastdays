@@ -27,30 +27,43 @@ export function app(): express.Express {
   }));
 
   // All regular routes use the Angular engine
-  server.get('*', (req, res, next) => {
+  server.get('*', async (req, res, next) => {
     const { protocol, originalUrl, baseUrl, headers } = req;
 
-    commonEngine
-      .render({
+    try {
+      const html = await commonEngine.render({
         bootstrap,
         documentFilePath: indexHtml,
         url: `${protocol}://${headers.host}${originalUrl}`,
         publicPath: browserDistFolder,
         providers: [{ provide: APP_BASE_HREF, useValue: baseUrl }],
-      })
-      .then((html) => res.send(html))
-      .catch((err) => next(err));
+      });
+
+      // Add meta tag for the /home route
+      if (originalUrl === '/home') {
+        const metaTag = '<meta name="modified-by-ssr" content="true">';
+        // Inject the meta tag before the closing </head> tag
+        const modifiedHtml = html.replace('</head>', `${metaTag}</head>`);
+        res.send(modifiedHtml);
+      } else {
+        res.send(html);
+      }
+    } catch (err) {
+      next(err);
+    }
   });
 
   return server;
 }
 
 function run(): void {
+  const port = process.env['PORT'] || 4201;
+
   // Start up the Node server
   const server = app();
-  injectWebSocket(server.listen(WEB_SOCKET_PORT, () => {
-    // console.log(`Node Express server listening on http://localhost:${WEB_SOCKET_PORT}`);
-  }));
+  server.listen(port, () => {
+    console.log(`Node Express server listening on http://localhost:${port}`);
+  });
 }
 
 run();

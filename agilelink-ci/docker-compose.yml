@@ -15,7 +15,9 @@ services:
       context: ..
       dockerfile: agilelink-ci/Dockerfile.angular
     ports:
-      - "81:81"
+      - "81:3000"  # Maps port 81 on the host to port 3000 in the container
+    environment:
+      - PORT=3000  # Sets the PORT environment variable inside the container
     networks:
       - app-network
 
