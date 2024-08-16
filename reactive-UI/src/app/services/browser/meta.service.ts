@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MetaService {
-
-  constructor() { }
+  constructor(private _translateService: TranslateService) {}
 
   public setPageName(content: string) {
     document.title = content;
@@ -20,8 +20,10 @@ export class MetaService {
   }
 
   public resetPageName() {
-    // TODO: i18n
-    this.setPageName("Agile Link - Simplicity is essential");
+    this._translateService.get("SLOGAN")
+      .subscribe((translatedSlogan) => {
+        this.setPageName("Agile Link - " + translatedSlogan);
+      });
   }
 
   private _appendMetaTagIfNotExisted(name: string) {
