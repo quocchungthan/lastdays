@@ -15,7 +15,6 @@
       "prefix": "app",
       "architect": {
         "build": {
-          // TODO: @angular-devkit/build-angular:application
           "builder": "@angular-builders/custom-webpack:browser",
           "options": {
             "customWebpackConfig": {
@@ -99,11 +98,23 @@
             ],
             "scripts": []
           }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
+          }
         }
       }
     }
   },
   "cli": {
-    "analytics": "eb8ff553-6aea-4d98-b32e-3a071d6c5601"
+    "analytics": "eb8ff553-6aea-4d98-b32e-3a071d6c5601",
+    "schematicCollections": [
+      "@angular-eslint/schematics"
+    ]
   }
 }
