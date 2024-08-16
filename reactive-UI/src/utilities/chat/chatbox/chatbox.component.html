@@ -9,7 +9,7 @@
 
     <div class="chat" style="max-height: {{ isExpandingChatBox ? '1000px': '0' }}">
         
-        <div class="chat-history">
+        <div #scrollableBox class="chat-history">
             @for (item of populatedChatMessages; track item.time) {
                 <div class="chat-message clearfix">
                     <img src="{{item.avatarUrl}}" alt="" width="32" height="32">

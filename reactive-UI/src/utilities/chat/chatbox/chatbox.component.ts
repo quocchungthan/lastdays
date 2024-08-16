@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToasterService } from '../../../app/services/ui-notifications/toaster.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -22,6 +22,9 @@ export class ChatboxComponent implements OnDestroy {
   populatedChatMessages: SingleMessageData[] = [];
   private _joinedTheChannelText: string = 'JOIN_THE_CHANNEL';
   typingText: string = 'TYPING';
+  youText: string = 'YOU';
+  @ViewChild('scrollableBox')
+  chatHistory: ElementRef | undefined;
 
   constructor(
     private _formBuilder: FormBuilder,
@@ -32,10 +35,11 @@ export class ChatboxComponent implements OnDestroy {
     this.chatBoxForm = this._formBuilder.group({
       message: ['', Validators.required]
     });
-    this._tranlsate.get([this._joinedTheChannelText, this.typingText])
+    this._tranlsate.get([this._joinedTheChannelText, this.typingText, this.youText])
       .subscribe((translated) => {
         this._joinedTheChannelText = translated[this._joinedTheChannelText];
         this.typingText = translated[this.typingText];
+        this.youText = translated[this.youText];
       });
 
     this._syncingService.getOnlineStatus()
@@ -47,6 +51,17 @@ export class ChatboxComponent implements OnDestroy {
         .subscribe((tranlated) => {
           this.onlineStatusAsString = tranlated;
         });
+      });
+
+    this._syncingService.onChatMessageReceived()
+      .subscribe(newText => {
+        this.populatedChatMessages.push({
+          messageText: newText.text,
+          displayName: newText.displayName,
+          time: new Date(),
+          avatarUrl: this.fallbackAvatar()
+        });
+        this._scrollToBottom();
       });
 
     this._syncingService.getNewIdentitySubscription()
@@ -68,7 +83,8 @@ export class ChatboxComponent implements OnDestroy {
               displayName: updatedIdentity.displayName || updatedIdentity.id,
               time: new Date(),
               avatarUrl: this.fallbackAvatar()
-            })
+            });
+            this._scrollToBottom();
           });
       });
   }
@@ -81,8 +97,28 @@ export class ChatboxComponent implements OnDestroy {
   }
 
   onSubmit() {
-    this._toaster.info(this.chatBoxForm.value.message);
+    if (!this.chatBoxForm.value.message) {
+      return;
+    }
+    this._syncingService.trySendTextMessage(this.chatBoxForm.value.message);
+    this.populatedChatMessages.push({
+      messageText: this.chatBoxForm.value.message,
+      displayName: this.youText,
+      time: new Date(),
+      avatarUrl: this.fallbackAvatar()
+    });
     this.chatBoxForm.reset();
+    this._scrollToBottom();
+  }
+
+  private _scrollToBottom() {
+    setTimeout(() => {
+      if (!this.chatHistory) {
+        return;
+      }
+
+      this.chatHistory.nativeElement.scroll({ top: this.chatHistory.nativeElement.scrollHeight, behavior: 'smooth' });
+    }, 100);    
   }
 
   minimizeChat(event: MouseEvent) {

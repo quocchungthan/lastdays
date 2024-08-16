@@ -14,7 +14,12 @@ export interface SayHelloEventData {
     user: UserIdentity;
 }
 
+export interface ChatTextEventData {
+    text: string;
+    displayName: string;
+}
+
 export interface WSEvent {
     type: WSEventType;
-    data: BaseEvent | string | undefined | BaseEvent[] | number | SayHelloEventData;
+    data: BaseEvent | string | undefined | BaseEvent[] | number | SayHelloEventData | ChatTextEventData;
 }

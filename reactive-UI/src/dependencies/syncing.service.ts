@@ -3,7 +3,7 @@ import { BaseEvent, ParseToBaseEvent, ToBaseEvent, ToDrawingEvent } from '../app
 import { WebSocketSubject, webSocket } from 'rxjs/webSocket'
 import { WEB_SOCKET_SERVER } from '../app/configs/routing.consants';
 import { BehaviorSubject, EMPTY, Observable, Subject, catchError, filter, map, tap } from 'rxjs';
-import { SayHelloEventData, WSEvent, WSEventType } from '../app/events/to-python-server/web-socket-model';
+import { ChatTextEventData, SayHelloEventData, WSEvent, WSEventType } from '../app/events/to-python-server/web-socket-model';
 import { ComparisonResult, EventsCompositionService } from '../app/events/drawings/events-composition.service';
 import { ConflictResolverService } from '../app/events/drawings/conflict-resolver.service';
 import { isNil } from 'lodash';
@@ -34,6 +34,8 @@ export class SyncingService {
   private _participantIdentitiesChanges: Observable<UserIdentity>;
   private _nextParticipantSayHello!: (value?: UserIdentity | undefined) => void;
   private _currentUser: UserIdentity | null | undefined;
+  private _chatMessageSubscription!: Observable<ChatTextEventData>;
+  private _nextMessageReceived!: (value?: ChatTextEventData | undefined) => void;
 
   constructor(
     private _eventsCompositionService: EventsCompositionService, 
@@ -44,10 +46,18 @@ export class SyncingService {
       this._nextParticipantSayHello = observer.next.bind(observer);
     });
 
+    this._chatMessageSubscription = new Observable<ChatTextEventData>((observer) => {
+      this._nextMessageReceived = observer.next.bind(observer);
+    });
+
     this._identityService.getCurrentIdentity()
       .then((s) => {
         this._currentUser = s;
       });
+  }
+
+  public onChatMessageReceived() {
+    return this._chatMessageSubscription;
   }
   
   disconnect() {
@@ -133,6 +143,16 @@ export class SyncingService {
     });
   }
 
+  public trySendTextMessage(msg: string) {
+    this._ws?.next({
+      data: {
+        text: msg,
+        displayName: this._currentUser?.displayName || this._currentUser?.id
+      } as ChatTextEventData,
+      type: WSEventType.CHAT
+    });
+  }
+
   public onEventAdded() {
     return this._allEventsChanges.pipe((filter(x => !isNil(x))));
   }
@@ -165,7 +185,7 @@ export class SyncingService {
         this._handleComparisionREsult(comparison, data);
         break;
       case WSEventType.CHAT:
-        // TODO: chat feature is not implemented
+        this._nextMessageReceived(data.data as ChatTextEventData);
         break;
     }
   }
