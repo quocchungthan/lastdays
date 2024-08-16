@@ -2,11 +2,13 @@ import { Injectable } from '@angular/core';
 import { BaseEvent, ParseToBaseEvent, ToBaseEvent, ToDrawingEvent } from '../app/events/drawings/EventQueue';
 import { WebSocketSubject, webSocket } from 'rxjs/webSocket'
 import { WEB_SOCKET_SERVER } from '../app/configs/routing.consants';
-import { BehaviorSubject, EMPTY, Subject, catchError, filter, map, tap } from 'rxjs';
-import { WSEvent, WSEventType } from '../app/events/to-python-server/web-socket-model';
+import { BehaviorSubject, EMPTY, Observable, Subject, catchError, filter, map, tap } from 'rxjs';
+import { SayHelloEventData, WSEvent, WSEventType } from '../app/events/to-python-server/web-socket-model';
 import { ComparisonResult, EventsCompositionService } from '../app/events/drawings/events-composition.service';
 import { ConflictResolverService } from '../app/events/drawings/conflict-resolver.service';
 import { isNil } from 'lodash';
+import { IdentitiesService } from '../app/services/data-storages/identities.service';
+import { UserIdentity } from '../app/services/data-storages/entities/Identity';
 
 export const StatusTranslatatbleString = {
   Offline: "OFFLINE",
@@ -27,8 +29,17 @@ export class SyncingService {
    * > 1 => other participants are online
    */
   private _onlineStatusChanged = new BehaviorSubject<number>(0);
+  private _participantIdentitiesChanges: Observable<UserIdentity>;
+  private _nextParticipantSayHello!: (value?: UserIdentity | undefined) => void;
 
-  constructor(private _eventsCompositionService: EventsCompositionService, private _conflictResolver: ConflictResolverService) {
+  constructor(
+    private _eventsCompositionService: EventsCompositionService, 
+    private _conflictResolver: ConflictResolverService,
+    private _identityService: IdentitiesService) {
+
+    this._participantIdentitiesChanges = new Observable<UserIdentity>((observer) => {
+      this._nextParticipantSayHello = observer.next.bind(observer);
+    });
   }
 
   public listen(boardId: string) {
@@ -43,6 +54,7 @@ export class SyncingService {
       openObserver: {
         next() {
           self._onlineStatusChanged.next(1);
+          self.sayHelloToOtherParticipants();
         }
       }
     });
@@ -53,6 +65,20 @@ export class SyncingService {
 
   get participantCount() {
     return this._onlineStatusChanged.value;
+  }
+
+  getNewIdentitySubscription() {
+    return this._participantIdentitiesChanges.pipe(filter(x => !!x));
+  }
+
+  async sayHelloToOtherParticipants() {
+    const currentUser = await this._identityService.getCurrentIdentity()
+    this._ws?.next({
+      data: {
+        user: currentUser
+      } as SayHelloEventData,
+      type: WSEventType.SAY_HELLO
+    });
   }
 
   public getOnlineStatus() {
@@ -100,13 +126,15 @@ export class SyncingService {
   }
 
   private _onMessageReceive(data: WSEvent) {
-    // console.log('Receiving ', data);
     switch (data.type) {
+      case WSEventType.SAY_HELLO:
+        this._nextParticipantSayHello((data.data as SayHelloEventData).user);
+        break;
       case WSEventType.PARTICIPANTS_COUNT_UPDATE:
         this._onlineStatusChanged.next(data.data as number);
         break;
       case WSEventType.DRAWING_EVENT:
-        this._handleAdded(data.data);
+        this._handleAdded(data.data as BaseEvent);
         break;
       case WSEventType.ASK_OTHER_CLIENTS:
         // console.log('responding that', this._allEventsBaseEvent);
@@ -126,7 +154,7 @@ export class SyncingService {
     }
   }
 
-  private _handleAdded(data: BaseEvent | string | undefined | BaseEvent[] | number) {
+  private _handleAdded(data: BaseEvent) {
     const received = ParseToBaseEvent(data)!;
     this._allEventsBaseEvent.push(received);
     this._allEventsChanges.next(received);
