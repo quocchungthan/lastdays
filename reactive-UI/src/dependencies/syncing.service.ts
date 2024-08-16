@@ -16,7 +16,9 @@ export const StatusTranslatatbleString = {
   ParticipantsCount: "PARTICIPANTS"
 }
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class SyncingService {
   private _ws?: WebSocketSubject<WSEvent>;
   private _allEventsChanges = new BehaviorSubject<BaseEvent>(null!);
@@ -31,6 +33,7 @@ export class SyncingService {
   private _onlineStatusChanged = new BehaviorSubject<number>(0);
   private _participantIdentitiesChanges: Observable<UserIdentity>;
   private _nextParticipantSayHello!: (value?: UserIdentity | undefined) => void;
+  private _currentUser: UserIdentity | null | undefined;
 
   constructor(
     private _eventsCompositionService: EventsCompositionService, 
@@ -40,10 +43,23 @@ export class SyncingService {
     this._participantIdentitiesChanges = new Observable<UserIdentity>((observer) => {
       this._nextParticipantSayHello = observer.next.bind(observer);
     });
+
+    this._identityService.getCurrentIdentity()
+      .then((s) => {
+        this._currentUser = s;
+      });
+  }
+  
+  disconnect() {
+    this._ws?.unsubscribe();
+    this._ws = undefined;
   }
 
   public listen(boardId: string) {
     const self = this;
+    if (this._ws) {
+      return this;
+    }
     this._ws = webSocket({
       url: WEB_SOCKET_SERVER + '/' + boardId,
       closeObserver: {
@@ -68,11 +84,11 @@ export class SyncingService {
   }
 
   getNewIdentitySubscription() {
-    return this._participantIdentitiesChanges.pipe(filter(x => !!x));
+    return this._participantIdentitiesChanges.pipe(filter(x => !!x && x.id !== this._currentUser?.id));
   }
 
   async sayHelloToOtherParticipants() {
-    const currentUser = await this._identityService.getCurrentIdentity()
+    const currentUser = await this._identityService.getCurrentIdentity();
     this._ws?.next({
       data: {
         user: currentUser

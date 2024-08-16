@@ -85,6 +85,10 @@ export class UserDrawingLayerManager implements OnDestroy {
                     this._boardId = id;
                     this._loadExistingDrawings();
                 }
+
+                if (!id) {
+                    this._syncingService.disconnect();
+                }
             });
 
         this._keys.onUndo()
