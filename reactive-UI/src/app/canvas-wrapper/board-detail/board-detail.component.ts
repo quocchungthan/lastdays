@@ -2,29 +2,19 @@ import {
   AfterViewInit,
   Component,
   HostListener,
-  OnDestroy,
   ViewChild,
 } from '@angular/core';
 import { TopbarComponent } from '../../../utilities/layout/topbar/topbar.component';
 import { KONVA_CONTAINER } from '../../configs/html-ids.constants';
-import { CanvasManager } from './managers/Canvas.manager';
 import { ChatboxComponent } from '../../../utilities/chat/chatbox/chatbox.component';
 import { BookmarkComponent } from '../../../utilities/icons/bookmark/bookmark.component';
 import { BookmarkedComponent } from '../../../utilities/icons/bookmarked/bookmarked.component';
 import {
-  DropDownItem,
   UiDropdownComponent,
 } from '../../../utilities/controls/ui-dropdown/ui-dropdown.component';
-import { StickyNoteCommands } from './commands/sticky-notes.command';
-import { PencilCommands } from './commands/pencil.command';
-import { BoardsService } from '../../services/data-storages/boards.service';
 import { UrlExtractorService } from '../../services/browser/url-extractor.service';
 import { ActivatedRoute } from '@angular/router';
-import { KonvaObjectService } from '../../services/3rds/konva-object.service';
-import { UserDrawingLayerManager } from './managers/UserDrawingLayer.manager';
-import { BackgroundLayerManager } from './managers/BackgroundLayer.manager';
-import { ViewPortEventsManager } from './managers/ViewPortEvents.manager';
-import { CursorManager } from './managers/Cursor.manager';
+import { KonvaObjectService } from '../services/3rds/konva-object.service';
 import { ViewportSizeService } from '../../services/browser/viewport-size.service';
 import { ToolCompositionService } from '../../services/states/tool-composition.service';
 import { ColorBoardComponent } from '../../../utilities/painting/color-board/color-board.component';
@@ -37,20 +27,17 @@ import { EventsCompositionService } from '../../events/drawings/events-compositi
 import { SyncingService } from '../../events/drawings/syncing.service';
 import { SavedBoardsService } from '../../services/data-storages/saved-boards.service';
 import { SavedBoard } from '../../services/data-storages/entities/SavedBoard';
-import { TextInputCommands } from './commands/text-input.command';
+import { PencilCommands } from '../commands/pencil.command';
+import { StickyNoteCommands } from '../commands/sticky-notes.command';
+import { TextInputCommands } from '../commands/text-input.command';
+import { BackgroundLayerManager } from '../managers/BackgroundLayer.manager';
+import { CanvasManager } from '../managers/Canvas.manager';
+import { CursorManager } from '../managers/Cursor.manager';
+import { UserDrawingLayerManager } from '../managers/UserDrawingLayer.manager';
+import { ViewPortEventsManager } from '../managers/ViewPortEvents.manager';
 
 @Component({
   selector: 'app-board-detail',
-  standalone: true,
-  imports: [
-    TopbarComponent,
-    ChatboxComponent,
-    BookmarkComponent,
-    BookmarkedComponent,
-    UiDropdownComponent,
-    ColorBoardComponent,
-    ToolSelectorComponent,
-  ],
   providers: [
     ViewPortEventsManager,
     UserDrawingLayerManager,

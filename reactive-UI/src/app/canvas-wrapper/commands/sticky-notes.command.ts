@@ -1,17 +1,17 @@
 import Konva from 'konva';
-import { Point } from '../../../../utilities/types/Point';
 import { isNil } from 'lodash';
-import { Shape, ShapeConfig, shapes } from 'konva/lib/Shape';
-import { areRectanglesIntersecting } from '../../../../utilities/mathematicals/collision';
+import { Shape, ShapeConfig } from 'konva/lib/Shape';
 import { PencilCommands } from './pencil.command';
 import { Subject } from 'rxjs';
 import { Group } from 'konva/lib/Group';
-import { ToolCompositionService } from '../../../services/states/tool-composition.service';
-import { InkAttachedToStickyNoteEvent, StickyNoteMovedEvent, StickyNotePastedEvent } from '../../../events/drawings/EventQueue';
-import { STANDARD_STICKY_NOTE_SIZE } from '../../../configs/size';
 import { IRect } from 'konva/lib/types';
 import { TextInputCommands } from './text-input.command';
-import { FormModalService } from '../../../../utilities/controls/form-modal.service';
+import { FormModalService } from '../../../utilities/controls/form-modal.service';
+import { areRectanglesIntersecting } from '../../../utilities/mathematicals/collision';
+import { Point } from '../../../utilities/types/Point';
+import { STANDARD_STICKY_NOTE_SIZE } from '../../configs/size';
+import { InkAttachedToStickyNoteEvent, StickyNoteMovedEvent, StickyNotePastedEvent } from '../../events/drawings/EventQueue';
+import { ToolCompositionService } from '../../services/states/tool-composition.service';
 
 export interface StickyNote {
     navtive: Konva.Group;

@@ -1,9 +1,9 @@
 import Konva from 'konva';
-import { Point } from '../../../../utilities/types/Point';
-import { PRIMARY_COLOR } from '../../../configs/theme.constants';
 import { LineConfig } from 'konva/lib/shapes/Line';
-import { KonvaObjectService } from '../../../services/3rds/konva-object.service';
 import { Injectable } from '@angular/core';
+import { Point } from '../../../utilities/types/Point';
+import { PRIMARY_COLOR } from '../../configs/theme.constants';
+import { KonvaObjectService } from '../services/3rds/konva-object.service';
 
 @Injectable()
 export class BackgroundLayerManager {

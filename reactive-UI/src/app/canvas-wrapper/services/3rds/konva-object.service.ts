@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import Konva from 'konva';
-import { KONVA_CONTAINER } from '../../configs/html-ids.constants';
-import { HORIZONTAL_SCROLL_BAR_SIZE } from '../../configs/html-native-size.constants';
+import { KONVA_CONTAINER } from '../../../configs/html-ids.constants';
+import { HORIZONTAL_SCROLL_BAR_SIZE } from '../../../configs/html-native-size.constants';
 import { BehaviorSubject, filter, map } from 'rxjs';
 
 @Injectable()

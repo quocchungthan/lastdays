@@ -1,17 +1,16 @@
 import Konva from 'konva';
-import { PRIMARY_COLOR } from '../../../configs/theme.constants';
 import { BackgroundLayerManager } from './BackgroundLayer.manager';
 import { ViewPortEventsManager } from './ViewPortEvents.manager';
 import { CursorManager } from './Cursor.manager';
 import { UserDrawingLayerManager } from './UserDrawingLayer.manager';
 import { StickyNoteCommands } from '../commands/sticky-notes.command';
 import { PencilCommands } from '../commands/pencil.command';
-import { BoardsService } from '../../../services/data-storages/boards.service';
-import { UrlExtractorService } from '../../../services/browser/url-extractor.service';
 import { Injectable } from '@angular/core';
-import { KonvaObjectService } from '../../../services/3rds/konva-object.service';
-import { Wheel } from '../../../../utilities/types/Wheel';
 import { TextInputCommands } from '../commands/text-input.command';
+import { Wheel } from '../../../utilities/types/Wheel';
+import { KonvaObjectService } from '../services/3rds/konva-object.service';
+import { UrlExtractorService } from '../../services/browser/url-extractor.service';
+import { BoardsService } from '../../services/data-storages/boards.service';
 
 @Injectable()
 export class CanvasManager {
