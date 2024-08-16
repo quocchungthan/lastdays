@@ -1,7 +1,7 @@
 {
     "OFFLINE": "Offline",
     "ONLINE": "Online",
-    "PARTICIPANTS": "{0} participants in the room",
+    "PARTICIPANTS": "{{0}} participants in the room",
     "SLOGAN": "Simplicity is essential",
     "FORM_DIALOG_CANCEL": "Cancel",
     "FORM_DIALOG_SUBMIT": "Submit",

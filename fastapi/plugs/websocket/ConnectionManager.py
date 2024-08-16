@@ -1,6 +1,6 @@
 from business.services.loggerInteface import ILogger
 from fastapi import WebSocket
-# import json
+import json
 
 class ConnectionModel:
     board_id: str
@@ -19,6 +19,17 @@ class ConnectionManager:
         await websocket.accept()
         self.active_connections.append(ConnectionModel(board_id, websocket))
         self._connection_count()
+        await self.update_participations_count(board_id)
+
+    async def update_participations_count(self, board_id: str):
+        all_connections_same_board = list(filter(lambda x: x.board_id == board_id, self.active_connections))
+        message_object = {
+            "type": "PARTICIPANTS_COUNT_UPDATE",
+            "data": len(all_connections_same_board)
+        }
+        json_string = json.dumps(message_object)
+        for connection in all_connections_same_board:
+            await connection.socket.send_text(json_string)
 
     def disconnect(self, websocket: WebSocket):
         self.active_connections = list(filter(lambda x: x.socket != websocket, self.active_connections))

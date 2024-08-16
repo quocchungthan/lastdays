@@ -35,9 +35,11 @@ async def generateDescription(readDrawingService: IReadDrawingService = Depends(
 @app.websocket("/ws/{board_id}")
 async def websocket_endpoint(websocket: WebSocket, board_id: str, manager: ConnectionManager = Depends(get_connection_manager)):
     await manager.connect(board_id, websocket)
+    await manager.update_participations_count(board_id)
     try:
         while True:
             dataInString = await websocket.receive_text()
             await manager.to_board_users(board_id, dataInString, websocket)
     except WebSocketDisconnect:
         manager.disconnect(websocket)
+        await manager.update_participations_count(board_id)

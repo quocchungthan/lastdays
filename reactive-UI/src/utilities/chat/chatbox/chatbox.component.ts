@@ -30,7 +30,7 @@ export class ChatboxComponent {
       .subscribe((onlineStatus: string) => {
         this.rawStatusClass = onlineStatus;
         this._tranlsate.get(onlineStatus, {
-          '{0}': this._syncingService.participantCount
+          '0': this._syncingService.participantCount
         })
         .subscribe((tranlated) => {
           this.onlineStatusAsString = tranlated;

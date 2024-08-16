@@ -102,6 +102,9 @@ export class SyncingService {
   private _onMessageReceive(data: WSEvent) {
     // console.log('Receiving ', data);
     switch (data.type) {
+      case WSEventType.PARTICIPANTS_COUNT_UPDATE:
+        this._onlineStatusChanged.next(data.data as number);
+        break;
       case WSEventType.DRAWING_EVENT:
         this._handleAdded(data.data);
         break;
@@ -123,7 +126,7 @@ export class SyncingService {
     }
   }
 
-  private _handleAdded(data: BaseEvent | string | undefined | BaseEvent[]) {
+  private _handleAdded(data: BaseEvent | string | undefined | BaseEvent[] | number) {
     const received = ParseToBaseEvent(data)!;
     this._allEventsBaseEvent.push(received);
     this._allEventsChanges.next(received);
