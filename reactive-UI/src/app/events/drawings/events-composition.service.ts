@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { AbstractEventQueueItem, BoardedCreatedEvent, GeneralUndoEvent, InkAttachedToStickyNoteEvent, PencilUpEvent, PureQueue, StickyNoteMovedEvent, StickyNotePastedEvent, TextAttachedToStickyNoteEvent, TextEnteredEvent, ToBaseEvent, ToDrawingEvent } from './EventQueue';
 import { cloneDeep } from 'lodash';
-import { PencilCommands } from '../../pages/board-detail/commands/pencil.command';
-import { StickyNoteCommands } from '../../pages/board-detail/commands/sticky-notes.command';
 import { EventCode } from './EventCode';
-import { TextInputCommands } from '../../pages/board-detail/commands/text-input.command';
+import { PencilCommands } from '../../canvas-wrapper/commands/pencil.command';
+import { StickyNoteCommands } from '../../canvas-wrapper/commands/sticky-notes.command';
+import { TextInputCommands } from '../../canvas-wrapper/commands/text-input.command';
 
 export enum ComparisonResult {
   EQUAL,

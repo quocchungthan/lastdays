@@ -41,7 +41,7 @@ input {
 
 p { margin: 0; }
 
-.clearfix { *zoom: 1; } /* For IE 6/7 */
+.clearfix { zoom: 1; } /* For IE 6/7 */
 .clearfix:before, .clearfix:after {
     content: "";
     display: table;

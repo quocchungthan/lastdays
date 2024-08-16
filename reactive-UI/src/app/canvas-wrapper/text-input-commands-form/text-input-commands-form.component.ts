@@ -12,7 +12,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ColorBoardComponent } from '../../../utilities/painting/color-board/color-board.component';
 import { SUPPORTED_COLORS } from '../../configs/theme.constants';
 import { Dimension } from '../../../utilities/types/Dimension';
-import { TextInputCommands } from '../../pages/board-detail/commands/text-input.command';
+import { TextInputCommands } from '../commands/text-input.command';
 
 @Component({
   selector: 'app-text-input-commands-form',

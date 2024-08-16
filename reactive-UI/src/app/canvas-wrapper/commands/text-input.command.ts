@@ -1,10 +1,10 @@
 import Konva from "konva";
-import { Point } from "../../../../utilities/types/Point";
-import { ToolCompositionService } from "../../../services/states/tool-composition.service";
 import { Observable } from "rxjs";
-import { FormModalService } from '../../../../utilities/controls/form-modal.service';
-import { TextInputCommandsFormComponent } from '../../../components/text-input-commands-form/text-input-commands-form.component';
-import { TextEnteredEvent } from "../../../events/drawings/EventQueue";
+import { FormModalService } from "../../../utilities/controls/form-modal.service";
+import { Point } from "../../../utilities/types/Point";
+import { TextEnteredEvent } from "../../events/drawings/EventQueue";
+import { ToolCompositionService } from "../../services/states/tool-composition.service";
+import { TextInputCommandsFormComponent } from "../text-input-commands-form/text-input-commands-form.component";
 
 export class TextInputCommands {
     public static readonly CommandName = "text-input";

@@ -1,28 +1,28 @@
 import Konva from "konva";
-import { PRIMARY_COLOR } from "../../../configs/theme.constants";
 import { PencilCommands } from "../commands/pencil.command";
-import { BoardsService } from "../../../services/data-storages/boards.service";
-import { UrlExtractorService } from "../../../services/browser/url-extractor.service";
 import { ViewPortEventsManager } from "./ViewPortEvents.manager";
 import { Injectable, OnDestroy } from "@angular/core";
-import { KonvaObjectService } from "../../../services/3rds/konva-object.service";
-import { DrawingObjectService } from "../../../services/data-storages/drawing-object.service";
 import { StickyNoteCommands } from "../commands/sticky-notes.command";
 import { CursorManager } from "./Cursor.manager";
 import { Subject, debounceTime } from "rxjs";
 import { Group } from "konva/lib/Group";
 import guid from "guid";
-import { ToolCompositionService } from "../../../services/states/tool-composition.service";
-import { EventsCompositionService } from "../../../events/drawings/events-composition.service";
 import { Line, LineConfig } from "konva/lib/shapes/Line";
-import { AbstractEventQueueItem, BaseEvent, BoardedCreatedEvent, GeneralUndoEvent, InkAttachedToStickyNoteEvent, PencilUpEvent, StickyNoteMovedEvent, StickyNotePastedEvent, TextAttachedToStickyNoteEvent, TextEnteredEvent, ToBaseEvent, ToDrawingEvent } from "../../../events/drawings/EventQueue";
-import { EventsService } from "../../../services/data-storages/events.service";
-import { SyncingService } from "../../../events/drawings/syncing.service";
-import { KeysService } from "../../../services/browser/keys.service";
-import { MetaService } from "../../../services/browser/meta.service";
 import { TextInputCommands } from "../commands/text-input.command";
-import { FormModalService } from '../../../../utilities/controls/form-modal.service';
-import { Point } from "../../../../utilities/types/Point";
+import { FormModalService } from "../../../utilities/controls/form-modal.service";
+import { Point } from "../../../utilities/types/Point";
+import { PRIMARY_COLOR } from "../../configs/theme.constants";
+import { ToBaseEvent, BoardedCreatedEvent, ToDrawingEvent, BaseEvent, StickyNoteMovedEvent, GeneralUndoEvent, AbstractEventQueueItem, StickyNotePastedEvent, InkAttachedToStickyNoteEvent, TextAttachedToStickyNoteEvent, PencilUpEvent, TextEnteredEvent } from "../../events/drawings/EventQueue";
+import { EventsCompositionService } from "../../events/drawings/events-composition.service";
+import { SyncingService } from "../../events/drawings/syncing.service";
+import { KonvaObjectService } from "../services/3rds/konva-object.service";
+import { KeysService } from "../../services/browser/keys.service";
+import { MetaService } from "../../services/browser/meta.service";
+import { UrlExtractorService } from "../../services/browser/url-extractor.service";
+import { BoardsService } from "../../services/data-storages/boards.service";
+import { DrawingObjectService } from "../../services/data-storages/drawing-object.service";
+import { EventsService } from "../../services/data-storages/events.service";
+import { ToolCompositionService } from "../../services/states/tool-composition.service";
 
 @Injectable()
 export class UserDrawingLayerManager implements OnDestroy {
