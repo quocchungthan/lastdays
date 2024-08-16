@@ -3,12 +3,12 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --open",
+    "start": "ng serve --open --port 4201",
     "start:e2e": "ng serve --open --port 80",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:reactive-ui": "node dist/reactive-ui/server/server.mjs"
+    "serve:ssr": "npm run build && node dist/reactive-ui/server/server.mjs"
   },
   "private": true,
   "dependencies": {

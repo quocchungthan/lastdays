@@ -12,12 +12,6 @@ COPY ./reactive-UI/ .
 
 RUN npm run build --omit=dev
 
-FROM nginx:alpine
+EXPOSE 3000
 
-COPY ./agilelink-ci/nginx.conf /etc/nginx/conf.d/default.conf
-
-COPY --from=build /app/dist/reactive-ui /usr/share/nginx/html
-
-EXPOSE 81
-
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["node", "dist/reactive-ui/server/server.mjs"]
