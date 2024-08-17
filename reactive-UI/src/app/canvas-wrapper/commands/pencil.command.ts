@@ -1,5 +1,5 @@
 import Konva from 'konva';
-import { Point } from '../../../utilities/types/Point';
+import { Point } from '../../../ui-utilities/types/Point';
 import { STROKE_WIDTH } from '../../../configs/size';
 import { PencilUpEvent } from '../../events/drawings/EventQueue';
 import { ToolCompositionService } from '../../services/states/tool-composition.service';

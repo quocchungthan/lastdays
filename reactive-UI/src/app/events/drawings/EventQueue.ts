@@ -1,5 +1,5 @@
-import { Dimension } from "../../../utilities/types/Dimension";
-import { Point } from "../../../utilities/types/Point";
+import { Dimension } from "../../../ui-utilities/types/Dimension";
+import { Point } from "../../../ui-utilities/types/Point";
 import { STANDARD_STICKY_NOTE_SIZE, STROKE_WIDTH } from "../../../configs/size";
 import { PREFERED_INK_COLOR, SUPPORTED_COLORS } from "../../../configs/theme.constants";
 import { BaseEntity } from "../../services/data-storages/entities/Base.entity";

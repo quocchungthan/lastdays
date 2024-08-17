@@ -4,24 +4,24 @@ import {
   HostListener,
   ViewChild,
 } from '@angular/core';
-import { TopbarComponent } from '../../../utilities/layout/topbar/topbar.component';
+import { TopbarComponent } from '../../../ui-utilities/layout/topbar/topbar.component';
 import { KONVA_CONTAINER } from '../../../configs/html-ids.constants';
-import { ChatboxComponent } from '../../../utilities/chat/chatbox/chatbox.component';
-import { BookmarkComponent } from '../../../utilities/icons/bookmark/bookmark.component';
-import { BookmarkedComponent } from '../../../utilities/icons/bookmarked/bookmarked.component';
+import { ChatboxComponent } from '../../../ui-utilities/chat/chatbox/chatbox.component';
+import { BookmarkComponent } from '../../../ui-utilities/icons/bookmark/bookmark.component';
+import { BookmarkedComponent } from '../../../ui-utilities/icons/bookmarked/bookmarked.component';
 import {
   UiDropdownComponent,
-} from '../../../utilities/controls/ui-dropdown/ui-dropdown.component';
+} from '../../../ui-utilities/controls/ui-dropdown/ui-dropdown.component';
 import { UrlExtractorService } from '../../services/browser/url-extractor.service';
 import { ActivatedRoute } from '@angular/router';
 import { KonvaObjectService } from '../services/3rds/konva-object.service';
 import { ViewportSizeService } from '../../services/browser/viewport-size.service';
 import { ToolCompositionService } from '../../services/states/tool-composition.service';
-import { ColorBoardComponent } from '../../../utilities/painting/color-board/color-board.component';
+import { ColorBoardComponent } from '../../../ui-utilities/painting/color-board/color-board.component';
 import {
   Tool,
   ToolSelectorComponent,
-} from '../../../utilities/painting/tool-selector/tool-selector.component';
+} from '../../../ui-utilities/painting/tool-selector/tool-selector.component';
 import { TOOL_ICON_FOLDER } from '../../../configs/paths.constant';
 import { EventsCompositionService } from '../../events/drawings/events-composition.service';
 import { SyncingService } from '../../../dependencies/syncing.service';

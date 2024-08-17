@@ -2,12 +2,12 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { BoardDetailComponent } from './board-detail/board-detail.component';
-import { TopbarComponent } from '../../utilities/layout/topbar/topbar.component';
-import { ToolSelectorComponent } from '../../utilities/painting/tool-selector/tool-selector.component';
-import { ChatboxComponent } from '../../utilities/chat/chatbox/chatbox.component';
-import { ColorBoardComponent } from '../../utilities/painting/color-board/color-board.component';
-import { BookmarkComponent } from '../../utilities/icons/bookmark/bookmark.component';
-import { BookmarkedComponent } from '../../utilities/icons/bookmarked/bookmarked.component';
+import { TopbarComponent } from '../../ui-utilities/layout/topbar/topbar.component';
+import { ToolSelectorComponent } from '../../ui-utilities/painting/tool-selector/tool-selector.component';
+import { ChatboxComponent } from '../../ui-utilities/chat/chatbox/chatbox.component';
+import { ColorBoardComponent } from '../../ui-utilities/painting/color-board/color-board.component';
+import { BookmarkComponent } from '../../ui-utilities/icons/bookmark/bookmark.component';
+import { BookmarkedComponent } from '../../ui-utilities/icons/bookmarked/bookmarked.component';
 
 const routes: Routes = [
   {

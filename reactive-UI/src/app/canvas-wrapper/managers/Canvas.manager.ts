@@ -7,7 +7,7 @@ import { StickyNoteCommands } from '../commands/sticky-notes.command';
 import { PencilCommands } from '../commands/pencil.command';
 import { Injectable } from '@angular/core';
 import { TextInputCommands } from '../commands/text-input.command';
-import { Wheel } from '../../../utilities/types/Wheel';
+import { Wheel } from '../../../ui-utilities/types/Wheel';
 import { KonvaObjectService } from '../services/3rds/konva-object.service';
 import { UrlExtractorService } from '../../services/browser/url-extractor.service';
 import { BoardsService } from '../../services/data-storages/boards.service';

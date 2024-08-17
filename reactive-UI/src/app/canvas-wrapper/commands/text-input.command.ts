@@ -1,7 +1,7 @@
 import Konva from "konva";
 import { Observable } from "rxjs";
-import { FormModalService } from "../../../utilities/controls/form-modal.service";
-import { Point } from "../../../utilities/types/Point";
+import { FormModalService } from "../../../ui-utilities/controls/form-modal.service";
+import { Point } from "../../../ui-utilities/types/Point";
 import { TextEnteredEvent } from "../../events/drawings/EventQueue";
 import { ToolCompositionService } from "../../services/states/tool-composition.service";
 import { TextInputCommandsFormComponent } from "../text-input-commands-form/text-input-commands-form.component";
