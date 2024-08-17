@@ -1,9 +1,9 @@
-import { WebSocket } from 'ws';
+import WebSocket, { WebSocketServer } from 'ws';
 import * as http from 'http';
-import { WEB_SOCKET_PATH } from '../app/configs/routing.consants';
+import { WEB_SOCKET_PATH } from '../../app/configs/routing.consants';
 
 export const injectWebSocket = (server: http.Server) => {
-    const wss = new WebSocket.Server({
+    const wss = new WebSocketServer({
         server: server,
         path: WEB_SOCKET_PATH
         // perMessageDeflate: {
@@ -29,11 +29,11 @@ export const injectWebSocket = (server: http.Server) => {
 
   // WebSocket connection handling
   wss.on('connection', function connection(ws) {
-    // console.log('New WebSocket connection');
+    console.log('New WebSocket connection');
 
     // Handle messages from clients
     ws.on('message', function incoming(message) {
-      // console.log('Received:', message);
+      console.log('Received:', message);
     });
 
     // Send a message to the client
