@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import bootstrap from './src/main.server';
 import { injectWebSocket } from '@com/server-event-syncing';
+import { injectAssistantEndpoints } from '@ai/serve-assistant';
 
 const port = process.env['PORT'] || 4201;
 
@@ -53,6 +54,8 @@ export function app(): express.Express {
       next(err);
     }
   });
+  
+  injectAssistantEndpoints(server);
 
   return server;
 }
