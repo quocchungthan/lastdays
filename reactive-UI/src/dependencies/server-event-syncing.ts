@@ -1,8 +1,11 @@
 import WebSocket, { WebSocketServer } from 'ws';
 import * as http from 'http';
-import { WEB_SOCKET_PATH } from '../configs/routing.consants';
+import { SEGMENT_TO_BOARD_DETAIL, WEB_SOCKET_PATH } from '../configs/routing.consants';
+import { ConnectionManager, ConsoleLogger } from './connection.manager';
 
 export const injectWebSocket = (server: http.Server) => {
+    const logger = new ConsoleLogger();
+    const connectionManager = new ConnectionManager(logger);
     const wss = new WebSocketServer({
         server: server,
         path: WEB_SOCKET_PATH
@@ -27,25 +30,39 @@ export const injectWebSocket = (server: http.Server) => {
         // }
       });
   wss.on('listening', () => {
-    console.log('Start listening');
+    logger.log('Start listening');
   });
   wss.on('error', (e) => {
-    console.log('Error', e);
+    logger.log('Error ' + JSON.stringify(e));
   });
   wss.on('headers', (e) => {
-    console.log('Headers', e);
+    logger.log('Headers ' + JSON.stringify(e));
   });
   // WebSocket connection handling
-  wss.on('connection', function connection(ws) {
-    console.log('New WebSocket connection');
+  wss.on('connection', function connection(ws, req: http.IncomingMessage) {
+    // Extract board_id from URL if applicable
+    const boardId = extractBoardIdFromUrl(`http://${req.headers.host}` + req.url ?? '');
+    if (!boardId) {
+      logger.log('Ignore the connection without board id');
+      return;
+    }
 
+    connectionManager.connect(boardId, ws);
+    
     // Handle messages from clients
-    ws.on('message', function incoming(message) {
-      console.log('Received:', message);
+    ws.on('message', async (message: WebSocket.MessageEvent) => {
+      await connectionManager.toBoardUsers(boardId, message.toString(), ws);
     });
 
-    // Send a message to the client
-    ws.send('Hello, WebSocket client!');
+    ws.on('close', async () => {
+      connectionManager.disconnect(ws);
+      await connectionManager.updateParticipationsCount(boardId);
+    });
   });
-  // console.log("Injected");
+  // logger.log("Injected");
+}
+
+// Extract board_id from URL (this is an example; adjust as needed)
+function extractBoardIdFromUrl(url: string) {
+  return new URL(url).searchParams.get(SEGMENT_TO_BOARD_DETAIL);
 }
