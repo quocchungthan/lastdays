@@ -29,7 +29,12 @@ export function app(): express.Express {
     maxAge: '1y'
   }));
 
-  // All regular routes use the Angular engine
+  serveAllRoutesUseTheAngularEngine(server, commonEngine, indexHtml, browserDistFolder);
+
+  return server;
+}
+
+function serveAllRoutesUseTheAngularEngine(server: express.Express, commonEngine: CommonEngine, indexHtml: string, browserDistFolder: string) {
   server.get('*', async (req, res, next) => {
     const { protocol, originalUrl, baseUrl, headers } = req;
 
@@ -55,8 +60,6 @@ export function app(): express.Express {
       next(err);
     }
   });
-
-  return server;
 }
 
 function run(): void {

@@ -25,7 +25,8 @@ export const injectAssistantEndpoints = (server: express.Express) => {
     const openai = newOpenAiClient();
     const router = express.Router();
     router.post('/generate-drawing-event', () => {
-
+        /** With no history yet: TODO: one board one conversation history and the history */
+        
     });
 
     router.get('/ts-schema', async (req, res) => {
