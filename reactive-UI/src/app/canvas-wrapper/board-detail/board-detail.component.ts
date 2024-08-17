@@ -4,29 +4,12 @@ import {
   HostListener,
   ViewChild,
 } from '@angular/core';
-import { TopbarComponent } from '../../../ui-utilities/layout/topbar/topbar.component';
-import { KONVA_CONTAINER } from '../../../configs/html-ids.constants';
-import { ChatboxComponent } from '../../../ui-utilities/chat/chatbox/chatbox.component';
-import { BookmarkComponent } from '../../../ui-utilities/icons/bookmark/bookmark.component';
-import { BookmarkedComponent } from '../../../ui-utilities/icons/bookmarked/bookmarked.component';
-import {
-  UiDropdownComponent,
-} from '../../../ui-utilities/controls/ui-dropdown/ui-dropdown.component';
 import { UrlExtractorService } from '../../services/browser/url-extractor.service';
 import { ActivatedRoute } from '@angular/router';
 import { KonvaObjectService } from '../services/3rds/konva-object.service';
 import { ViewportSizeService } from '../../services/browser/viewport-size.service';
 import { ToolCompositionService } from '../../services/states/tool-composition.service';
-import { ColorBoardComponent } from '../../../ui-utilities/painting/color-board/color-board.component';
-import {
-  Tool,
-  ToolSelectorComponent,
-} from '../../../ui-utilities/painting/tool-selector/tool-selector.component';
-import { TOOL_ICON_FOLDER } from '../../../configs/paths.constant';
 import { EventsCompositionService } from '../../events/drawings/events-composition.service';
-import { SyncingService } from '../../../dependencies/syncing.service';
-import { SavedBoardsService } from '../../services/data-storages/saved-boards.service';
-import { SavedBoard } from '../../services/data-storages/entities/SavedBoard';
 import { PencilCommands } from '../commands/pencil.command';
 import { StickyNoteCommands } from '../commands/sticky-notes.command';
 import { TextInputCommands } from '../commands/text-input.command';
@@ -35,6 +18,13 @@ import { CanvasManager } from '../managers/Canvas.manager';
 import { CursorManager } from '../managers/Cursor.manager';
 import { UserDrawingLayerManager } from '../managers/UserDrawingLayer.manager';
 import { ViewPortEventsManager } from '../managers/ViewPortEvents.manager';
+import { KONVA_CONTAINER } from '@config/html-ids.constants';
+import { SyncingService } from '@com/syncing.service';
+import { TOOL_ICON_FOLDER } from '@config/paths.constant';
+import { TopbarComponent } from '@ui/layout/topbar/topbar.component';
+import { Tool } from '@ui/painting/tool-selector/tool-selector.component';
+import { SavedBoard } from '@uidata/entities/SavedBoard';
+import { SavedBoardsService } from '@uidata/saved-boards.service';
 
 @Component({
   selector: 'app-board-detail',

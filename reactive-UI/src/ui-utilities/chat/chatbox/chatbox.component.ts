@@ -2,10 +2,10 @@ import { Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToasterService } from '../../../app/services/ui-notifications/toaster.service';
 import { TranslateService } from '@ngx-translate/core';
-import { SyncingService } from '../../../dependencies/syncing.service';
 import { IdentitiesService } from '../../../app/services/data-storages/identities.service';
 import { SingleMessageData } from './single-message';
 import { DatePipe } from '@angular/common';
+import { SyncingService } from '../../../dependencies/socket-communication/syncing.service';
 
 @Component({
   selector: 'chat-box',

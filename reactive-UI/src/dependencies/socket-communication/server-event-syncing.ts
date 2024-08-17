@@ -1,7 +1,7 @@
 import WebSocket, { WebSocketServer } from 'ws';
 import * as http from 'http';
-import { SEGMENT_TO_BOARD_DETAIL, WEB_SOCKET_PATH } from '../configs/routing.consants';
 import { ConnectionManager, ConsoleLogger } from './connection.manager';
+import { SEGMENT_TO_BOARD_DETAIL, WEB_SOCKET_PATH } from '@config/routing.consants';
 
 export const injectWebSocket = (server: http.Server) => {
     const logger = new ConsoleLogger();

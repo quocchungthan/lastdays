@@ -1,9 +1,9 @@
-import { Dimension } from "../../../ui-utilities/types/Dimension";
-import { Point } from "../../../ui-utilities/types/Point";
-import { STANDARD_STICKY_NOTE_SIZE, STROKE_WIDTH } from "../../../configs/size";
-import { PREFERED_INK_COLOR, SUPPORTED_COLORS } from "../../../configs/theme.constants";
-import { BaseEntity } from "../../services/data-storages/entities/Base.entity";
-import { Board } from "../../services/data-storages/entities/Board";
+import { STROKE_WIDTH, STANDARD_STICKY_NOTE_SIZE } from '@config/size';
+import { SUPPORTED_COLORS, PREFERED_INK_COLOR } from '@config/theme.constants';
+import { Dimension } from '@ui/types/Dimension';
+import { Point } from '@ui/types/Point';
+import { BaseEntity } from '@uidata/entities/Base.entity';
+import { Board } from '@uidata/entities/Board';
 import { EventCode } from "./EventCode";
 
 export type SupportedColors = typeof SUPPORTED_COLORS[number];

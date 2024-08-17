@@ -9,20 +9,20 @@ import { Group } from "konva/lib/Group";
 import guid from "guid";
 import { Line, LineConfig } from "konva/lib/shapes/Line";
 import { TextInputCommands } from "../commands/text-input.command";
-import { FormModalService } from "../../../ui-utilities/controls/form-modal.service";
-import { Point } from "../../../ui-utilities/types/Point";
-import { PRIMARY_COLOR } from "../../../configs/theme.constants";
 import { ToBaseEvent, BoardedCreatedEvent, ToDrawingEvent, BaseEvent, StickyNoteMovedEvent, GeneralUndoEvent, AbstractEventQueueItem, StickyNotePastedEvent, InkAttachedToStickyNoteEvent, TextAttachedToStickyNoteEvent, PencilUpEvent, TextEnteredEvent } from "../../events/drawings/EventQueue";
 import { EventsCompositionService } from "../../events/drawings/events-composition.service";
-import { SyncingService } from "../../../dependencies/syncing.service";
 import { KonvaObjectService } from "../services/3rds/konva-object.service";
 import { KeysService } from "../../services/browser/keys.service";
 import { MetaService } from "../../services/browser/meta.service";
 import { UrlExtractorService } from "../../services/browser/url-extractor.service";
-import { BoardsService } from "../../services/data-storages/boards.service";
-import { DrawingObjectService } from "../../services/data-storages/drawing-object.service";
-import { EventsService } from "../../services/data-storages/events.service";
 import { ToolCompositionService } from "../../services/states/tool-composition.service";
+import { SyncingService } from '@com/syncing.service';
+import { PRIMARY_COLOR } from '@config/theme.constants';
+import { FormModalService } from '@ui/controls/form-modal.service';
+import { Point } from '@ui/types/Point';
+import { DrawingObjectService } from '@uidata/drawing-object.service';
+import { EventsService } from '@uidata/events.service';
+import { BoardsService } from '@uidata/boards.service';
 
 @Injectable()
 export class UserDrawingLayerManager implements OnDestroy {

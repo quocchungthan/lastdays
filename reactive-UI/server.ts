@@ -4,7 +4,7 @@ import express from 'express';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import bootstrap from './src/main.server';
-import { injectWebSocket } from './src/dependencies/server-event-syncing';
+import { injectWebSocket } from '@com/server-event-syncing';
 
 const port = process.env['PORT'] || 4201;
 
