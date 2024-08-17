@@ -1,8 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { IdentitiesService } from '../../../app/services/data-storages/identities.service';
 import { RouterModule } from '@angular/router';
-import { SEGMENT_TO_IDENTITY_PAGE } from '../../../app/configs/routing.consants';
-import { TOP_BAR } from '../../../app/configs/html-ids.constants';
+import { SEGMENT_TO_IDENTITY_PAGE } from '../../../configs/routing.consants';
+import { TOP_BAR } from '../../../configs/html-ids.constants';
 import { UserComponent } from '../../icons/user/user.component';
 
 @Component({

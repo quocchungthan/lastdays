@@ -4,7 +4,7 @@ import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } 
 import { IdentitiesService } from '../../services/data-storages/identities.service';
 import { ToasterService } from '../../services/ui-notifications/toaster.service';
 import { BoardsService } from '../../services/data-storages/boards.service';
-import { DEFAULT_USER_NAME } from '../../configs/default-value.constants';
+import { DEFAULT_USER_NAME } from '../../../configs/default-value.constants';
 import { UserIdentity } from '../../services/data-storages/entities/Identity';
 import { cloneDeep } from 'lodash';
 import { BoardBasicData } from '../../viewmodels/agile-domain/last-visits.viewmodel';

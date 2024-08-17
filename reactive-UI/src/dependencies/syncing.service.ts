@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { BaseEvent, ParseToBaseEvent, ToBaseEvent, ToDrawingEvent } from '../app/events/drawings/EventQueue';
+import { BaseEvent, ParseToBaseEvent, ToDrawingEvent } from '../app/events/drawings/EventQueue';
 import { WebSocketSubject, webSocket } from 'rxjs/webSocket'
-import { WEB_SOCKET_PATH } from '../app/configs/routing.consants';
+import { SEGMENT_TO_BOARD_DETAIL, WEB_SOCKET_PATH } from '../configs/routing.consants';
 import { BehaviorSubject, EMPTY, Observable, Subject, catchError, filter, map, tap } from 'rxjs';
 import { ChatTextEventData, SayHelloEventData, WSEvent, WSEventType } from '../app/events/to-python-server/web-socket-model';
 import { ComparisonResult, EventsCompositionService } from '../app/events/drawings/events-composition.service';
@@ -71,7 +71,7 @@ export class SyncingService {
       return this;
     }
     this._ws = webSocket({
-      url: 'ws://localhost:' + document.location.port + WEB_SOCKET_PATH + '/' + boardId,
+      url: 'ws://localhost:' + document.location.port + WEB_SOCKET_PATH + '?' + SEGMENT_TO_BOARD_DETAIL + '=' + boardId,
       closeObserver: {
         next() {
           self._onlineStatusChanged.next(0);

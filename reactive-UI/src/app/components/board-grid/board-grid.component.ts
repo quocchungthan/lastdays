@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { BoardBasicData } from '../../viewmodels/agile-domain/last-visits.viewmodel';
 import { DatePipe } from '@angular/common';
-import { SEGMENT_TO_BOARD_DETAIL } from '../../configs/routing.consants';
+import { SEGMENT_TO_BOARD_DETAIL } from '../../../configs/routing.consants';
 import { RouterModule } from '@angular/router';
 
 @Component({

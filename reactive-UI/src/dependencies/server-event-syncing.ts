@@ -1,6 +1,6 @@
 import WebSocket, { WebSocketServer } from 'ws';
 import * as http from 'http';
-import { WEB_SOCKET_PATH } from '../app/configs/routing.consants';
+import { WEB_SOCKET_PATH } from '../configs/routing.consants';
 
 export const injectWebSocket = (server: http.Server) => {
     const wss = new WebSocketServer({
@@ -26,7 +26,15 @@ export const injectWebSocket = (server: http.Server) => {
         //   // should not be compressed if context takeover is disabled.
         // }
       });
-
+  wss.on('listening', () => {
+    console.log('Start listening');
+  });
+  wss.on('error', (e) => {
+    console.log('Error', e);
+  });
+  wss.on('headers', (e) => {
+    console.log('Headers', e);
+  });
   // WebSocket connection handling
   wss.on('connection', function connection(ws) {
     console.log('New WebSocket connection');

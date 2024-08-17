@@ -9,7 +9,7 @@ import { TextInputCommands } from './text-input.command';
 import { FormModalService } from '../../../utilities/controls/form-modal.service';
 import { areRectanglesIntersecting } from '../../../utilities/mathematicals/collision';
 import { Point } from '../../../utilities/types/Point';
-import { STANDARD_STICKY_NOTE_SIZE } from '../../configs/size';
+import { STANDARD_STICKY_NOTE_SIZE } from '../../../configs/size';
 import { InkAttachedToStickyNoteEvent, StickyNoteMovedEvent, StickyNotePastedEvent } from '../../events/drawings/EventQueue';
 import { ToolCompositionService } from '../../services/states/tool-composition.service';
 

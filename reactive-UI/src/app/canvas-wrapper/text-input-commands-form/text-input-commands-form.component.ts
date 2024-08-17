@@ -6,11 +6,11 @@ import {
 } from '@angular/core';
 import { ModalContentComponent } from '../../../utilities/controls/form-modal/IModalContentComponent';
 import { TextEditorComponent } from '../../../utilities/controls/text-editor/text-editor.component';
-import { TEXT_PREVIEW_CONTAINER } from '../../configs/html-ids.constants';
+import { TEXT_PREVIEW_CONTAINER } from '../../../configs/html-ids.constants';
 import Konva from 'konva';
 import { TranslateService } from '@ngx-translate/core';
 import { ColorBoardComponent } from '../../../utilities/painting/color-board/color-board.component';
-import { SUPPORTED_COLORS } from '../../configs/theme.constants';
+import { SUPPORTED_COLORS } from '../../../configs/theme.constants';
 import { Dimension } from '../../../utilities/types/Dimension';
 import { TextInputCommands } from '../commands/text-input.command';
 

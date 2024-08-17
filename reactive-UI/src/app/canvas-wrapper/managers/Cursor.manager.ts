@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { KONVA_CONTAINER } from '../../configs/html-ids.constants';
+import { KONVA_CONTAINER } from '../../../configs/html-ids.constants';
 
 @Injectable()
 export class CursorManager {

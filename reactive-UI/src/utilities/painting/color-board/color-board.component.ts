@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { SUPPORTED_COLORS } from '../../../app/configs/theme.constants';
+import { SUPPORTED_COLORS } from '../../../configs/theme.constants';
 import { CommonModule } from '@angular/common';
 
 @Component({

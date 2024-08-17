@@ -11,7 +11,7 @@ import { Line, LineConfig } from "konva/lib/shapes/Line";
 import { TextInputCommands } from "../commands/text-input.command";
 import { FormModalService } from "../../../utilities/controls/form-modal.service";
 import { Point } from "../../../utilities/types/Point";
-import { PRIMARY_COLOR } from "../../configs/theme.constants";
+import { PRIMARY_COLOR } from "../../../configs/theme.constants";
 import { ToBaseEvent, BoardedCreatedEvent, ToDrawingEvent, BaseEvent, StickyNoteMovedEvent, GeneralUndoEvent, AbstractEventQueueItem, StickyNotePastedEvent, InkAttachedToStickyNoteEvent, TextAttachedToStickyNoteEvent, PencilUpEvent, TextEnteredEvent } from "../../events/drawings/EventQueue";
 import { EventsCompositionService } from "../../events/drawings/events-composition.service";
 import { SyncingService } from "../../../dependencies/syncing.service";
