@@ -1,8 +1,8 @@
+import { STROKE_WIDTH } from '@config/size';
+import { PencilUpEvent } from '@drawings/EventQueue';
+import { ToolCompositionService } from '@states/tool-composition.service';
+import { Point } from '@ui/types/Point';
 import Konva from 'konva';
-import { Point } from '../../../ui-utilities/types/Point';
-import { STROKE_WIDTH } from '../../../configs/size';
-import { PencilUpEvent } from '../../events/drawings/EventQueue';
-import { ToolCompositionService } from '../../services/states/tool-composition.service';
 
 export class PencilCommands {
     public static readonly CommandName = "pencil";

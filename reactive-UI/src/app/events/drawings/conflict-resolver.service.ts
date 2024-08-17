@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BaseEvent } from './EventQueue';
+import { BaseEvent } from './BaseEvent';
 
 @Injectable({
   providedIn: 'root'

@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
 import { CrudBaseService } from './crudbase.service';
-import { AbstractEventQueueItem, BaseEvent, BoardedCreatedEvent, GeneralUndoEvent, InkAttachedToStickyNoteEvent, PencilUpEvent, StickyNoteMovedEvent, StickyNotePastedEvent, TextAttachedToStickyNoteEvent, TextEnteredEvent } from '../../events/drawings/EventQueue';
+import { BoardedCreatedEvent, GeneralUndoEvent, InkAttachedToStickyNoteEvent, PencilUpEvent, StickyNoteMovedEvent, StickyNotePastedEvent, TextAttachedToStickyNoteEvent, TextEnteredEvent } from '../../events/drawings/EventQueue';
 import { IdentitiesService } from './identities.service';
 import { UserIdentity } from './entities/Identity';
 import { EventCode } from '../../events/drawings/EventCode';
+import { BaseEvent } from '../../events/drawings/BaseEvent';
+import { AbstractEventQueueItem } from '../../events/drawings/PureQueue.type';
 
 @Injectable({
   providedIn: 'root'

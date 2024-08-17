@@ -4,20 +4,7 @@ import {
   HostListener,
   ViewChild,
 } from '@angular/core';
-import { UrlExtractorService } from '../../services/browser/url-extractor.service';
 import { ActivatedRoute } from '@angular/router';
-import { KonvaObjectService } from '../services/3rds/konva-object.service';
-import { ViewportSizeService } from '../../services/browser/viewport-size.service';
-import { ToolCompositionService } from '../../services/states/tool-composition.service';
-import { EventsCompositionService } from '../../events/drawings/events-composition.service';
-import { PencilCommands } from '../commands/pencil.command';
-import { StickyNoteCommands } from '../commands/sticky-notes.command';
-import { TextInputCommands } from '../commands/text-input.command';
-import { BackgroundLayerManager } from '../managers/BackgroundLayer.manager';
-import { CanvasManager } from '../managers/Canvas.manager';
-import { CursorManager } from '../managers/Cursor.manager';
-import { UserDrawingLayerManager } from '../managers/UserDrawingLayer.manager';
-import { ViewPortEventsManager } from '../managers/ViewPortEvents.manager';
 import { KONVA_CONTAINER } from '@config/html-ids.constants';
 import { SyncingService } from '@com/syncing.service';
 import { TOOL_ICON_FOLDER } from '@config/paths.constant';
@@ -25,6 +12,19 @@ import { TopbarComponent } from '@ui/layout/topbar/topbar.component';
 import { Tool } from '@ui/painting/tool-selector/tool-selector.component';
 import { SavedBoard } from '@uidata/entities/SavedBoard';
 import { SavedBoardsService } from '@uidata/saved-boards.service';
+import { UrlExtractorService } from '@browser/url-extractor.service';
+import { ViewportSizeService } from '@browser/viewport-size.service';
+import { PencilCommands } from '@canvas-module/commands/pencil.command';
+import { StickyNoteCommands } from '@canvas-module/commands/sticky-notes.command';
+import { TextInputCommands } from '@canvas-module/commands/text-input.command';
+import { BackgroundLayerManager } from '@canvas-module/managers/BackgroundLayer.manager';
+import { CanvasManager } from '@canvas-module/managers/Canvas.manager';
+import { CursorManager } from '@canvas-module/managers/Cursor.manager';
+import { UserDrawingLayerManager } from '@canvas-module/managers/UserDrawingLayer.manager';
+import { ViewPortEventsManager } from '@canvas-module/managers/ViewPortEvents.manager';
+import { KonvaObjectService } from '@canvas-module/services/3rds/konva-object.service';
+import { EventsCompositionService } from '@drawings/events-composition.service';
+import { ToolCompositionService } from '@states/tool-composition.service';
 
 @Component({
   selector: 'app-board-detail',

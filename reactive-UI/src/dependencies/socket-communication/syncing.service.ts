@@ -3,12 +3,13 @@ import { WebSocketSubject, webSocket } from 'rxjs/webSocket'
 import { BehaviorSubject, EMPTY, Observable, Subject, catchError, filter, map, tap } from 'rxjs';
 import { isNil } from 'lodash';
 import { ChatTextEventData, SayHelloEventData, WSEvent, WSEventType } from './web-socket-model';
-import { ConflictResolverService } from '../../app/events/drawings/conflict-resolver.service';
-import { BaseEvent, ToDrawingEvent, ParseToBaseEvent } from '../../app/events/drawings/EventQueue';
-import { EventsCompositionService, ComparisonResult } from '../../app/events/drawings/events-composition.service';
 import { UserIdentity } from '@uidata/entities/Identity';
 import { IdentitiesService } from '@uidata/identities.service';
 import { SEGMENT_TO_BOARD_DETAIL, WEB_SOCKET_PATH } from '@config/routing.consants';
+import { BaseEvent } from '@drawings/BaseEvent';
+import { ConflictResolverService } from '@drawings/conflict-resolver.service';
+import { ToDrawingEvent, ParseToBaseEvent } from '@drawings/EventQueue';
+import { EventsCompositionService, ComparisonResult } from '@drawings/events-composition.service';
 
 export const StatusTranslatatbleString = {
   Offline: "OFFLINE",

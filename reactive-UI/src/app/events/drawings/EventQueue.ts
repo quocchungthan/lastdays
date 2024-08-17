@@ -1,47 +1,12 @@
-import { STROKE_WIDTH, STANDARD_STICKY_NOTE_SIZE } from '@config/size';
-import { SUPPORTED_COLORS, PREFERED_INK_COLOR } from '@config/theme.constants';
-import { Dimension } from '@ui/types/Dimension';
-import { Point } from '@ui/types/Point';
-import { BaseEntity } from '@uidata/entities/Base.entity';
-import { Board } from '@uidata/entities/Board';
-import { EventCode } from "./EventCode";
+import { SUPPORTED_COLORS } from '@config/theme.constants';
+import { BaseEvent } from './BaseEvent';
+import { EventCode } from './EventCode';
+import { AbstractEventQueueItem } from './PureQueue.type';
+import { BoardedCreatedEventPoco, PencilUpEventPoco, TextEnteredEventPoco, TextAttachedToStickyNoteEventPoco, StickyNotePastedEventPoco, InkAttachedToStickyNoteEventPoco, StickyNoteMovedEventPoco, GeneralUndoEventPoco } from '@ai/DrawingEvents.feedable';
 
 export type SupportedColors = typeof SUPPORTED_COLORS[number];
 
-export interface AbstractEventQueueItem {
-    code: EventCode;
-    targetId: string;
-    id: string;
-}
-
-export class BaseEvent extends BaseEntity {
-    createdByUserId: string = '';
-    boardId: string = '';
-    constructor(itself?: BaseEvent) {
-        super();
-        if (!itself) {
-            return;
-        }
-
-        if (typeof(itself.modifiedTime) === 'string') {
-          this.modifiedTime = new Date(Date.parse(itself.modifiedTime));
-        } else {
-          this.modifiedTime = itself.modifiedTime;
-        }
-        this.boardId = itself.boardId;
-        this.createdByUserId = itself.createdByUserId;
-        this.id = itself.id;
-        
-    }
-}
-
-export type PureQueue = Array<AbstractEventQueueItem>;
-
-export class BoardedCreatedEvent extends BaseEvent implements AbstractEventQueueItem {
-    code: EventCode = EventCode.BoardCreated;
-    targetId: string = '';
-    board: Board = new Board();
-
+export class BoardedCreatedEvent extends BoardedCreatedEventPoco implements AbstractEventQueueItem {
     constructor();
     constructor(itself: BoardedCreatedEvent);
 
@@ -56,13 +21,7 @@ export class BoardedCreatedEvent extends BaseEvent implements AbstractEventQueue
     }
 }
 
-export class PencilUpEvent extends BaseEvent implements AbstractEventQueueItem {
-    code: EventCode = EventCode.PencilUp;
-    targetId: string = '';
-    points: number[] = [];
-    color: SupportedColors = PREFERED_INK_COLOR;
-    width: number = STROKE_WIDTH;
-
+export class PencilUpEvent extends PencilUpEventPoco implements AbstractEventQueueItem {
     constructor();
     constructor(itself: PencilUpEvent);
 
@@ -79,15 +38,7 @@ export class PencilUpEvent extends BaseEvent implements AbstractEventQueueItem {
     }
 }
 
-export class TextEnteredEvent extends BaseEvent implements AbstractEventQueueItem {
-    code: EventCode = EventCode.TextEntered;
-    targetId: string = '';
-    text: string = '';
-    color: SupportedColors = PREFERED_INK_COLOR;
-    position: Point = { x: 0, y: 0 };
-    containerWidth: number = 0;
-    containerheight: number = 0;
-
+export class TextEnteredEvent extends TextEnteredEventPoco implements AbstractEventQueueItem {
     constructor();
     constructor(itself: TextEnteredEvent);
 
@@ -106,11 +57,7 @@ export class TextEnteredEvent extends BaseEvent implements AbstractEventQueueIte
     }
 }
 
-export class TextAttachedToStickyNoteEvent extends BaseEvent implements AbstractEventQueueItem {
-    code: EventCode = EventCode.TextAttachedToStickyNote;
-    targetId: string = '';
-    targetStickyNoteId: string = '';    
-
+export class TextAttachedToStickyNoteEvent extends TextAttachedToStickyNoteEventPoco implements AbstractEventQueueItem {
     constructor();
     constructor(itself: TextAttachedToStickyNoteEvent);
 
@@ -125,13 +72,7 @@ export class TextAttachedToStickyNoteEvent extends BaseEvent implements Abstract
     }
 }
 
-export class StickyNotePastedEvent extends BaseEvent implements AbstractEventQueueItem {
-    code: EventCode = EventCode.StickyNotePasted;
-    targetId: string = '';
-    backgroundUrl: string = '';
-    position: Point = { x: 0, y: 0 };
-    dimention: Dimension = { width: STANDARD_STICKY_NOTE_SIZE, height: STANDARD_STICKY_NOTE_SIZE };
-    
+export class StickyNotePastedEvent extends StickyNotePastedEventPoco implements AbstractEventQueueItem {
     constructor();
     constructor(itself: StickyNotePastedEvent);
 
@@ -148,11 +89,7 @@ export class StickyNotePastedEvent extends BaseEvent implements AbstractEventQue
     }
 }
 
-export class InkAttachedToStickyNoteEvent extends BaseEvent implements AbstractEventQueueItem {
-    code: EventCode = EventCode.InkAttachedToStickyNote;
-    targetId: string = '';
-    targetStickyNoteId: string = '';    
-
+export class InkAttachedToStickyNoteEvent extends InkAttachedToStickyNoteEventPoco implements AbstractEventQueueItem {
     constructor();
     constructor(itself: InkAttachedToStickyNoteEvent);
 
@@ -167,11 +104,7 @@ export class InkAttachedToStickyNoteEvent extends BaseEvent implements AbstractE
     }
 }
 
-export class StickyNoteMovedEvent extends BaseEvent implements AbstractEventQueueItem {
-    code: EventCode = EventCode.StickyNoteMoved;
-    targetId: string = '';
-    newPosition: Point = { x: 0, y: 0 };    
-    
+export class StickyNoteMovedEvent extends StickyNoteMovedEventPoco implements AbstractEventQueueItem {
     constructor();
     constructor(itself: StickyNoteMovedEvent);
 
@@ -186,10 +119,7 @@ export class StickyNoteMovedEvent extends BaseEvent implements AbstractEventQueu
     }
 }
 
-export class GeneralUndoEvent extends BaseEvent implements AbstractEventQueueItem {
-    code: EventCode = EventCode.GENERAL_UNDO;
-    targetId: string = '';
-    
+export class GeneralUndoEvent extends GeneralUndoEventPoco implements AbstractEventQueueItem {
     constructor();
     constructor(itself: GeneralUndoEvent);
 
