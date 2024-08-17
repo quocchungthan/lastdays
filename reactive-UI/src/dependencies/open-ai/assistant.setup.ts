@@ -22,7 +22,7 @@ export const readDrawingEventTypescriptSchemaAsync = async () => {
 
 export const readFeedingMarkdownAsync = async (markdownFile: string) => {
     try {
-        const systemPrompt = await fsPromises.readFile(`'./src/dependencies/open-ai/feeding/${markdownFile}.md`, 'utf8');
+        const systemPrompt = await fsPromises.readFile(`./src/dependencies/open-ai/feeding/${markdownFile}.md`, 'utf8');
 
         return systemPrompt;
     } catch (err) {
