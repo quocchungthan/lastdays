@@ -5,7 +5,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { TopbarComponent } from '../../../utilities/layout/topbar/topbar.component';
-import { KONVA_CONTAINER } from '../../configs/html-ids.constants';
+import { KONVA_CONTAINER } from '../../../configs/html-ids.constants';
 import { ChatboxComponent } from '../../../utilities/chat/chatbox/chatbox.component';
 import { BookmarkComponent } from '../../../utilities/icons/bookmark/bookmark.component';
 import { BookmarkedComponent } from '../../../utilities/icons/bookmarked/bookmarked.component';
@@ -22,9 +22,9 @@ import {
   Tool,
   ToolSelectorComponent,
 } from '../../../utilities/painting/tool-selector/tool-selector.component';
-import { TOOL_ICON_FOLDER } from '../../configs/paths.constant';
+import { TOOL_ICON_FOLDER } from '../../../configs/paths.constant';
 import { EventsCompositionService } from '../../events/drawings/events-composition.service';
-import { SyncingService } from '../../events/drawings/syncing.service';
+import { SyncingService } from '../../../dependencies/syncing.service';
 import { SavedBoardsService } from '../../services/data-storages/saved-boards.service';
 import { SavedBoard } from '../../services/data-storages/entities/SavedBoard';
 import { PencilCommands } from '../commands/pencil.command';

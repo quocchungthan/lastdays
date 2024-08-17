@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { PREFERED_INK_COLOR, SUPPORTED_COLORS } from '../../configs/theme.constants';
+import { PREFERED_INK_COLOR, SUPPORTED_COLORS } from '../../../configs/theme.constants';
 import { SupportedColors } from '../../events/drawings/EventQueue';
 
 @Injectable()

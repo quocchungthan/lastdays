@@ -11,10 +11,10 @@ import { Line, LineConfig } from "konva/lib/shapes/Line";
 import { TextInputCommands } from "../commands/text-input.command";
 import { FormModalService } from "../../../utilities/controls/form-modal.service";
 import { Point } from "../../../utilities/types/Point";
-import { PRIMARY_COLOR } from "../../configs/theme.constants";
+import { PRIMARY_COLOR } from "../../../configs/theme.constants";
 import { ToBaseEvent, BoardedCreatedEvent, ToDrawingEvent, BaseEvent, StickyNoteMovedEvent, GeneralUndoEvent, AbstractEventQueueItem, StickyNotePastedEvent, InkAttachedToStickyNoteEvent, TextAttachedToStickyNoteEvent, PencilUpEvent, TextEnteredEvent } from "../../events/drawings/EventQueue";
 import { EventsCompositionService } from "../../events/drawings/events-composition.service";
-import { SyncingService } from "../../events/drawings/syncing.service";
+import { SyncingService } from "../../../dependencies/syncing.service";
 import { KonvaObjectService } from "../services/3rds/konva-object.service";
 import { KeysService } from "../../services/browser/keys.service";
 import { MetaService } from "../../services/browser/meta.service";
@@ -84,6 +84,10 @@ export class UserDrawingLayerManager implements OnDestroy {
                 if (this._boardId !== id) {
                     this._boardId = id;
                     this._loadExistingDrawings();
+                }
+
+                if (!id) {
+                    this._syncingService.disconnect();
                 }
             });
 

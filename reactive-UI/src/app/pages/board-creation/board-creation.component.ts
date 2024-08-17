@@ -6,8 +6,8 @@ import { ToasterService } from '../../services/ui-notifications/toaster.service'
 import { BoardsService } from '../../services/data-storages/boards.service';
 import { Board } from '../../services/data-storages/entities/Board';
 import { Router } from '@angular/router';
-import { SEGMENT_TO_BOARD_DETAIL } from '../../configs/routing.consants';
-import { DEFAULT_BOARD_NAME } from '../../configs/default-value.constants';
+import { SEGMENT_TO_BOARD_DETAIL } from '../../../configs/routing.consants';
+import { DEFAULT_BOARD_NAME } from '../../../configs/default-value.constants';
 import { BoardGridComponent } from '../../components/board-grid/board-grid.component';
 import { EventsService } from '../../services/data-storages/events.service';
 import { BoardedCreatedEvent } from '../../events/drawings/EventQueue';

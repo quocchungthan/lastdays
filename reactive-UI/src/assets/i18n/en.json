@@ -1,4 +1,10 @@
 {
+    "OFFLINE": "Offline",
+    "JOIN_THE_CHANNEL": "Just have joined the chat",
+    "TYPING": "Typing",
+    "YOU": "You",
+    "ONLINE": "Online",
+    "PARTICIPANTS": "{{0}} participants in the room",
     "SLOGAN": "Simplicity is essential",
     "FORM_DIALOG_CANCEL": "Cancel",
     "FORM_DIALOG_SUBMIT": "Submit",
