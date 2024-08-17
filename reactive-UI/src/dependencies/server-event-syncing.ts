@@ -1,6 +1,6 @@
 import WebSocket, { WebSocketServer } from 'ws';
 import * as http from 'http';
-import { WEB_SOCKET_PATH } from '../../app/configs/routing.consants';
+import { WEB_SOCKET_PATH } from '../app/configs/routing.consants';
 
 export const injectWebSocket = (server: http.Server) => {
     const wss = new WebSocketServer({
