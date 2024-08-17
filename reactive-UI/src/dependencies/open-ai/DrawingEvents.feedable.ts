@@ -1,44 +1,8 @@
-import { EventCode } from '../../app/events/drawings/EventCode';
 import { Board } from '@uidata/entities/Board';
-import { BaseEvent } from '../../app/events/drawings/BaseEvent';
 import { Point } from '@ui/types/Point';
 import { Dimension } from '@ui/types/Dimension';
-
-/**
- * export class BaseEvent {
- *      id: string = '';
- *      modifiedTime: Date = new Date();
- *      createdByUserId: string = '';
- *      boardId: string = '';
- * }
- * 
- * export class Board extends BaseEntity {
- *      public name: string = '';
- * }
- * 
- * export enum EventCode {
- *      BoardCreated = 'BOARD_CREATED',
- *      PencilUp = 'PENCIL_UP',
- *      StickyNotePasted = 'STICKY_NOTE_PASTED',
- *      InkAttachedToStickyNote = 'INK_ATTACHED_TO_STICKY_NOTE',
- *      StickyNoteMoved = 'STICKY_NOTE_MOVED',
- *      TextInputFinished = 'TEXT_INPUT_FINISHED',
- *      GENERAL_UNDO = 'GENERAL_UNDO',
- *      TextEntered = "TextEntered",
- *      TextAttachedToStickyNote = "TextAttachedToStickyNote"
- * }
- * 
- * export interface Point {
- *    x: number;
- *    y: number;
- * }
- * 
- * export interface Dimension {
- *      width: number;
- *      height: number;
- * }
- * 
- */
+import { EventCode } from '@drawings/EventCode';
+import { BaseEvent } from '@drawings/BaseEvent';
 
 // Array string of hex colors
 import { SupportedColors } from '../../app/events/drawings/EventQueue';

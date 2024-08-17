@@ -3,6 +3,8 @@ import express from 'express';
 import { OPEN_AI_ENDPOINT_PREFIX } from '@config/routing.consants';
 import { ConsoleLogger } from '@com/connection.manager';
 import OpenAI from 'openai';
+import { HttpStatusCode } from '@angular/common/http';
+import { readDrawingEventTypescriptSchemaAsync } from './assistant.setup';
 
 const openAI_Key = process.env['OPENAI_API_KEY'] ?? DEFAULT_FAKE_VALUE;
 const openAI_OrganizationId = process.env['OPENAI_ORGANIZATION_ID'] ?? DEFAULT_FAKE_VALUE;
@@ -21,12 +23,19 @@ export const injectAssistantEndpoints = (server: express.Express) => {
     const logger = new ConsoleLogger();
     logger.log(openAI_OrganizationId + ' ; ' + openAI_ProjectId + ' ; ' + openAI_Key);
     const openai = newOpenAiClient();
-
-    server.post(OPEN_AI_ENDPOINT_PREFIX + '/generate-drawing-event', () => {
+    const router = express.Router();
+    router.post('/generate-drawing-event', () => {
 
     });
 
-    server.get(OPEN_AI_ENDPOINT_PREFIX + '/availability', async (req, res) => {
+    router.get('/ts-schema', async (req, res) => {
+        res.status(HttpStatusCode.Ok)
+            .setHeader('Content-Type', 'text/typescript')
+            .send(await readDrawingEventTypescriptSchemaAsync())
+            .end();
+    });
+
+    router.get('/availability', async (req, res) => {
         try {
             const stream = await openai.chat.completions.create({
                 model: openAI_ModelName,
@@ -57,4 +66,6 @@ export const injectAssistantEndpoints = (server: express.Express) => {
             res.end();
         }
     });
+    
+    server.use(OPEN_AI_ENDPOINT_PREFIX, router);
 }

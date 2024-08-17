@@ -13,7 +13,6 @@ COPY ./reactive-UI/ .
 RUN npm run build --omit=dev
 
 RUN rm -rf node_modules
-RUN rm -rf src
 
 EXPOSE 3000
 
