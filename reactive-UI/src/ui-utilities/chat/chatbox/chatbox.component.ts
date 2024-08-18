@@ -100,16 +100,21 @@ export class ChatboxComponent implements OnDestroy {
   }
 
   onSubmit() {
-    if (!this.chatBoxForm.value.message) {
+    const userMessage = this.chatBoxForm.value.message;
+    if (!userMessage) {
       return;
     }
-    this._syncingService.trySendTextMessage(this.chatBoxForm.value.message);
+    this._syncingService.trySendTextMessage(userMessage);
     this.populatedChatMessages.push({
-      messageText: this.chatBoxForm.value.message,
+      messageText: userMessage,
       displayName: this.youText,
       time: new Date(),
       avatarUrl: this.fallbackAvatar()
     });
+    this._drawingAssistantService.generateDrawingEvents(userMessage)
+      .subscribe((generated) => {
+        console.log(generated);
+      });
     this.chatBoxForm.reset();
     this._scrollToBottom();
   }

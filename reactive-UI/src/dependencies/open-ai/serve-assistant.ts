@@ -1,5 +1,5 @@
 import express from 'express';
-import { OPEN_AI_ENDPOINT_PREFIX } from '@config/routing.consants';
+import { GENERATE_DRAWING_EVENTS, OPEN_AI_ENDPOINT_PREFIX } from '@config/routing.consants';
 import { ConsoleLogger } from '@com/connection.manager';
 import OpenAI from 'openai';
 import { HttpStatusCode } from '@angular/common/http';
@@ -10,6 +10,7 @@ import { dependenciesPool } from '../dependencies.pool';
 import { Condition, IBackupService } from '../meta/backup-storage.inteface';
 import { CachedResponse } from './model/CachedResponse.entity';
 import { DEFAULT_FAKE_VALUE } from '@config/default-value.constants';
+import BackupWithJsonFileService from './backup/backup-json-file';
 
 const secrets = loadSecretConfiguration();
 
@@ -30,7 +31,7 @@ export const injectAssistantEndpoints = (server: express.Express) => {
     const openai = newOpenAiClient();
     const router = express.Router();
     server.use(express.json());
-    router.post('/generate-drawing-event', async (req, res) => {
+    router.post(GENERATE_DRAWING_EVENTS, async (req, res) => {
         try {
             const userMessage = (req.body as GenerateDrawingEvent).userMessage;
             logger.log("Received message: " + userMessage);
@@ -50,6 +51,14 @@ export const injectAssistantEndpoints = (server: express.Express) => {
         res.status(HttpStatusCode.Ok)
             .setHeader('Content-Type', 'text/typescript')
             .send(await readDrawingEventTypescriptSchemaAsync())
+            .end();
+    });
+
+    router.get('/cached-user-messages', async (req, res) => {
+        const cachedService = dependenciesPool.backup();
+        res.status(HttpStatusCode.Ok)
+            .setHeader('Content-Type', 'text/typescript')
+            .send(cachedService && cachedService instanceof BackupWithJsonFileService ? (await cachedService.getAllAsync()).map(x => x.userMessage) : [])
             .end();
     });
 

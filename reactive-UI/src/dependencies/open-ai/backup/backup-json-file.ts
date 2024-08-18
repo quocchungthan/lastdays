@@ -47,6 +47,15 @@ export class BackupWithJsonFileService implements IBackupService<CachedResponse>
         // Return the first match, or null if no matches
         return data.length > 0 ? data[0] : null;
     }
+
+    async getAllAsync(): Promise<CachedResponse[]> {
+        if (!fs.existsSync(DATA_FILE_PATH)) {
+            return [];
+        }
+
+        const fileData = fs.readFileSync(DATA_FILE_PATH, 'utf-8');
+        return JSON.parse(fileData) as CachedResponse[];
+    }
 }
 
 export default BackupWithJsonFileService;
