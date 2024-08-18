@@ -2,6 +2,9 @@ import OpenAI from 'openai';
 import { promises as fsPromises } from 'fs';
 import { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 import { BaseEvent } from '@drawings/BaseEvent';
+import { loadSecretConfiguration } from '../meta/configuration.serve';
+
+const secrets = loadSecretConfiguration();
 
 export const readDrawingEventTypescriptSchemaAsync = async () => {
     try {
@@ -34,12 +37,12 @@ export const readFeedingMarkdownAsync = async (markdownFile: string) => {
 
 
 export const readSystemPromptAsync = async () => {
-    const systemPromptSignature = ".v1";
+    const systemPromptSignature = secrets.systemPromptUsed;
     return readFeedingMarkdownAsync(`SystemPrompt${systemPromptSignature}`);
 }
 
 export const readUserInstructionAsync = async () => {
-    const systemPromptSignature = ".v1";
+    const systemPromptSignature = secrets.userInstructionUsed;
     return readFeedingMarkdownAsync(`UserInstruction${systemPromptSignature}`);
 }
 
@@ -83,7 +86,7 @@ export const setupChatContextAsync = async (client: OpenAI, modelName: string) =
         return await client.chat.completions.create({
             model: modelName,
             messages: conversationHistory,
-            max_tokens: 150,
+            max_tokens: 500,
             temperature: 0.7,
         });
     }

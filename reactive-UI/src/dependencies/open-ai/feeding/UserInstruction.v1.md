@@ -24,3 +24,5 @@ When you provide commands for drawing with the pencil tool, please be specific a
    - **Output**: `{ "code": "GENERAL_UNDO", "targetId": "" }`
 
 For complex shapes, ensure you list all points in the order they should be connected. Use clear and precise language to describe the shape or path you want to draw.
+
+Omit the board creation step, just draw. And please remove everthing and keep only the pure json in the response.

@@ -1,4 +1,3 @@
-import { DEFAULT_FAKE_VALUE } from '@config/default-value.constants';
 import express from 'express';
 import { OPEN_AI_ENDPOINT_PREFIX } from '@config/routing.consants';
 import { ConsoleLogger } from '@com/connection.manager';
@@ -32,10 +31,16 @@ export const injectAssistantEndpoints = (server: express.Express) => {
             /** With no history yet: TODO: one board one conversation history and the history */
             const chatCompleteAsync = await setupChatContextAsync(openai, secrets.openAI_ModelName);
             const response = await chatCompleteAsync(userMessage);
-
+            const rawResponse = JSON.stringify(response.choices.map(x => x.message.content));
+            logger.log(rawResponse);
+            const allMessageContent = 
+                "[" + response.choices.map((x => validateAndRemoveWrapper(x.message.content)))
+                    .filter(x => !!x)
+                    .join(',\n') + "]";
+            logger.log("Choices's length: " + response.choices.length + "\n" + allMessageContent);
             res.status(HttpStatusCode.Ok)
                 .setHeader('Content-Type', 'application/json')
-                .send(response.choices[0].message)
+                .send(allMessageContent)
                 .end();
         } catch (e) {
             logger.log(JSON.stringify(e));
@@ -51,4 +56,28 @@ export const injectAssistantEndpoints = (server: express.Express) => {
     });
 
     server.use(OPEN_AI_ENDPOINT_PREFIX, router);
+}
+
+function validateAndRemoveWrapper(jsonString: string | null) {
+    if (!jsonString) {
+        return "";
+    }
+    // Define the pattern for the wrapper and backticks
+    const wrapperPattern = /^```json([\s\S]*?)```$/;
+
+    // Check if the input matches the expected pattern
+    const match = jsonString.match(wrapperPattern);
+
+    if (match) {
+        // Extract the JSON content from the match
+        jsonString = match[1].trim();
+    }
+
+    // Attempt to parse the JSON content
+    try {
+        JSON.parse(jsonString);
+        return jsonString;
+    } catch (error) {
+        return "";
+    }
 }

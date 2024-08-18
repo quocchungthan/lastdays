@@ -7,8 +7,9 @@ import bootstrap from './src/main.server';
 import { injectWebSocket } from '@com/server-event-syncing';
 import { injectAssistantEndpoints } from '@ai/serve-assistant';
 import { loadSecretConfiguration } from './src/dependencies/meta/configuration.serve';
+import { HttpStatusCode } from '@angular/common/http';
 
-const port = loadSecretConfiguration().port;
+const {port, useBackup, assistantEnabled, websocketEnabled} = loadSecretConfiguration();
 
 // The Express app is exported so that it can be used by serverless Functions.
 export function app(): express.Express {
@@ -24,7 +25,20 @@ export function app(): express.Express {
 
   // Example Express Rest API endpoints
   // server.all('/api/**', (req, res) => { });
-  injectAssistantEndpoints(server);
+  server.get('/api/configuration', (req, res) => {
+    res.status(HttpStatusCode.Ok)
+      .send({
+        useBackup,
+        port,
+        assistantEnabled,
+        websocketEnabled
+      })
+  });
+
+  if (assistantEnabled) {
+    injectAssistantEndpoints(server);
+  }
+  
   // Serve static files from /browser
   server.get('*.*', express.static(browserDistFolder, {
     maxAge: '1y'
@@ -71,7 +85,9 @@ function run(): void {
     console.log(`Node Express server listening on http://localhost:${port}`);
   });
   
-  injectWebSocket(httpServer);
+  if (websocketEnabled) {
+    injectWebSocket(httpServer);
+  }
 }
 
 run();
