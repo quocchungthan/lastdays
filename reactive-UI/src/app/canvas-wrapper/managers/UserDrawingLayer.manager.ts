@@ -333,14 +333,7 @@ export class UserDrawingLayerManager implements OnDestroy {
     }
 
     private _triggerTextEnteredEvent(brandNewDrawing: Konva.Text) {
-        const event = new TextEnteredEvent();
-        event.targetId = this._textInput.extractId(brandNewDrawing);
-        event.boardId = this._boardId;
-        event.text = brandNewDrawing.text();
-        event.color = brandNewDrawing.fill();
-        event.position = brandNewDrawing.position();
-        event.containerWidth = brandNewDrawing.width();
-        event.containerheight = brandNewDrawing.height();
+        const event = TextInputCommands.buildEvent(brandNewDrawing, this._boardId, this._textInput.extractId(brandNewDrawing));
 
         this._generallyProcessNewEvent(event);
     }

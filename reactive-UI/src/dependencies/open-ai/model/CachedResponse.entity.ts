@@ -4,5 +4,5 @@ export class CachedResponse {
     userMessage: string = '';
     appVersion: string = '';
     createdTime: Date = new Date();
-    assistantResponse: string = '';
+    assistantResponse: string[] = [];
 }

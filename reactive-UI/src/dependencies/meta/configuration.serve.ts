@@ -14,7 +14,7 @@ export const loadSecretConfiguration = () => {
     const openAI_ProjectId = process.env['OPENAI_PROJECT_ID'] ?? DEFAULT_FAKE_VALUE;
     const openAI_ModelName = process.env['OPENAI_MODEL_NAME'] ?? DEFAULT_FAKE_VALUE;
     const openAI_MaxToken = 1000;
-    const systemPromptUsed = ".v1";
+    const systemPromptUsed = ".v2";
     const userInstructionUsed = ".v1";
     const websocketEnabled = true;
     const assistantEnabled = [openAI_Key, openAI_ProjectId, openAI_OrganizationId, openAI_ModelName].every(x => x !== DEFAULT_FAKE_VALUE);

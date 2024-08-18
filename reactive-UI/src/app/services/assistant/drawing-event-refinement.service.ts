@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { UrlExtractorService } from '@browser/url-extractor.service';
 import { PencilCommands } from '@canvas-module/commands/pencil.command';
 import { StickyNoteCommands } from '@canvas-module/commands/sticky-notes.command';
+import { TextInputCommands } from '@canvas-module/commands/text-input.command';
 import { BaseEvent } from '@drawings/BaseEvent';
-import { PencilUpEvent, StickyNotePastedEvent, ToDrawingEvent } from '@drawings/EventQueue';
+import { PencilUpEvent, StickyNotePastedEvent, TextEnteredEvent, ToDrawingEvent } from '@drawings/EventQueue';
 
 @Injectable({
   providedIn: 'root'
@@ -31,6 +32,10 @@ export class DrawingEventRefinementService {
 
     if (mapped instanceof StickyNotePastedEvent) {
       StickyNoteCommands.fillEvent(mapped, this._boardId);
+    }
+
+    if (mapped instanceof TextEnteredEvent) {
+      TextInputCommands.fillEvent(mapped, this._boardId);
     }
 
     return mapped;

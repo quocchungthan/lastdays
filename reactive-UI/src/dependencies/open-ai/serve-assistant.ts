@@ -11,6 +11,7 @@ import { Condition, IBackupService } from '../meta/backup-storage.inteface';
 import { CachedResponse } from './model/CachedResponse.entity';
 import { DEFAULT_FAKE_VALUE } from '@config/default-value.constants';
 import BackupWithJsonFileService from './backup/backup-json-file';
+import { isArray } from 'lodash';
 
 const secrets = loadSecretConfiguration();
 
@@ -77,18 +78,18 @@ async function resolveReceivedMessageAsync(userMessage: string, openai: OpenAI, 
     ]);
     /** With no history yet: TODO: one board one conversation history and the history */
     const chatCompleteAsync = await setupChatContextAsync(openai, secrets.openAI_ModelName);
-    const rawResponse = cachedResponse?.assistantResponse || JSON.stringify((await chatCompleteAsync(userMessage)).choices.map(x => x.message.content));
-    logger.log(rawResponse);
-    const allMessageContent = (JSON.parse(rawResponse) as string[]).map((x => validateAndRemoveWrapper(x)))
+    const rawResponse = cachedResponse?.assistantResponse ? cachedResponse?.assistantResponse : (await chatCompleteAsync(userMessage)).choices.map(x => x.message.content);
+    console.log(rawResponse);
+    const allMessageContent = rawResponse.map((x => validateAndRemoveWrapper(x)))
         .filter(x => !!Object.keys(x).length);
-    logger.log("Choices's length: " + JSON.parse(rawResponse).length);
+    logger.log("Choices's length: " + rawResponse.length);
     if (!cachedResponse) {
-        await cacheResponse(rawResponse, userMessage, cacheService);
+        await cacheResponse(rawResponse as string[], userMessage, cacheService);
     }
     return allMessageContent;
 }
 
-async function cacheResponse(rawResponse: string, userMessage: string, cacheService: IBackupService<CachedResponse>) {
+async function cacheResponse(rawResponse: string[], userMessage: string, cacheService: IBackupService<CachedResponse>) {
     const fetchVersionFromItself = await fetch(`http://localhost:${secrets.port}/assets/git-info.json`);
     const sourceVersion = (await (fetchVersionFromItself).json()).hash;
     const toStore = {
@@ -111,6 +112,7 @@ function validateAndRemoveWrapper(jsonString: string | null): object {
 
     // Check if the input matches the expected pattern
     const match = jsonString.match(wrapperPattern);
+    console.log(jsonString, match);
     if (match) {
         // Extract the JSON content from the match
         jsonString = match[1].trim();
@@ -118,8 +120,9 @@ function validateAndRemoveWrapper(jsonString: string | null): object {
 
     // Attempt to parse the JSON content
     try {
-        return JSON.parse(jsonString);
+        const parsed = JSON.parse(jsonString);
+        return isArray(parsed) ? parsed : [parsed];
     } catch (error) {
-        return {};
+        return [];
     }
 }
