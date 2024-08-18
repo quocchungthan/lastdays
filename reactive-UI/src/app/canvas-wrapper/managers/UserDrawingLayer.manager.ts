@@ -1,28 +1,30 @@
 import Konva from "konva";
-import { PencilCommands } from "../commands/pencil.command";
-import { ViewPortEventsManager } from "./ViewPortEvents.manager";
 import { Injectable, OnDestroy } from "@angular/core";
-import { StickyNoteCommands } from "../commands/sticky-notes.command";
 import { CursorManager } from "./Cursor.manager";
 import { Subject, debounceTime } from "rxjs";
 import { Group } from "konva/lib/Group";
 import guid from "guid";
 import { Line, LineConfig } from "konva/lib/shapes/Line";
-import { TextInputCommands } from "../commands/text-input.command";
-import { FormModalService } from "../../../utilities/controls/form-modal.service";
-import { Point } from "../../../utilities/types/Point";
-import { PRIMARY_COLOR } from "../../../configs/theme.constants";
-import { ToBaseEvent, BoardedCreatedEvent, ToDrawingEvent, BaseEvent, StickyNoteMovedEvent, GeneralUndoEvent, AbstractEventQueueItem, StickyNotePastedEvent, InkAttachedToStickyNoteEvent, TextAttachedToStickyNoteEvent, PencilUpEvent, TextEnteredEvent } from "../../events/drawings/EventQueue";
-import { EventsCompositionService } from "../../events/drawings/events-composition.service";
-import { SyncingService } from "../../../dependencies/syncing.service";
-import { KonvaObjectService } from "../services/3rds/konva-object.service";
-import { KeysService } from "../../services/browser/keys.service";
-import { MetaService } from "../../services/browser/meta.service";
-import { UrlExtractorService } from "../../services/browser/url-extractor.service";
-import { BoardsService } from "../../services/data-storages/boards.service";
-import { DrawingObjectService } from "../../services/data-storages/drawing-object.service";
-import { EventsService } from "../../services/data-storages/events.service";
-import { ToolCompositionService } from "../../services/states/tool-composition.service";
+import { SyncingService } from '@com/syncing.service';
+import { PRIMARY_COLOR } from '@config/theme.constants';
+import { FormModalService } from '@ui/controls/form-modal.service';
+import { Point } from '@ui/types/Point';
+import { DrawingObjectService } from '@uidata/drawing-object.service';
+import { EventsService } from '@uidata/events.service';
+import { BoardsService } from '@uidata/boards.service';
+import { KeysService } from '@browser/keys.service';
+import { MetaService } from '@browser/meta.service';
+import { UrlExtractorService } from '@browser/url-extractor.service';
+import { PencilCommands } from '@canvas-module/commands/pencil.command';
+import { StickyNoteCommands } from '@canvas-module/commands/sticky-notes.command';
+import { TextInputCommands } from '@canvas-module/commands/text-input.command';
+import { KonvaObjectService } from '@canvas-module/services/3rds/konva-object.service';
+import { BaseEvent } from '@drawings/BaseEvent';
+import { ToBaseEvent, BoardedCreatedEvent, ToDrawingEvent, StickyNoteMovedEvent, GeneralUndoEvent, StickyNotePastedEvent, InkAttachedToStickyNoteEvent, TextAttachedToStickyNoteEvent, PencilUpEvent, TextEnteredEvent } from '@drawings/EventQueue';
+import { EventsCompositionService } from '@drawings/events-composition.service';
+import { AbstractEventQueueItem } from '@drawings/PureQueue.type';
+import { ToolCompositionService } from '@states/tool-composition.service';
+import { ViewPortEventsManager } from './ViewPortEvents.manager';
 
 @Injectable()
 export class UserDrawingLayerManager implements OnDestroy {
@@ -302,16 +304,7 @@ export class UserDrawingLayerManager implements OnDestroy {
     }
 
     private _triggerStickyNotePastedEvent(brandNewDrawing: Group) {
-        const event = new StickyNotePastedEvent();
-        const background = this._stickyNote.extractBackground(brandNewDrawing);
-        event.targetId = this._stickyNote.extractId(brandNewDrawing);
-        event.boardId = this._boardId;
-        event.backgroundUrl = background.attrs.image.currentSrc;
-        event.dimention = {
-            width: background.width(),
-            height: background.height(),
-        };
-        event.position = brandNewDrawing.position();
+        const event = StickyNoteCommands.buildEvent(brandNewDrawing, this._boardId, this._stickyNote.extractId(brandNewDrawing));
         this._generallyProcessNewEvent(event);
     }
 
@@ -334,25 +327,13 @@ export class UserDrawingLayerManager implements OnDestroy {
     }
 
     private _triggerPencilUpEvent(brandNewDrawing: Line<LineConfig>) {
-        const event = new PencilUpEvent();
-        event.targetId = this._pencil.extractId(brandNewDrawing);
-        event.boardId = this._boardId;
-        event.points = [...brandNewDrawing.points()];
-        event.color = brandNewDrawing.stroke();
-        event.width = brandNewDrawing.strokeWidth();
+        const newEvent = PencilCommands.buildEvent(brandNewDrawing, this._boardId, this._pencil.extractId(brandNewDrawing));
 
-        this._generallyProcessNewEvent(event);
+        this._generallyProcessNewEvent(newEvent);
     }
 
     private _triggerTextEnteredEvent(brandNewDrawing: Konva.Text) {
-        const event = new TextEnteredEvent();
-        event.targetId = this._textInput.extractId(brandNewDrawing);
-        event.boardId = this._boardId;
-        event.text = brandNewDrawing.text();
-        event.color = brandNewDrawing.fill();
-        event.position = brandNewDrawing.position();
-        event.containerWidth = brandNewDrawing.width();
-        event.containerheight = brandNewDrawing.height();
+        const event = TextInputCommands.buildEvent(brandNewDrawing, this._boardId, this._textInput.extractId(brandNewDrawing));
 
         this._generallyProcessNewEvent(event);
     }

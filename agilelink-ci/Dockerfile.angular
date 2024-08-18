@@ -9,8 +9,11 @@ COPY ./reactive-UI/package-lock.json .
 RUN npm install
 
 COPY ./reactive-UI/ .
+COPY ./.git/ ./.git/
 
 RUN npm run build --omit=dev
+
+RUN rm -rf node_modules
 
 EXPOSE 3000
 

@@ -33,6 +33,7 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
+              // { "glob": "*.feedable.*", "input": "src/dependencies/open-ai/", "output": "./open-ai/" },
               "src/assets"
             ],
             "externalDependencies": [

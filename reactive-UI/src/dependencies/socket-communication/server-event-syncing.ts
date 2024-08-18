@@ -1,7 +1,7 @@
 import WebSocket, { WebSocketServer } from 'ws';
 import * as http from 'http';
-import { SEGMENT_TO_BOARD_DETAIL, WEB_SOCKET_PATH } from '../configs/routing.consants';
 import { ConnectionManager, ConsoleLogger } from './connection.manager';
+import { SEGMENT_TO_BOARD_DETAIL, WEB_SOCKET_PATH } from '@config/routing.consants';
 
 export const injectWebSocket = (server: http.Server) => {
     const logger = new ConsoleLogger();
@@ -41,7 +41,7 @@ export const injectWebSocket = (server: http.Server) => {
   // WebSocket connection handling
   wss.on('connection', function connection(ws, req: http.IncomingMessage) {
     // Extract board_id from URL if applicable
-    const boardId = extractBoardIdFromUrl(`http://${req.headers.host}` + req.url ?? '');
+    const boardId = extractBoardIdFromUrl(`http://${req.headers.host}` + (req.url || ''));
     if (!boardId) {
       logger.log('Ignore the connection without board id');
       return;

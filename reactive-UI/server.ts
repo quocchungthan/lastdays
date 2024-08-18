@@ -4,9 +4,13 @@ import express from 'express';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import bootstrap from './src/main.server';
-import { injectWebSocket } from './src/dependencies/server-event-syncing';
+import { injectWebSocket } from '@com/server-event-syncing';
+import { injectAssistantEndpoints } from '@ai/serve-assistant';
+import { loadSecretConfiguration } from './src/dependencies/meta/configuration.serve';
+import { HttpStatusCode } from '@angular/common/http';
+import { MetaConfiguration } from './src/dependencies/meta/model/configuration.interface';
 
-const port = process.env['PORT'] || 4201;
+const {port, useBackup, assistantEnabled, websocketEnabled} = loadSecretConfiguration();
 
 // The Express app is exported so that it can be used by serverless Functions.
 export function app(): express.Express {
@@ -21,13 +25,32 @@ export function app(): express.Express {
   server.set('views', browserDistFolder);
 
   // Example Express Rest API endpoints
-  // server.get('/api/**', (req, res) => { });
+  // server.all('/api/**', (req, res) => { });
+  server.get('/api/configuration', (req, res) => {
+    res.status(HttpStatusCode.Ok)
+      .send({
+        useBackup,
+        port,
+        assistantEnabled,
+        websocketEnabled
+      } as MetaConfiguration)
+  });
+
+  if (assistantEnabled) {
+    injectAssistantEndpoints(server);
+  }
+  
   // Serve static files from /browser
   server.get('*.*', express.static(browserDistFolder, {
     maxAge: '1y'
   }));
 
-  // All regular routes use the Angular engine
+  serveAllRoutesUseTheAngularEngine(server, commonEngine, indexHtml, browserDistFolder);
+
+  return server;
+}
+
+function serveAllRoutesUseTheAngularEngine(server: express.Express, commonEngine: CommonEngine, indexHtml: string, browserDistFolder: string) {
   server.get('*', async (req, res, next) => {
     const { protocol, originalUrl, baseUrl, headers } = req;
 
@@ -53,8 +76,6 @@ export function app(): express.Express {
       next(err);
     }
   });
-
-  return server;
 }
 
 function run(): void {
@@ -65,7 +86,9 @@ function run(): void {
     console.log(`Node Express server listening on http://localhost:${port}`);
   });
   
-  injectWebSocket(httpServer);
+  if (websocketEnabled) {
+    injectWebSocket(httpServer);
+  }
 }
 
 run();

@@ -18,6 +18,17 @@
     "target": "ES2022",
     "module": "ES2022",
     "useDefineForClassFields": false,
+    "paths": {
+      "@com/*": ["./src/dependencies/socket-communication/*"],
+      "@ai/*": ["./src/dependencies/open-ai/*"],
+      "@ui/*": ["./src/ui-utilities/*"],
+      "@config/*": ["./src/configs/*"],
+      "@uidata/*": ["./src/app/services/data-storages/*"],
+      "@drawings/*": ["./src/app/events/drawings/*"],
+      "@browser/*": ["./src/app/services/browser/*"],
+      "@canvas-module/*": ["./src/app/canvas-wrapper/*"],
+      "@states/*": ["./src/app/services/states/*"]
+    },
     "lib": [
       "ES2022",
       "dom"

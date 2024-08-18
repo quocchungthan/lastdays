@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { SidebarComponent } from '../utilities/layout/sidebar/sidebar.component';
+import { SidebarComponent } from '../ui-utilities/layout/sidebar/sidebar.component';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
-import { FormModalComponent } from '../utilities/controls/form-modal/form-modal.component';
+import { FormModalComponent } from '../ui-utilities/controls/form-modal/form-modal.component';
 
 @Component({
   selector: 'app-root',

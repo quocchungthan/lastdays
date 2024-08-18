@@ -1,16 +1,19 @@
 import { Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ToasterService } from '../../../app/services/ui-notifications/toaster.service';
 import { TranslateService } from '@ngx-translate/core';
-import { SyncingService } from '../../../dependencies/syncing.service';
 import { IdentitiesService } from '../../../app/services/data-storages/identities.service';
 import { SingleMessageData } from './single-message';
 import { DatePipe } from '@angular/common';
+import { SyncingService } from '../../../dependencies/socket-communication/syncing.service';
+import { DrawingAssistantService } from '@ai/ui-client/drawing-assistant.service';
+import { DrawingEventRefinementService } from '../../../app/services/assistant/drawing-event-refinement.service';
+import { EventsCompositionService } from '@drawings/events-composition.service';
 
 @Component({
   selector: 'chat-box',
   standalone: true,
   imports: [ReactiveFormsModule, DatePipe],
+  providers: [],
   templateUrl: './chatbox.component.html',
   styleUrl: './chatbox.component.scss'
 })
@@ -30,7 +33,9 @@ export class ChatboxComponent implements OnDestroy {
     private _formBuilder: FormBuilder,
     private _tranlsate: TranslateService,
     private _syncingService: SyncingService,
-    private _toaster: ToasterService,
+    private _drawingAssistantService: DrawingAssistantService,
+    private _eventCompositionService: EventsCompositionService,
+    private _refinementService: DrawingEventRefinementService,
     private _identities: IdentitiesService) {
     this.chatBoxForm = this._formBuilder.group({
       message: ['', Validators.required]
@@ -97,16 +102,23 @@ export class ChatboxComponent implements OnDestroy {
   }
 
   onSubmit() {
-    if (!this.chatBoxForm.value.message) {
+    const userMessage = this.chatBoxForm.value.message;
+    if (!userMessage) {
       return;
     }
-    this._syncingService.trySendTextMessage(this.chatBoxForm.value.message);
+    this._syncingService.trySendTextMessage(userMessage);
     this.populatedChatMessages.push({
-      messageText: this.chatBoxForm.value.message,
+      messageText: userMessage,
       displayName: this.youText,
       time: new Date(),
       avatarUrl: this.fallbackAvatar()
     });
+    this._drawingAssistantService.generateDrawingEvents(userMessage)
+      .subscribe((generated) => {
+        generated.forEach(de => {
+          this._eventCompositionService.insert(this._refinementService.refine(de));
+        });
+      });
     this.chatBoxForm.reset();
     this._scrollToBottom();
   }

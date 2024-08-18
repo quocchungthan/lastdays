@@ -1,5 +1,5 @@
-import { UserIdentity } from '../../services/data-storages/entities/Identity';
-import { BaseEvent } from "../drawings/EventQueue";
+import { BaseEvent } from '@drawings/BaseEvent';
+import { UserIdentity } from '@uidata/entities/Identity';
 
 export enum WSEventType {
     DRAWING_EVENT = "DRAWING_EVENT",

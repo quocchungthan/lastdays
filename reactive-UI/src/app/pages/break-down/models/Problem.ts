@@ -1,4 +1,4 @@
-import { Range } from '../../../../utilities/types/Range';
+import { Range } from '../../../../ui-utilities/types/Range';
 
 export class Problem {
     id: string = '';

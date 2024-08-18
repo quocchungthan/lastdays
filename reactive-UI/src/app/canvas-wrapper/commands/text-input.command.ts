@@ -1,10 +1,12 @@
 import Konva from "konva";
 import { Observable } from "rxjs";
-import { FormModalService } from "../../../utilities/controls/form-modal.service";
-import { Point } from "../../../utilities/types/Point";
+import { FormModalService } from "../../../ui-utilities/controls/form-modal.service";
+import { Point } from "../../../ui-utilities/types/Point";
 import { TextEnteredEvent } from "../../events/drawings/EventQueue";
 import { ToolCompositionService } from "../../services/states/tool-composition.service";
 import { TextInputCommandsFormComponent } from "../text-input-commands-form/text-input-commands-form.component";
+import guid from 'guid';
+import { STANDARD_STICKY_NOTE_SIZE } from '@config/size';
 
 export class TextInputCommands {
     public static readonly CommandName = "text-input";
@@ -21,6 +23,24 @@ export class TextInputCommands {
         private _formModalService: FormModalService) {
             this._formModalService.onOk()
                 .subscribe(() => this._triggerTextInputFinishedCallback?.());
+    }
+
+    static buildEvent(brandNewDrawing: Konva.Text, boardId: string, targetId?: string) {
+        const event = new TextEnteredEvent();
+        TextInputCommands.fillEvent(event, boardId, targetId);
+        event.text = brandNewDrawing.text();
+        event.color = brandNewDrawing.fill();
+        event.position = brandNewDrawing.position();
+        event.containerWidth = brandNewDrawing.width();
+        event.containerheight = brandNewDrawing.height();
+        return event;
+    }
+
+    static fillEvent(event: TextEnteredEvent, boardId: string, targetId?: string) {
+        event.targetId = targetId ?? guid.create().toString();
+        event.boardId = boardId;
+        event.containerWidth = event.containerWidth || STANDARD_STICKY_NOTE_SIZE;
+        event.containerheight = event.containerheight || STANDARD_STICKY_NOTE_SIZE;
     }
 
     extractId(nativeElement: Konva.Text) {

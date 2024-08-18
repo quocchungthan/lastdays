@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { TopbarComponent } from '../../../utilities/layout/topbar/topbar.component';
+import { TopbarComponent } from '../../../ui-utilities/layout/topbar/topbar.component';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IdentitiesService } from '../../services/data-storages/identities.service';
 import { ToasterService } from '../../services/ui-notifications/toaster.service';

@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
-import { BaseEvent, ParseToBaseEvent, ToDrawingEvent } from '../app/events/drawings/EventQueue';
 import { WebSocketSubject, webSocket } from 'rxjs/webSocket'
-import { SEGMENT_TO_BOARD_DETAIL, WEB_SOCKET_PATH } from '../configs/routing.consants';
 import { BehaviorSubject, EMPTY, Observable, Subject, catchError, filter, map, tap } from 'rxjs';
-import { ChatTextEventData, SayHelloEventData, WSEvent, WSEventType } from '../app/events/to-python-server/web-socket-model';
-import { ComparisonResult, EventsCompositionService } from '../app/events/drawings/events-composition.service';
-import { ConflictResolverService } from '../app/events/drawings/conflict-resolver.service';
 import { isNil } from 'lodash';
-import { IdentitiesService } from '../app/services/data-storages/identities.service';
-import { UserIdentity } from '../app/services/data-storages/entities/Identity';
+import { ChatTextEventData, SayHelloEventData, WSEvent, WSEventType } from './web-socket-model';
+import { UserIdentity } from '@uidata/entities/Identity';
+import { IdentitiesService } from '@uidata/identities.service';
+import { SEGMENT_TO_BOARD_DETAIL, WEB_SOCKET_PATH } from '@config/routing.consants';
+import { BaseEvent } from '@drawings/BaseEvent';
+import { ConflictResolverService } from '@drawings/conflict-resolver.service';
+import { ToDrawingEvent, ParseToBaseEvent } from '@drawings/EventQueue';
+import { EventsCompositionService, ComparisonResult } from '@drawings/events-composition.service';
 
 export const StatusTranslatatbleString = {
   Offline: "OFFLINE",
