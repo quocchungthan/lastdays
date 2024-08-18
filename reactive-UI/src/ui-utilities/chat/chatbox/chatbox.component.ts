@@ -6,11 +6,13 @@ import { IdentitiesService } from '../../../app/services/data-storages/identitie
 import { SingleMessageData } from './single-message';
 import { DatePipe } from '@angular/common';
 import { SyncingService } from '../../../dependencies/socket-communication/syncing.service';
+import { DrawingAssistantService } from '@ai/ui-client/drawing-assistant.service';
 
 @Component({
   selector: 'chat-box',
   standalone: true,
   imports: [ReactiveFormsModule, DatePipe],
+  providers: [],
   templateUrl: './chatbox.component.html',
   styleUrl: './chatbox.component.scss'
 })
@@ -31,6 +33,7 @@ export class ChatboxComponent implements OnDestroy {
     private _tranlsate: TranslateService,
     private _syncingService: SyncingService,
     private _toaster: ToasterService,
+    private _drawingAssistantService: DrawingAssistantService,
     private _identities: IdentitiesService) {
     this.chatBoxForm = this._formBuilder.group({
       message: ['', Validators.required]

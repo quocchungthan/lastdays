@@ -8,6 +8,7 @@ import { injectWebSocket } from '@com/server-event-syncing';
 import { injectAssistantEndpoints } from '@ai/serve-assistant';
 import { loadSecretConfiguration } from './src/dependencies/meta/configuration.serve';
 import { HttpStatusCode } from '@angular/common/http';
+import { MetaConfiguration } from './src/dependencies/meta/model/configuration.interface';
 
 const {port, useBackup, assistantEnabled, websocketEnabled} = loadSecretConfiguration();
 
@@ -32,7 +33,7 @@ export function app(): express.Express {
         port,
         assistantEnabled,
         websocketEnabled
-      })
+      } as MetaConfiguration)
   });
 
   if (assistantEnabled) {
