@@ -70,10 +70,9 @@ async function resolveReceivedMessageAsync(userMessage: string, openai: OpenAI, 
     const chatCompleteAsync = await setupChatContextAsync(openai, secrets.openAI_ModelName);
     const rawResponse = cachedResponse?.assistantResponse || JSON.stringify((await chatCompleteAsync(userMessage)).choices.map(x => x.message.content));
     logger.log(rawResponse);
-    const allMessageContent = "[" + (JSON.parse(rawResponse) as string[]).map((x => validateAndRemoveWrapper(x)))
-        .filter(x => !!x)
-        .join(',\n') + "]";
-    logger.log("Choices's length: " + JSON.parse(rawResponse).length + "\n" + allMessageContent);
+    const allMessageContent = (JSON.parse(rawResponse) as string[]).map((x => validateAndRemoveWrapper(x)))
+        .filter(x => !!Object.keys(x).length);
+    logger.log("Choices's length: " + JSON.parse(rawResponse).length);
     if (!cachedResponse) {
         await cacheResponse(rawResponse, userMessage, cacheService);
     }
@@ -94,9 +93,9 @@ async function cacheResponse(rawResponse: string, userMessage: string, cacheServ
     await cacheService.storeAsync(toStore);
 }
 
-function validateAndRemoveWrapper(jsonString: string | null) {
+function validateAndRemoveWrapper(jsonString: string | null): object {
     if (!jsonString) {
-        return "";
+        return {};
     }
     // Define the pattern for the wrapper and backticks
     const wrapperPattern = /^```json([\s\S]*?)```$/;
@@ -110,9 +109,8 @@ function validateAndRemoveWrapper(jsonString: string | null) {
 
     // Attempt to parse the JSON content
     try {
-        JSON.parse(jsonString);
-        return jsonString;
+        return JSON.parse(jsonString);
     } catch (error) {
-        return "";
+        return {};
     }
 }
