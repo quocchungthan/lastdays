@@ -9,6 +9,7 @@ import { loadSecretConfiguration } from '../meta/configuration.serve';
 import { dependenciesPool } from '../dependencies.pool';
 import { Condition, IBackupService } from '../meta/backup-storage.inteface';
 import { CachedResponse } from './model/CachedResponse.entity';
+import { DEFAULT_FAKE_VALUE } from '@config/default-value.constants';
 
 const secrets = loadSecretConfiguration();
 
@@ -23,7 +24,9 @@ const newOpenAiClient = () => {
 // TODO: setup cors to block brute-forcing
 export const injectAssistantEndpoints = (server: express.Express) => {
     const logger = new ConsoleLogger();
-    logger.log(secrets.openAI_OrganizationId + ' ; ' + secrets.openAI_ProjectId + ' ; ' + secrets.openAI_Key);
+    if ([secrets.openAI_OrganizationId, secrets.openAI_ProjectId, secrets.openAI_Key].some(x => x === DEFAULT_FAKE_VALUE)) {
+        throw new Error("Please set up the environment variable for openAI_OrganizationId, openAI_ProjectId, openAI_Key and restart the application");
+    }
     const openai = newOpenAiClient();
     const router = express.Router();
     server.use(express.json());
@@ -100,7 +103,6 @@ function validateAndRemoveWrapper(jsonString: string | null) {
 
     // Check if the input matches the expected pattern
     const match = jsonString.match(wrapperPattern);
-    console.log(jsonString, match);
     if (match) {
         // Extract the JSON content from the match
         jsonString = match[1].trim();
