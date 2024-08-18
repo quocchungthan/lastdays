@@ -6,6 +6,8 @@ import { HttpStatusCode } from '@angular/common/http';
 import { readDrawingEventTypescriptSchemaAsync, setupChatContextAsync } from './assistant.setup';
 import { GenerateDrawingEvent } from './model/GenerateDrawingEvent.req';
 import { loadSecretConfiguration } from '../meta/configuration.serve';
+import { dependenciesPool } from '../dependencies.pool';
+import { Condition } from '../meta/backup-storage.inteface';
 
 const secrets = loadSecretConfiguration();
 
@@ -28,16 +30,8 @@ export const injectAssistantEndpoints = (server: express.Express) => {
         try {
             const userMessage = (req.body as GenerateDrawingEvent).userMessage;
             logger.log("Received message: " + userMessage);
-            /** With no history yet: TODO: one board one conversation history and the history */
-            const chatCompleteAsync = await setupChatContextAsync(openai, secrets.openAI_ModelName);
-            const response = await chatCompleteAsync(userMessage);
-            const rawResponse = JSON.stringify(response.choices.map(x => x.message.content));
-            logger.log(rawResponse);
-            const allMessageContent = 
-                "[" + response.choices.map((x => validateAndRemoveWrapper(x.message.content)))
-                    .filter(x => !!x)
-                    .join(',\n') + "]";
-            logger.log("Choices's length: " + response.choices.length + "\n" + allMessageContent);
+            const allMessageContent = await resolveReceivedMessageAsync(userMessage, openai, logger);
+
             res.status(HttpStatusCode.Ok)
                 .setHeader('Content-Type', 'application/json')
                 .send(allMessageContent)
@@ -56,6 +50,38 @@ export const injectAssistantEndpoints = (server: express.Express) => {
     });
 
     server.use(OPEN_AI_ENDPOINT_PREFIX, router);
+}
+
+async function resolveReceivedMessageAsync(userMessage: string, openai: OpenAI, logger: ConsoleLogger) {
+    const cacheService = dependenciesPool.backup();
+    const cachedResponse = await cacheService.getAsync([
+        {
+            // userMessage of entity CachedResponse
+            fieldName: "userMessage",
+            condition: Condition.EQUAL,
+            value: userMessage
+        }
+    ]);
+    /** With no history yet: TODO: one board one conversation history and the history */
+    const chatCompleteAsync = await setupChatContextAsync(openai, secrets.openAI_ModelName);
+    const rawResponse = cachedResponse?.assistantResponse || JSON.stringify((await chatCompleteAsync(userMessage)).choices.map(x => x.message.content));
+    logger.log(rawResponse);
+    const allMessageContent = "[" + (JSON.parse(rawResponse) as string[]).map((x => validateAndRemoveWrapper(x)))
+        .filter(x => !!x)
+        .join(',\n') + "]";
+    logger.log("Choices's length: " + JSON.parse(rawResponse).length + "\n" + allMessageContent);
+    const fetchVersionFromItself = await fetch(`http://localhost:${secrets.port}/assets/git-info.json`);
+    const sourceVersion = (await (fetchVersionFromItself).json()).hash;
+    const toStore = {
+        assistantResponse: rawResponse,
+        appVersion: sourceVersion,
+        modelName: secrets.openAI_ModelName,
+        systemPromptVersion: secrets.systemPromptUsed,
+        userMessage: userMessage,
+        createdTime: new Date()
+    };
+    await cacheService.storeAsync(toStore);
+    return allMessageContent;
 }
 
 function validateAndRemoveWrapper(jsonString: string | null) {
