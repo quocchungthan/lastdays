@@ -3,6 +3,7 @@ import { promises as fsPromises } from 'fs';
 import { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 import { BaseEvent } from '@drawings/BaseEvent';
 import { loadSecretConfiguration } from '../meta/configuration.serve';
+import { dependenciesPool } from '../dependencies.pool';
 
 const secrets = loadSecretConfiguration();
 
@@ -82,7 +83,7 @@ export const setupChatContextAsync = async (client: OpenAI, modelName: string) =
 
         // Add user message to the conversation history
         conversationHistory.push({ role: 'user', content: newMesage });
-        
+        dependenciesPool.logger().log("Sending request to OpenAI");
         return await client.chat.completions.create({
             model: modelName,
             messages: conversationHistory,

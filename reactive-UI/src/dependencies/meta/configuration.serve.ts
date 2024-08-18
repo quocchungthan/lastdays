@@ -1,4 +1,5 @@
 import { DEFAULT_FAKE_VALUE } from '@config/default-value.constants';
+import path from 'path';
 
 /**
  * For Windows OS: set the config in Env variable,
@@ -17,6 +18,15 @@ export const loadSecretConfiguration = () => {
     const websocketEnabled = true;
     const assistantEnabled = true;
     const useBackup = true;
+    const jsonBackupPath = './cachedResponses.json';
 
-    return { port, openAI_Key, openAI_OrganizationId, openAI_ProjectId, openAI_ModelName, systemPromptUsed, userInstructionUsed, websocketEnabled, assistantEnabled, useBackup};
+    return { port,
+        openAI_Key,
+        openAI_OrganizationId,
+        openAI_ProjectId, openAI_ModelName,
+        systemPromptUsed, userInstructionUsed,
+        websocketEnabled, assistantEnabled,
+        useBackup,
+        jsonBackupPath
+    };
 }

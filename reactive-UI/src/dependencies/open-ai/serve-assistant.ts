@@ -7,7 +7,8 @@ import { readDrawingEventTypescriptSchemaAsync, setupChatContextAsync } from './
 import { GenerateDrawingEvent } from './model/GenerateDrawingEvent.req';
 import { loadSecretConfiguration } from '../meta/configuration.serve';
 import { dependenciesPool } from '../dependencies.pool';
-import { Condition } from '../meta/backup-storage.inteface';
+import { Condition, IBackupService } from '../meta/backup-storage.inteface';
+import { CachedResponse } from './model/CachedResponse.entity';
 
 const secrets = loadSecretConfiguration();
 
@@ -70,6 +71,13 @@ async function resolveReceivedMessageAsync(userMessage: string, openai: OpenAI, 
         .filter(x => !!x)
         .join(',\n') + "]";
     logger.log("Choices's length: " + JSON.parse(rawResponse).length + "\n" + allMessageContent);
+    if (!cachedResponse) {
+        await cacheResponse(rawResponse, userMessage, cacheService);
+    }
+    return allMessageContent;
+}
+
+async function cacheResponse(rawResponse: string, userMessage: string, cacheService: IBackupService<CachedResponse>) {
     const fetchVersionFromItself = await fetch(`http://localhost:${secrets.port}/assets/git-info.json`);
     const sourceVersion = (await (fetchVersionFromItself).json()).hash;
     const toStore = {
@@ -81,7 +89,6 @@ async function resolveReceivedMessageAsync(userMessage: string, openai: OpenAI, 
         createdTime: new Date()
     };
     await cacheService.storeAsync(toStore);
-    return allMessageContent;
 }
 
 function validateAndRemoveWrapper(jsonString: string | null) {
