@@ -17,7 +17,7 @@ export const loadSecretConfiguration = () => {
     const systemPromptUsed = ".v1";
     const userInstructionUsed = ".v1";
     const websocketEnabled = true;
-    const assistantEnabled = true;
+    const assistantEnabled = [openAI_Key, openAI_ProjectId, openAI_OrganizationId, openAI_ModelName].every(x => x !== DEFAULT_FAKE_VALUE);
     const useBackup = true;
     const jsonBackupPath = './cachedResponses.json';
 
