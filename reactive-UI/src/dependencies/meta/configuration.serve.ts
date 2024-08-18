@@ -13,6 +13,7 @@ export const loadSecretConfiguration = () => {
     const openAI_OrganizationId = process.env['OPENAI_ORGANIZATION_ID'] ?? DEFAULT_FAKE_VALUE;
     const openAI_ProjectId = process.env['OPENAI_PROJECT_ID'] ?? DEFAULT_FAKE_VALUE;
     const openAI_ModelName = process.env['OPENAI_MODEL_NAME'] ?? DEFAULT_FAKE_VALUE;
+    const openAI_MaxToken = 1000;
     const systemPromptUsed = ".v1";
     const userInstructionUsed = ".v1";
     const websocketEnabled = true;
@@ -27,6 +28,7 @@ export const loadSecretConfiguration = () => {
         systemPromptUsed, userInstructionUsed,
         websocketEnabled, assistantEnabled,
         useBackup,
-        jsonBackupPath
+        jsonBackupPath,
+        openAI_MaxToken
     };
 }

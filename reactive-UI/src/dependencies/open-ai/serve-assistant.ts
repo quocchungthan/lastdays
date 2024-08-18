@@ -100,7 +100,7 @@ function validateAndRemoveWrapper(jsonString: string | null) {
 
     // Check if the input matches the expected pattern
     const match = jsonString.match(wrapperPattern);
-
+    console.log(jsonString, match);
     if (match) {
         // Extract the JSON content from the match
         jsonString = match[1].trim();

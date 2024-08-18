@@ -87,7 +87,7 @@ export const setupChatContextAsync = async (client: OpenAI, modelName: string) =
         return await client.chat.completions.create({
             model: modelName,
             messages: conversationHistory,
-            max_tokens: 500,
+            max_tokens: secrets.openAI_MaxToken,
             temperature: 0.7,
         });
     }
