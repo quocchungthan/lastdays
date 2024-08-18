@@ -6,8 +6,9 @@ import { dirname, join, resolve } from 'node:path';
 import bootstrap from './src/main.server';
 import { injectWebSocket } from '@com/server-event-syncing';
 import { injectAssistantEndpoints } from '@ai/serve-assistant';
+import { loadSecretConfiguration } from './src/dependencies/meta/configuration.serve';
 
-const port = process.env['PORT'] || 4201;
+const port = loadSecretConfiguration().port;
 
 // The Express app is exported so that it can be used by serverless Functions.
 export function app(): express.Express {

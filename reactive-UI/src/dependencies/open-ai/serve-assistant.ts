@@ -6,24 +6,22 @@ import OpenAI from 'openai';
 import { HttpStatusCode } from '@angular/common/http';
 import { readDrawingEventTypescriptSchemaAsync, setupChatContextAsync } from './assistant.setup';
 import { GenerateDrawingEvent } from './model/GenerateDrawingEvent.req';
+import { loadSecretConfiguration } from '../meta/configuration.serve';
 
-const openAI_Key = process.env['OPENAI_API_KEY'] ?? DEFAULT_FAKE_VALUE;
-const openAI_OrganizationId = process.env['OPENAI_ORGANIZATION_ID'] ?? DEFAULT_FAKE_VALUE;
-const openAI_ProjectId = process.env['OPENAI_PROJECT_ID'] ?? DEFAULT_FAKE_VALUE;
-const openAI_ModelName = process.env['OPENAI_MODEL_NAME'] ?? DEFAULT_FAKE_VALUE;
+const secrets = loadSecretConfiguration();
 
 const newOpenAiClient = () => {
     return new OpenAI({
-        organization: openAI_OrganizationId,
-        project: openAI_ProjectId,
-        apiKey: openAI_Key
+        organization: secrets.openAI_OrganizationId,
+        project: secrets.openAI_ProjectId,
+        apiKey: secrets.openAI_Key
     });
 }
 
 // TODO: setup cors to block brute-forcing
 export const injectAssistantEndpoints = (server: express.Express) => {
     const logger = new ConsoleLogger();
-    logger.log(openAI_OrganizationId + ' ; ' + openAI_ProjectId + ' ; ' + openAI_Key);
+    logger.log(secrets.openAI_OrganizationId + ' ; ' + secrets.openAI_ProjectId + ' ; ' + secrets.openAI_Key);
     const openai = newOpenAiClient();
     const router = express.Router();
     server.use(express.json());
@@ -32,7 +30,7 @@ export const injectAssistantEndpoints = (server: express.Express) => {
             const userMessage = (req.body as GenerateDrawingEvent).userMessage;
             logger.log("Received message: " + userMessage);
             /** With no history yet: TODO: one board one conversation history and the history */
-            const chatCompleteAsync = await setupChatContextAsync(openai, openAI_ModelName);
+            const chatCompleteAsync = await setupChatContextAsync(openai, secrets.openAI_ModelName);
             const response = await chatCompleteAsync(userMessage);
 
             res.status(HttpStatusCode.Ok)
