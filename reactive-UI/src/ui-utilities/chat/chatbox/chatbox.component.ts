@@ -1,12 +1,13 @@
 import { Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ToasterService } from '../../../app/services/ui-notifications/toaster.service';
 import { TranslateService } from '@ngx-translate/core';
 import { IdentitiesService } from '../../../app/services/data-storages/identities.service';
 import { SingleMessageData } from './single-message';
 import { DatePipe } from '@angular/common';
 import { SyncingService } from '../../../dependencies/socket-communication/syncing.service';
 import { DrawingAssistantService } from '@ai/ui-client/drawing-assistant.service';
+import { DrawingEventRefinementService } from '../../../app/services/assistant/drawing-event-refinement.service';
+import { EventsCompositionService } from '@drawings/events-composition.service';
 
 @Component({
   selector: 'chat-box',
@@ -32,8 +33,9 @@ export class ChatboxComponent implements OnDestroy {
     private _formBuilder: FormBuilder,
     private _tranlsate: TranslateService,
     private _syncingService: SyncingService,
-    private _toaster: ToasterService,
     private _drawingAssistantService: DrawingAssistantService,
+    private _eventCompositionService: EventsCompositionService,
+    private _refinementService: DrawingEventRefinementService,
     private _identities: IdentitiesService) {
     this.chatBoxForm = this._formBuilder.group({
       message: ['', Validators.required]
@@ -113,7 +115,9 @@ export class ChatboxComponent implements OnDestroy {
     });
     this._drawingAssistantService.generateDrawingEvents(userMessage)
       .subscribe((generated) => {
-        console.log(generated);
+        generated.forEach(de => {
+          this._eventCompositionService.insert(this._refinementService.refine(de));
+        });
       });
     this.chatBoxForm.reset();
     this._scrollToBottom();

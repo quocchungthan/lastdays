@@ -304,16 +304,7 @@ export class UserDrawingLayerManager implements OnDestroy {
     }
 
     private _triggerStickyNotePastedEvent(brandNewDrawing: Group) {
-        const event = new StickyNotePastedEvent();
-        const background = this._stickyNote.extractBackground(brandNewDrawing);
-        event.targetId = this._stickyNote.extractId(brandNewDrawing);
-        event.boardId = this._boardId;
-        event.backgroundUrl = background.attrs.image.currentSrc;
-        event.dimention = {
-            width: background.width(),
-            height: background.height(),
-        };
-        event.position = brandNewDrawing.position();
+        const event = StickyNoteCommands.buildEvent(brandNewDrawing, this._boardId, this._stickyNote.extractId(brandNewDrawing));
         this._generallyProcessNewEvent(event);
     }
 
@@ -336,14 +327,9 @@ export class UserDrawingLayerManager implements OnDestroy {
     }
 
     private _triggerPencilUpEvent(brandNewDrawing: Line<LineConfig>) {
-        const event = new PencilUpEvent();
-        event.targetId = this._pencil.extractId(brandNewDrawing);
-        event.boardId = this._boardId;
-        event.points = [...brandNewDrawing.points()];
-        event.color = brandNewDrawing.stroke();
-        event.width = brandNewDrawing.strokeWidth();
+        const newEvent = PencilCommands.buildEvent(brandNewDrawing, this._boardId, this._pencil.extractId(brandNewDrawing));
 
-        this._generallyProcessNewEvent(event);
+        this._generallyProcessNewEvent(newEvent);
     }
 
     private _triggerTextEnteredEvent(brandNewDrawing: Konva.Text) {

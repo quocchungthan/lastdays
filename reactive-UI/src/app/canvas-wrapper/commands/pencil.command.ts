@@ -2,7 +2,9 @@ import { STROKE_WIDTH } from '@config/size';
 import { PencilUpEvent } from '@drawings/EventQueue';
 import { ToolCompositionService } from '@states/tool-composition.service';
 import { Point } from '@ui/types/Point';
+import guid from 'guid';
 import Konva from 'konva';
+import { Line, LineConfig } from 'konva/lib/shapes/Line';
 
 export class PencilCommands {
     public static readonly CommandName = "pencil";
@@ -19,6 +21,21 @@ export class PencilCommands {
 
     extractId(stickyNote: Konva.Line) {
         return stickyNote.name().split(" ").find(x => x !== "") ?? "";
+    }
+
+    static buildEvent(brandNewDrawing: Line<LineConfig>, boardId: string, targetId?: string) {
+        const event = new PencilUpEvent();
+        PencilCommands.fillEvent(event, boardId, targetId);
+        event.points = [...brandNewDrawing.points()];
+        event.color = brandNewDrawing.stroke();
+        event.width = brandNewDrawing.strokeWidth();
+
+        return event;
+    }
+
+    static fillEvent(event: PencilUpEvent, boardId: string, targetId?: string) {
+        event.targetId = targetId ?? guid.create().toString();
+        event.boardId = boardId;
     }
 
     clearAll() {

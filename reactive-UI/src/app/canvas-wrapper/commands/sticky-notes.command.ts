@@ -12,6 +12,8 @@ import { Point } from '../../../ui-utilities/types/Point';
 import { STANDARD_STICKY_NOTE_SIZE } from '../../../configs/size';
 import { InkAttachedToStickyNoteEvent, StickyNoteMovedEvent, StickyNotePastedEvent } from '../../events/drawings/EventQueue';
 import { ToolCompositionService } from '../../services/states/tool-composition.service';
+import guid from 'guid';
+import { Dimension } from '@ui/types/Dimension';
 
 export interface StickyNote {
     navtive: Konva.Group;
@@ -32,7 +34,7 @@ export class StickyNoteCommands {
     private _internalPencil: PencilCommands;
     private _internalTextInput: TextInputCommands;
     private _justMovedStickyNote = new Subject<string>();
-    private _randomAttempt = 0;
+    private static _randomAttempt = 0;
 
     constructor(
         private _foundation: Konva.Layer, 
@@ -41,6 +43,37 @@ export class StickyNoteCommands {
         private _formModalService: FormModalService) {
         this._internalPencil = new PencilCommands(this._drawingLayer, _toolComposition);
         this._internalTextInput = new TextInputCommands(this._drawingLayer, _toolComposition, _formModalService);
+    }
+
+    static buildEvent(brandNewDrawing: Group, boardId: string, targetId?: string) {
+        const event = new StickyNotePastedEvent();
+        const background = StickyNoteCommands.extractBackground(brandNewDrawing);
+        StickyNoteCommands.fillEvent(
+            event, boardId, targetId
+            , background.attrs.image.currentSrc,
+            {
+                width: background.width(),
+                height: background.height(),
+            }
+        );
+        event.position = brandNewDrawing.position();
+        return event;
+    }
+
+    static fillEvent(event: StickyNotePastedEvent, boardId: string, targetId?: string, src?: string, dimension?: Dimension) {
+        if (!src) {
+            src = StickyNoteCommands.getRandomImageUrl();
+        }
+        if (!dimension) {
+            dimension = {
+                width: STANDARD_STICKY_NOTE_SIZE,
+                height: STANDARD_STICKY_NOTE_SIZE
+            }
+        }
+        event.targetId = targetId ?? guid.create().toString();
+        event.boardId = boardId;
+        event.backgroundUrl = src;
+        event.dimention = dimension;
     }
 
     public onStickyNoteMoved() {
@@ -135,12 +168,12 @@ export class StickyNoteCommands {
             return;
         }
 
-        const background = this.extractBackground(placeholder);
+        const background = StickyNoteCommands.extractBackground(placeholder);
         // only background has size
         placeholder.position({x: p.x - background.width() / 2, y: p.y - background.height() / 2});
     }
 
-    extractBackground(placeholder: Konva.Group) {
+    static extractBackground(placeholder: Konva.Group) {
         return placeholder.children.find(x => x instanceof Konva.Image)!;
     }
 
@@ -206,7 +239,7 @@ export class StickyNoteCommands {
     }
 
     public attachStickyNotePlaceholder(): Promise<void> {
-        const stickyNoteImageUrl = `/assets/stickynotes/${this._getRandomImageIndex().padStart(2, "0")}.png`;
+        const stickyNoteImageUrl = StickyNoteCommands.getRandomImageUrl();
         return new Promise<void>((res, rej) => {
             Konva.Image.fromURL(stickyNoteImageUrl, (image) => {
                 var placeholder = this._adjustImage(image);
@@ -217,6 +250,10 @@ export class StickyNoteCommands {
         });
     }
 
+    static getRandomImageUrl() {
+        return `/assets/stickynotes/${StickyNoteCommands._getRandomImageIndex().padStart(2, "0")}.png`;
+    }
+
     setDraggable(value: boolean) {
         this._allPastedStickyNotes()
             .forEach((stickyNote) => {
@@ -224,16 +261,16 @@ export class StickyNoteCommands {
             });
     }
 
-    private _getRandomImageIndex() {
-        if (this._randomAttempt < StickyNoteCommands.MAX_STICKYNOTE_VISUAL_COUNT - 1) {
-            return (++ this._randomAttempt).toString();
+    static _getRandomImageIndex() {
+        if (StickyNoteCommands._randomAttempt < StickyNoteCommands.MAX_STICKYNOTE_VISUAL_COUNT - 1) {
+            return (++ StickyNoteCommands._randomAttempt).toString();
         }
         return Math.ceil(Math.random() * StickyNoteCommands.MAX_STICKYNOTE_VISUAL_COUNT).toString();
     }
 
     private _isIntersect(shape: Shape<ShapeConfig>, stickyNote: Konva.Group): boolean {
         const rect1 = shape.getClientRect();
-        const bg = this.extractBackground(stickyNote);
+        const bg = StickyNoteCommands.extractBackground(stickyNote);
         const rect2: IRect = {
             x: stickyNote.x(),
             y: stickyNote.y(),
