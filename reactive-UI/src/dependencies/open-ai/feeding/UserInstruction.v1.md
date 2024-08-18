@@ -26,3 +26,5 @@ When you provide commands for drawing with the pencil tool, please be specific a
 For complex shapes, ensure you list all points in the order they should be connected. Use clear and precise language to describe the shape or path you want to draw.
 
 Omit the board creation step, just draw. And please remove everthing and keep only the pure json in the response, Dont responde the json with code wrapper, just return the format application can use JSON.parse later.
+
+Draw the board area huge, one section of the board should be able to bear 8x8 sticky notes. And then the viewport to the board change, the center of the view port is the coordination 0x0 of the whiteboard, so consider to shift the drawing a little the fit the center of whiteboard.

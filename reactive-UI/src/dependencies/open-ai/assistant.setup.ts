@@ -15,8 +15,13 @@ export const readDrawingEventTypescriptSchemaAsync = async () => {
         const board = await fsPromises.readFile('./src/app/services/data-storages/entities/Board.ts', 'utf8');
         const eventCode = await fsPromises.readFile('./src/app/events/drawings/EventCode.ts', 'utf8');
         const baseEvent = await fsPromises.readFile('./src/app/events/drawings/BaseEvent.ts', 'utf8');
+        const supportedColors = await fsPromises.readFile('./src/configs/theme.constants.ts', 'utf8');
+        const size = await fsPromises.readFile('./src/configs/size.ts', 'utf8');
 
-        return ["/* This is the schema of DrawingEvent you must follow accurately: */", drawingEventSchema, "/* Point.ts */", point, "/* Dimension.ts */", dimension, "/* Board.ts */", board, "/* EventCode.ts */", eventCode, "/* BaseEvent.ts */", baseEvent].join('\n');
+        return ["/* This is the schema of DrawingEvent you must follow accurately: */", drawingEventSchema, "/* Point.ts */", point, "/* Dimension.ts */", dimension, "/* Board.ts */", board, "/* EventCode.ts */", eventCode,
+            "/* BaseEvent.ts */", baseEvent,
+            "/* theme.constants.ts */", supportedColors,
+            "/* size.ts */", size].join('\n');
     } catch (err) {
         console.error('Error reading or parsing the file:', err);
 

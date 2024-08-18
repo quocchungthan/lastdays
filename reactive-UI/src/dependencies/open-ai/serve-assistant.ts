@@ -108,14 +108,12 @@ function validateAndRemoveWrapper(jsonString: string | null): object {
         return {};
     }
     // Define the pattern for the wrapper and backticks
-    const wrapperPattern = /^```json([\s\S]*?)```$/;
+    const wrapperPattern = /^\[([\s\S]*?)\]$/;
 
     // Check if the input matches the expected pattern
-    const match = jsonString.match(wrapperPattern);
-    console.log(jsonString, match);
-    if (match) {
+    if (!wrapperPattern.test(jsonString)) {
         // Extract the JSON content from the match
-        jsonString = match[1].trim();
+        jsonString = "[" + jsonString.split("}\n{").join("},\n{") + "]";
     }
 
     // Attempt to parse the JSON content
@@ -123,6 +121,7 @@ function validateAndRemoveWrapper(jsonString: string | null): object {
         const parsed = JSON.parse(jsonString);
         return isArray(parsed) ? parsed : [parsed];
     } catch (error) {
+        dependenciesPool.logger().log("Invalid JSON response: " + jsonString);
         return [];
     }
 }
