@@ -1,6 +1,10 @@
 {
   "name": "reactive-ui",
   "version": "0.0.0",
+  "engines" : { 
+    "npm" : ">=8.19.3 <=10.1.0",
+    "node" : ">=18.13.0 <=20.9.0"
+  },
   "scripts": {
     "prebuild": "node generate-git-info.js",
     "postbuild": "rimraf src/assets/git-info.json",
