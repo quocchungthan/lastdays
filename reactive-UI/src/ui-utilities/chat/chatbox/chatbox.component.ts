@@ -113,7 +113,7 @@ export class ChatboxComponent implements OnDestroy {
       time: new Date(),
       avatarUrl: this.fallbackAvatar()
     });
-    this._drawingAssistantService.generateDrawingEvents(userMessage)
+    this._drawingAssistantService.generateDrawingEvents(userMessage, this._syncingService.getCurrentAllEvents())
       .subscribe(async (generated) => {
         for (let de of generated) {
           await this._userDrawingManager.generallyProcessNewEvent(this._refinementService.refine(de));

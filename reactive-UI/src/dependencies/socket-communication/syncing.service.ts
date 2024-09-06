@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { WebSocketSubject, webSocket } from 'rxjs/webSocket'
 import { BehaviorSubject, EMPTY, Observable, Subject, catchError, filter, map, tap } from 'rxjs';
-import { isNil } from 'lodash';
+import { cloneDeep, isNil } from 'lodash';
 import { ChatTextEventData, SayHelloEventData, WSEvent, WSEventType } from './web-socket-model';
 import { UserIdentity } from '@uidata/entities/Identity';
 import { IdentitiesService } from '@uidata/identities.service';
@@ -156,6 +156,10 @@ export class SyncingService {
 
   public onEventAdded() {
     return this._allEventsChanges.pipe((filter(x => !isNil(x))));
+  }
+
+  public getCurrentAllEvents() {
+    return cloneDeep(this._allEventsBaseEvent);
   }
 
   public onEventsReset() {
