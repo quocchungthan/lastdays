@@ -111,6 +111,15 @@ export class UserDrawingLayerManager implements OnDestroy {
         this._drawingLayer.removeChildren();
     }
 
+    generallyProcessNewEvent(event: BaseEvent & AbstractEventQueueItem) {
+        return this._eventsService.create(event)
+            .then((justCreated) => {
+                event.id = justCreated.id;
+                this._eventsCompositionService.insert(event);
+                this._syncingService.trySendEvent(event);
+            });
+    }
+
     private _loadExistingDrawings() {
         if (!this._boardId) {
             return;
@@ -285,27 +294,18 @@ export class UserDrawingLayerManager implements OnDestroy {
         event.targetId = id;
         event.boardId = this._boardId;
         event.newPosition = stickyNote.position();
-        this._generallyProcessNewEvent(event);
+        this.generallyProcessNewEvent(event);
     }
     
     private _triggerUndoEvent() {
         const event = new GeneralUndoEvent();
         event.boardId = this._boardId;
-        this._generallyProcessNewEvent(event);
-    }
-
-    private _generallyProcessNewEvent(event: BaseEvent & AbstractEventQueueItem) {
-        this._eventsService.create(event)
-            .then((justCreated) => {
-                event.id = justCreated.id;
-                this._eventsCompositionService.insert(event);
-                this._syncingService.trySendEvent(event);
-            });
+        this.generallyProcessNewEvent(event);
     }
 
     private _triggerStickyNotePastedEvent(brandNewDrawing: Group) {
         const event = StickyNoteCommands.buildEvent(brandNewDrawing, this._boardId, this._stickyNote.extractId(brandNewDrawing));
-        this._generallyProcessNewEvent(event);
+        this.generallyProcessNewEvent(event);
     }
 
     private _triggerInkAttachedToStickyNoteEvent(brandNewDrawing: Line<LineConfig>, stickyNoteId: string) {
@@ -314,7 +314,7 @@ export class UserDrawingLayerManager implements OnDestroy {
         event.boardId = this._boardId;
         event.targetStickyNoteId = stickyNoteId;
 
-        this._generallyProcessNewEvent(event);
+        this.generallyProcessNewEvent(event);
     }
 
     private _triggerTextAttachedToStickyNoteEvent(brandNewDrawing: Konva.Text, stickyNoteId: string) {
@@ -323,19 +323,19 @@ export class UserDrawingLayerManager implements OnDestroy {
         event.boardId = this._boardId;
         event.targetStickyNoteId = stickyNoteId;
 
-        this._generallyProcessNewEvent(event);
+        this.generallyProcessNewEvent(event);
     }
 
     private _triggerPencilUpEvent(brandNewDrawing: Line<LineConfig>) {
         const newEvent = PencilCommands.buildEvent(brandNewDrawing, this._boardId, this._pencil.extractId(brandNewDrawing));
 
-        this._generallyProcessNewEvent(newEvent);
+        this.generallyProcessNewEvent(newEvent);
     }
 
     private _triggerTextEnteredEvent(brandNewDrawing: Konva.Text) {
         const event = TextInputCommands.buildEvent(brandNewDrawing, this._boardId, this._textInput.extractId(brandNewDrawing));
 
-        this._generallyProcessNewEvent(event);
+        this.generallyProcessNewEvent(event);
     }
 
     setTool(tool: string) {
