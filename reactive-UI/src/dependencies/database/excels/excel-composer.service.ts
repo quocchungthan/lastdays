@@ -20,7 +20,7 @@ export class ExcelTimesheetComposer implements IExcelComposer {
 
     data.forEach((record) => {
         // Create a new row with the row number
-        const row = [rowNumber - 1, record.masterGroup, record.ticketId, record.description, record.numberOfHours, '', record.date];
+        const row = [rowNumber - 2, record.masterGroup, record.ticketId, record.description, record.numberOfHours, '', record.date];
         
         worksheet.addRow(row);
 
@@ -32,6 +32,9 @@ export class ExcelTimesheetComposer implements IExcelComposer {
             }
             currentMasterGroup = record.masterGroup;
             startRow = rowNumber; // Update startRow for the new master group
+            const mergedCell = worksheet.getCell(`B${startRow}`);
+            mergedCell.alignment = { textRotation: 90, vertical: 'middle', horizontal: 'center' }; // Rotate text, center it
+            mergedCell.font = { bold: true }; // Make text bold
         }
 
         rowNumber++; // Increment row number for the next iteration
