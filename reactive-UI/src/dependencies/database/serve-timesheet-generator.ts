@@ -25,7 +25,9 @@ export const injectTimesheetEndpoints = (server: express.Express) => {
         try {
             // TODO: emebed the filter within the query filter to reduce the payload return
             const timesheetRecords = (await tableFactory.getHRTimeSheetClient().getAll())
-                .filter(x => sprints.includes(x.masterGroup));
+                .filter(x => sprints.includes(x.masterGroup))
+                .sort((a, b) => a.masterGroup < b.masterGroup ? -1 : 1);
+            console.log(timesheetRecords);
             const file = dependenciesPool.excelCpmposer().composeHRSheet(timesheetRecords);
             // Set response headers
             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -34,8 +36,8 @@ export const injectTimesheetEndpoints = (server: express.Express) => {
             res.status(HttpStatusCode.Ok)
                 .end();
 
-        } catch {
-            logger.log("There was an error");
+        } catch (e) {
+            logger.log("There was an error" + JSON.stringify(e));
             res.status(HttpStatusCode.InternalServerError)
                 .end();
         }
@@ -50,7 +52,8 @@ export const injectTimesheetEndpoints = (server: express.Express) => {
     
         try {
             const timesheetRecords = (await tableFactory.getRBTimeSheetClient().getAll())
-                .filter(x => sprints.includes(x.masterGroup));
+                .filter(x => sprints.includes(x.masterGroup))
+                .sort((a, b) => a.masterGroup < b.masterGroup ? -1 : 1);
             const file = dependenciesPool.excelCpmposer().composeRBSheets(timesheetRecords);
             // Set response headers
             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -58,8 +61,8 @@ export const injectTimesheetEndpoints = (server: express.Express) => {
             await file.write(res);
             res.status(HttpStatusCode.Ok)
                 .end();
-        } catch {
-            logger.log("There was an error");
+        } catch (e) {
+            logger.log("There was an error" + JSON.stringify(e));
             res.status(HttpStatusCode.InternalServerError)
                 .end();
         }

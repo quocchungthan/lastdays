@@ -6,38 +6,38 @@ export class ExcelTimesheetComposer implements IExcelComposer {
     composeHRSheet(data: TimesheetRecord[]) {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Timesheet');
-    
+
         // Set up the header row without the 'Project' field
         worksheet.addRow(['Row', 'Master Group', 'Ticket ID', 'Description', 'Number of Hours', 'Date']);
-    
+
         let currentMasterGroup = '';
-        let rowNumber = 1;
-    
+        let startRow = 2; // Start from the first data row (row 2)
+        let rowNumber = startRow;
+
         data.forEach((record) => {
-            // Add a new row with the row number
-            const row = [rowNumber, record.masterGroup, record.ticketId, record.description, record.numberOfHours, record.date];
-    
-            // If the master group changes, merge the cell for the master group
+            // Create a new row with the row number
+            const row = [rowNumber - 1, record.masterGroup, record.ticketId, record.description, record.numberOfHours, record.date];
+
+            worksheet.addRow(row);
+
+            // If the master group changes, merge the cell for the previous master group
             if (record.masterGroup !== currentMasterGroup) {
                 if (currentMasterGroup) {
-                    // Merge cells for the previous master group
-                    worksheet.mergeCells(`B${rowNumber - 1}:${`B${rowNumber}`}`);
+                    // Merge cells for the previous master group, which are in column B
+                    worksheet.mergeCells(`B${startRow}:B${rowNumber - 1}`);
                 }
                 currentMasterGroup = record.masterGroup;
-                rowNumber++;
-            } else {
-                // If it's the same master group, just increment the row number
-                rowNumber++;
+                startRow = rowNumber; // Update startRow for the new master group
             }
-    
-            worksheet.addRow(row);
+
+            rowNumber++; // Increment row number for the next iteration
         });
-    
+
         // Merge the last group if applicable
         if (currentMasterGroup) {
-            worksheet.mergeCells(`B${rowNumber - 1}:${`B${rowNumber}`}`);
+            worksheet.mergeCells(`B${startRow}:B${rowNumber - 1}`);
         }
-    
+
         // Format date column
         worksheet.getColumn('F').numFmt = 'mm/dd/yyyy';
 
@@ -47,38 +47,38 @@ export class ExcelTimesheetComposer implements IExcelComposer {
     composeRBSheets(data: TimesheetRecord[]) {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Timesheet');
-    
+
         // Set up the header row without the 'Project' field
         worksheet.addRow(['Row', 'Master Group', 'Ticket ID', 'Description', 'Number of Hours', 'Date']);
-    
+
         let currentMasterGroup = '';
-        let rowNumber = 1;
-    
+        let startRow = 2; // Start from the first data row (row 2)
+        let rowNumber = startRow;
+
         data.forEach((record) => {
-            // Add a new row with the row number
-            const row = [rowNumber, record.masterGroup, record.ticketId, record.description, record.numberOfHours, record.date];
-    
-            // If the master group changes, merge the cell for the master group
+            // Create a new row with the row number
+            const row = [rowNumber - 1, record.masterGroup, record.ticketId, record.description, record.numberOfHours, record.date];
+
+            worksheet.addRow(row);
+
+            // If the master group changes, merge the cell for the previous master group
             if (record.masterGroup !== currentMasterGroup) {
                 if (currentMasterGroup) {
-                    // Merge cells for the previous master group
-                    worksheet.mergeCells(`B${rowNumber - 1}:${`B${rowNumber}`}`);
+                    // Merge cells for the previous master group, which are in column B
+                    worksheet.mergeCells(`B${startRow}:B${rowNumber - 1}`);
                 }
                 currentMasterGroup = record.masterGroup;
-                rowNumber++;
-            } else {
-                // If it's the same master group, just increment the row number
-                rowNumber++;
+                startRow = rowNumber; // Update startRow for the new master group
             }
-    
-            worksheet.addRow(row);
+
+            rowNumber++; // Increment row number for the next iteration
         });
-    
+
         // Merge the last group if applicable
         if (currentMasterGroup) {
-            worksheet.mergeCells(`B${rowNumber - 1}:${`B${rowNumber}`}`);
+            worksheet.mergeCells(`B${startRow}:B${rowNumber - 1}`);
         }
-    
+
         // Format date column
         worksheet.getColumn('F').numFmt = 'mm/dd/yyyy';
 
