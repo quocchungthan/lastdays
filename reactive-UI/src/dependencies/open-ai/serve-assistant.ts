@@ -9,7 +9,6 @@ import { loadSecretConfiguration } from '../meta/configuration.serve';
 import { dependenciesPool } from '../dependencies.pool';
 import { Condition, IBackupService } from '../meta/backup-storage.inteface';
 import { CachedResponse } from './model/CachedResponse.entity';
-import { DEFAULT_FAKE_VALUE } from '@config/default-value.constants';
 import BackupWithJsonFileService from './backup/backup-json-file';
 import { isArray } from 'lodash';
 
@@ -25,8 +24,8 @@ const newOpenAiClient = () => {
 
 // TODO: setup cors to block brute-forcing
 export const injectAssistantEndpoints = (server: express.Express) => {
-    const logger = new ConsoleLogger();
-    if ([secrets.openAI_OrganizationId, secrets.openAI_ProjectId, secrets.openAI_Key].some(x => x === DEFAULT_FAKE_VALUE)) {
+    const logger = dependenciesPool.logger();
+    if (!secrets.assistantEnabled) {
         throw new Error("Please set up the environment variable for openAI_OrganizationId, openAI_ProjectId, openAI_Key and restart the application");
     }
     const openai = newOpenAiClient();

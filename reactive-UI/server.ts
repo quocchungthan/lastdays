@@ -9,8 +9,9 @@ import { injectAssistantEndpoints } from '@ai/serve-assistant';
 import { loadSecretConfiguration } from './src/dependencies/meta/configuration.serve';
 import { HttpStatusCode } from '@angular/common/http';
 import { MetaConfiguration } from './src/dependencies/meta/model/configuration.interface';
+import { injectTimesheetEndpoints } from './src/dependencies/database/serve-timesheet-generator';
 
-const {port, useBackup, assistantEnabled, websocketEnabled} = loadSecretConfiguration();
+const {port, useBackup, assistantEnabled, websocketEnabled, notionEnabled} = loadSecretConfiguration();
 
 // The Express app is exported so that it can be used by serverless Functions.
 export function app(): express.Express {
@@ -32,12 +33,17 @@ export function app(): express.Express {
         useBackup,
         port,
         assistantEnabled,
-        websocketEnabled
+        websocketEnabled,
+        notionEnabled
       } as MetaConfiguration)
   });
 
   if (assistantEnabled) {
     injectAssistantEndpoints(server);
+  }
+
+  if (notionEnabled) {
+    injectTimesheetEndpoints(server);
   }
   
   // Serve static files from /browser

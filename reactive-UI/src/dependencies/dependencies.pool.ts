@@ -1,4 +1,4 @@
-import { BackupMongoDb } from './open-ai/backup/backup-mongodb';
+import { NotionTableFactory } from './database/notion/NotionTable.factory';
 import { IDependenciesPool } from './meta/backup-storage.inteface';
 import { loadSecretConfiguration } from './meta/configuration.serve';
 import { DisabledStorage } from './meta/disabledDependencies';
@@ -10,6 +10,7 @@ const { useBackup } = loadSecretConfiguration();
 export const dependenciesPool: IDependenciesPool = {
     _logger: undefined,
     _backupService: undefined,
+    _tableFactory: undefined,
     backup () {
         if (!this._backupService) {
             this._backupService = useBackup ? new BackupWithJsonFileService() : new DisabledStorage();
@@ -23,5 +24,12 @@ export const dependenciesPool: IDependenciesPool = {
         }
 
         return this._logger;
+    },
+    tableFactory() {
+        if (!this._tableFactory) {
+            this._tableFactory = new NotionTableFactory();
+        }
+
+        return this._tableFactory;
     }
 }

@@ -13,11 +13,14 @@ export const loadSecretConfiguration = () => {
     const openAI_OrganizationId = process.env['OPENAI_ORGANIZATION_ID'] ?? DEFAULT_FAKE_VALUE;
     const openAI_ProjectId = process.env['OPENAI_PROJECT_ID'] ?? DEFAULT_FAKE_VALUE;
     const openAI_ModelName = process.env['OPENAI_MODEL_NAME'] ?? DEFAULT_FAKE_VALUE;
+    const notion_Token = process.env['NOTION_TOKEN'] ?? DEFAULT_FAKE_VALUE;
+    const notion_TimesheetTableId = process.env['NOTION_TIMESHEET_TABLE_ID'] ?? DEFAULT_FAKE_VALUE;
     const openAI_MaxToken = 1000;
     const systemPromptUsed = ".v2";
     const userInstructionUsed = ".v1";
     const websocketEnabled = true;
     const assistantEnabled = [openAI_Key, openAI_ProjectId, openAI_OrganizationId, openAI_ModelName].every(x => x !== DEFAULT_FAKE_VALUE);
+    const notionEnabled = [notion_Token, notion_TimesheetTableId].every(x => x !== DEFAULT_FAKE_VALUE);
     const useBackup = true;
     const jsonBackupPath = './cachedResponses.json';
 
@@ -26,9 +29,11 @@ export const loadSecretConfiguration = () => {
         openAI_OrganizationId,
         openAI_ProjectId, openAI_ModelName,
         systemPromptUsed, userInstructionUsed,
-        websocketEnabled, assistantEnabled,
+        websocketEnabled, assistantEnabled, notionEnabled,
         useBackup,
         jsonBackupPath,
-        openAI_MaxToken
+        openAI_MaxToken,
+        notion_Token,
+        notion_TimesheetTableId
     };
 }

@@ -1,11 +1,14 @@
 import WebSocket from 'ws';
 
 export interface ILogger {
-    log(message: string): void;
+    log(message: string | object): void;
 }
 
 export class ConsoleLogger implements ILogger {
-    log(message: string): void {
+    log(message: string | object): void {
+        if (typeof(message) !== 'string') {
+          message = JSON.stringify(message);
+        }
         console.log(message);
     }
 }

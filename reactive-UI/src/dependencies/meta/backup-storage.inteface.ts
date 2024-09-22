@@ -1,5 +1,6 @@
 import { CachedResponse } from '@ai/model/CachedResponse.entity';
 import { ILogger } from '@com/connection.manager';
+import { ITableFactory } from './table-factory.interface';
 
 export enum Condition {
     EQUAL
@@ -20,6 +21,8 @@ export interface IBackupService<TEntity> {
 export interface IDependenciesPool {
     _logger: ILogger | undefined;
     _backupService: IBackupService<CachedResponse> | undefined;
+    _tableFactory: ITableFactory | undefined;
     backup: () => IBackupService<CachedResponse>;
     logger: () => ILogger;
+    tableFactory: () => ITableFactory;
 }
