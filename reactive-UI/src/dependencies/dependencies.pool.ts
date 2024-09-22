@@ -1,3 +1,4 @@
+import { ExcelTimesheetComposer } from './database/excels/excel-composer.service';
 import { NotionTableFactory } from './database/notion/NotionTable.factory';
 import { IDependenciesPool } from './meta/backup-storage.inteface';
 import { loadSecretConfiguration } from './meta/configuration.serve';
@@ -11,6 +12,7 @@ export const dependenciesPool: IDependenciesPool = {
     _logger: undefined,
     _backupService: undefined,
     _tableFactory: undefined,
+    _excelComposer: undefined,
     backup () {
         if (!this._backupService) {
             this._backupService = useBackup ? new BackupWithJsonFileService() : new DisabledStorage();
@@ -31,5 +33,12 @@ export const dependenciesPool: IDependenciesPool = {
         }
 
         return this._tableFactory;
+    },
+    excelCpmposer() {
+        if (!this._excelComposer) {
+            this._excelComposer = new ExcelTimesheetComposer();
+        }
+
+        return this._excelComposer;
     }
 }

@@ -17,12 +17,23 @@ export const injectTimesheetEndpoints = (server: express.Express) => {
     server.use(express.json());
 
     router.get(GENERATE_TIMESHEET_HR, async (req, res) => {
+        // Get the 'sprints' query parameter
+        const sprintsParam = req.query['sprints'] as string;
+
+        // Split the sprints into an array, handling the case where there might not be any
+        const sprints = sprintsParam ? sprintsParam.split(',').map(s => s.trim()) : [];
         try {
-            const timesheetRecords = await tableFactory.getHRTimeSheetClient().getAll();
+            // TODO: emebed the filter within the query filter to reduce the payload return
+            const timesheetRecords = (await tableFactory.getHRTimeSheetClient().getAll())
+                .filter(x => sprints.includes(x.masterGroup));
+            const file = dependenciesPool.excelCpmposer().composeHRSheet(timesheetRecords);
+            // Set response headers
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', 'attachment; filename=timesheet.xlsx');
+            await file.write(res);
             res.status(HttpStatusCode.Ok)
-                .setHeader('Content-Type', 'application/json')
-                .send(timesheetRecords)
                 .end();
+
         } catch {
             logger.log("There was an error");
             res.status(HttpStatusCode.InternalServerError)
@@ -31,11 +42,21 @@ export const injectTimesheetEndpoints = (server: express.Express) => {
     });
 
     router.get(GENERATE_TIMESHEET_RB, async (req, res) => {
+        // Get the 'sprints' query parameter
+        const sprintsParam = req.query['sprints'] as string;
+
+        // Split the sprints into an array, handling the case where there might not be any
+        const sprints = sprintsParam ? sprintsParam.split(',').map(s => s.trim()) : [];
+    
         try {
-            const timesheetRecords = await tableFactory.getRBTimeSheetClient().getAll();
+            const timesheetRecords = (await tableFactory.getRBTimeSheetClient().getAll())
+                .filter(x => sprints.includes(x.masterGroup));
+            const file = dependenciesPool.excelCpmposer().composeRBSheets(timesheetRecords);
+            // Set response headers
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', 'attachment; filename=timesheet.xlsx');
+            await file.write(res);
             res.status(HttpStatusCode.Ok)
-                .setHeader('Content-Type', 'application/json')
-                .send(timesheetRecords)
                 .end();
         } catch {
             logger.log("There was an error");
