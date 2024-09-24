@@ -58,7 +58,7 @@ export class NotionTimesheetService implements ITableClient<TimesheetRecord> {
     }
 
     private _getTicketPrefix(): string {
-        return this._timesheetType === Project.CirrusPro ? "RB" : "";
+        return this._timesheetType === Project.CirrusPro ? "RB-" : "";
     }
 
     private _resolveProjectValue(): string {
