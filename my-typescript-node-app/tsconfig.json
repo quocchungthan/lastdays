@@ -2,13 +2,17 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "CommonJS",
+    "baseUrl": ".",
     "rootDir": "./src",
     "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "*": ["*", "src/*", "../../reactive-UI/src/dependencies/*"]
+    },
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "../../reactive-UI/src/dependencies/**/*"],
   "exclude": ["node_modules", "**/*.spec.ts"]
 }
