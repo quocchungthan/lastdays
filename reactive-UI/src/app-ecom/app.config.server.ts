@@ -1,5 +1,5 @@
 import { mergeApplicationConfig, ApplicationConfig } from '@angular/core';
-import { appConfig } from '../app/app.config';
+import { appConfig } from './app.config';
 import { provideClientHydration, withHttpTransferCacheOptions } from '@angular/platform-browser';
 
 const serverConfig: ApplicationConfig = {

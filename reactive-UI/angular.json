@@ -21,7 +21,7 @@
             ],
             "outputPath": "dist/reactive-ui",
             "index": "src/index.html",
-            "browser": "src/main.ecom.ts",
+            "browser": "src/ecom.main.ts",
             "polyfills": [
               "zone.js"
             ],

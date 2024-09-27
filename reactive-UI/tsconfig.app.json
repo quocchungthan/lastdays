@@ -10,7 +10,9 @@
   "files": [
     "src/main.ts",
     "src/main.server.ts",
-    "server.ts"
+    "src/ecom.main.ts",
+    "src/main.ecom.server.ts",
+    "ecom.server.ts"
   ],
   "include": [
     "src/**/*.d.ts"

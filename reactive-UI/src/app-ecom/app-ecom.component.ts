@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-app-ecom',
+  selector: 'app-root',
   standalone: true,
   imports: [],
   templateUrl: './app-ecom.component.html',
