@@ -1,3 +1,4 @@
+import { Client } from "@notionhq/client";
 import { IConfiguration } from "./contracts/configuration.interface";
 import { IContentRespository } from "./contracts/content.repository.interface";
 import { IOrdersRespository } from "./contracts/orders.repository.interface";
@@ -12,9 +13,21 @@ class DependenciesPool {
    private _otherMetaRepository?: IOtherMetaRespository;
    private _ordersRepository?: IOrdersRespository;
    private _contentRepository?: IContentRespository;
+   private _client?: Client;
+
+   private get _notionClient () {
+      if (!this._client){
+         this._client = new Client({
+            auth: this.getSecret().notion_Token,
+         });
+      }
+
+      return this._client;
+   }
 
    getSecret() {
       if (!this._secret) {
+         // TODO: schedulely refresh.
          this._secret = loadSecretConfiguration();
       }
 
@@ -23,7 +36,7 @@ class DependenciesPool {
 
    getMetaRepository() {
       if (!this._otherMetaRepository) {
-         this._otherMetaRepository = new OtherMetaRepository();
+         this._otherMetaRepository = new OtherMetaRepository(this._notionClient, this.getSecret());
       }
 
       return this._otherMetaRepository;
@@ -46,6 +59,7 @@ class DependenciesPool {
    }
 
    clear() {
+      // TODO: improve the memory and held instances.
       // this._secret?.clear();
       // this._otherMetaRepository?.clear();
       // this._ordersRepository?.clear();
