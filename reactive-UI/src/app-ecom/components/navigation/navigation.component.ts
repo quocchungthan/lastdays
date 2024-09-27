@@ -1,5 +1,6 @@
 import { AfterViewInit, Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import $ from 'jquery';
 
 @Component({
@@ -10,6 +11,8 @@ import $ from 'jquery';
   styleUrl: './navigation.component.scss'
 })
 export class NavigationComponent implements AfterViewInit {
+  constructor(private _router: Router) {}
+  
   ngAfterViewInit(): void {
     $('.header').on('click', '.search-toggle', function(e) {
       var selector = $(this).data('selector');
@@ -23,7 +26,11 @@ export class NavigationComponent implements AfterViewInit {
   searchTerm: string = '';
 
   onSearch() {
-    console.log('Searching for:', this.searchTerm);
-    // You can add functionality to handle the search
+    if (!this.searchTerm) {
+      this._router.navigate(['/']);
+      return;
+    }
+    // Navigate to the home page with the search term as a query parameter
+    this._router.navigate(['/'], { queryParams: { 'tim-kiem': this.searchTerm } });
   }
 }

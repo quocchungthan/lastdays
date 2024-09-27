@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import bootstrap from './src/main.ecom.server';
 import { pool } from './src/app-ecom/core';
+import { OtherMeta } from './src/app-ecom/core/contracts/other-meta.model';
+import { Content } from './src/app-ecom/core/contracts/content.model';
 
 // The Express app is exported so that it can be used by serverless Functions.
 export function app(): express.Express {
@@ -28,6 +30,9 @@ export function app(): express.Express {
   return server;
 }
 
+let metas: OtherMeta[] = [];
+let contents: {[key in string]: Content} = {};
+
 function serveAllRoutesUseTheAngularEngine(server: express.Express, commonEngine: CommonEngine, indexHtml: string, browserDistFolder: string) {
   server.get('*', async (req, res, next) => {
     const { protocol, originalUrl, baseUrl, headers } = req;
@@ -41,14 +46,19 @@ function serveAllRoutesUseTheAngularEngine(server: express.Express, commonEngine
         providers: [{ provide: APP_BASE_HREF, useValue: baseUrl }],
       });
 
-      const metas = await pool.getMetaRepository().getAllAsync()
+      if (!metas.length) {
+         metas = await pool.getMetaRepository().getAllAsync();
+      }
       const pageTitle = metas.filter(x => x.name === 'default title')[0].content;
       // Add meta tag for the any UI route
       if (!originalUrl.startsWith('/api')) {
          if (originalUrl.startsWith('/bai-viet/')) {
             const descriptiveKey = originalUrl.replace(/^\/bai-viet\/([a-zA-Z0-9-]+).*$/, "$1");
             const contentTableId = metas.filter(x => x.name === 'content table id')[0].content;
-            const content = await pool.getContentRepository().getContentByDescriptiveKeyAsync(contentTableId, descriptiveKey);
+            let content = contents[descriptiveKey];
+            if (!content) {
+               content = await pool.getContentRepository().getContentByDescriptiveKeyAsync(contentTableId, descriptiveKey);
+            }
             const modifiedHtml = html.replace('<title>Agile Link - Simplicity is essential</title>', `<title>${content.pageTitle}</title>`);
             res.send(modifiedHtml);
             return;
