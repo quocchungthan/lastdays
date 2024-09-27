@@ -1,0 +1,14 @@
+.footer {
+   background-color: #ffcc00; /* Bright yellow */
+   color: #333; /* Dark text color */
+   height: 150px; /* High footer */
+   display: flex;
+   align-items: center; /* Center content vertically */
+   justify-content: center; /* Center content horizontally */
+   text-align: center; /* Center text */
+ }
+ 
+ .container {
+   max-width: 1200px; /* Optional: Limit width for larger screens */
+   width: 100%;
+ }
