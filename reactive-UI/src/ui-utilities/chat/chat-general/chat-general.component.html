@@ -1,0 +1,42 @@
+<div id="live-chat">
+		
+   <header class="clearfix" (click)="minimizeChat($event)">
+       <h4 class="{{rawStatusClass}}">{{onlineStatusAsString}}</h4>
+
+       <span class="chat-message-counter">3</span>
+
+   </header>
+
+   <div class="chat" style="max-height: {{ isExpandingChatBox ? '1000px': '0' }}">
+       
+       <div #scrollableBox class="chat-history">
+           @for (item of populatedChatMessages; track item.time) {
+               <div class="chat-message clearfix">
+                   <img src="{{item.avatarUrl}}" alt="" width="32" height="32">
+                   <div class="chat-message-content clearfix">
+                       <span class="chat-time">{{item.time | date: 'hh:mm a'}}</span>
+                       <h5 class="text-ellipsis">{{item.displayName}}</h5>
+                       <p>{{item.messageText}}</p>
+                   </div> <!-- end chat-message-content -->
+               </div> <!-- end chat-message -->
+               <hr>
+           }
+
+       </div> <!-- end chat-history -->
+
+       <p class="chat-feedback">{{typingText}}...</p>
+
+       <form [formGroup]="chatBoxForm" (ngSubmit)="onSubmit()" class="p-3">
+
+           <fieldset>
+               
+               <input type="text" placeholder="Text here"  formControlName="message" class="w-full" autofocus>
+               <input type="hidden">
+
+           </fieldset>
+
+       </form>
+
+   </div> <!-- end chat -->
+
+</div> <!-- end live-chat -->
