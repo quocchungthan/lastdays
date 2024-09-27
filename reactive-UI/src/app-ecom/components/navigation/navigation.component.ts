@@ -11,6 +11,11 @@ import $ from 'jquery';
   styleUrl: './navigation.component.scss'
 })
 export class NavigationComponent implements AfterViewInit {
+onKeyUp($event: KeyboardEvent) {
+  if ($event.key === 'Enter') {
+    this.onSearch();
+  }
+}
   constructor(private _router: Router) {}
   
   ngAfterViewInit(): void {

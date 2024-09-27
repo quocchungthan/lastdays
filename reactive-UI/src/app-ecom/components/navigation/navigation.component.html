@@ -11,7 +11,7 @@
        <li><a href="/bai-viet/lien-he">Lien he</a></li>
      </ul>
      <form action="" class="search-box">
-       <input type="text" class="text search-input" [(ngModel)]="searchTerm" placeholder="Go de tim kiem..." [enterKeyHint]="onSearch()" />
+       <input type="text" class="text search-input" [(ngModel)]="searchTerm" placeholder="Go de tim kiem..." (keyup)="onKeyUp($event)" />
      </form>
    </nav>
  </header>
