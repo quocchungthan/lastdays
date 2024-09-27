@@ -44,8 +44,8 @@ function serveAllRoutesUseTheAngularEngine(server: express.Express, commonEngine
       pool.getMetaRepository().getAllAsync()
          .then((metas) => {
             const pageTitle = metas.filter(x => x.name === 'default title')[0].content;
-            // Add meta tag for the /home route
-            if (originalUrl === '/home') {
+            // Add meta tag for the any UI route
+            if (!originalUrl.startsWith('/api')) {
                const metaTag = '<meta name="modified-by-ssr" content="true">';
                // Inject the meta tag before the closing </head> tag
                const modifiedHtml = html.replace('</head>', `${metaTag}</head>`)
