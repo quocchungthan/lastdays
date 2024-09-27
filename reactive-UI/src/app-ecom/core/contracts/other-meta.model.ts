@@ -5,7 +5,7 @@ export class OtherMeta {
    @DataType("Title")
    public name: string = '';
 
-   @PropertyDescription('WholeContent')
-   @DataType("WholeContent")
+   @PropertyDescription('FirstLineOFContent')
+   @DataType("FirstLineOFContent")
    public content: string = '';
 }

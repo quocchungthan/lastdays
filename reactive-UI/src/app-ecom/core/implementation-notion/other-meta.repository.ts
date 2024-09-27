@@ -2,7 +2,7 @@ import { Client } from "@notionhq/client";
 import { IOtherMetaRespository } from "../contracts/other-meta.repository.interface";
 import { IConfiguration } from "../contracts/configuration.interface";
 import { OtherMeta } from "../contracts/other-meta.model";
-import { PageObjectResponse, PartialPageObjectResponse, PartialDatabaseObjectResponse, DatabaseObjectResponse, SelectPropertyItemObjectResponse, NumberPropertyItemObjectResponse, DatePropertyItemObjectResponse, MultiSelectPropertyItemObjectResponse, TitlePropertyItemObjectResponse } from "@notionhq/client/build/src/api-endpoints";
+import { PageObjectResponse, PartialPageObjectResponse, PartialDatabaseObjectResponse, DatabaseObjectResponse, SelectPropertyItemObjectResponse, NumberPropertyItemObjectResponse, DatePropertyItemObjectResponse, MultiSelectPropertyItemObjectResponse, TitlePropertyItemObjectResponse, ParagraphBlockObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 import { getPropertyDataTypes, getPropertyDescriptions } from "../../../utilities/property-extractor/description-extractor";
 
 export class OtherMetaRepository implements IOtherMetaRespository {
@@ -23,31 +23,30 @@ export class OtherMetaRepository implements IOtherMetaRespository {
          },
        });
       
-      return pagingRecords.results.map((p) => this._mapToBusinessModel(p))
+      return await Promise.all(pagingRecords.results.map((p) => this._mapToBusinessModelAsync(p)));
    }
 
-   private _mapToBusinessModel(x: PageObjectResponse | PartialPageObjectResponse | PartialDatabaseObjectResponse | DatabaseObjectResponse): OtherMeta {
+   private async _mapToBusinessModelAsync(x: PageObjectResponse | PartialPageObjectResponse | PartialDatabaseObjectResponse | DatabaseObjectResponse) {
       const ans = new OtherMeta();
-      // @ts-ignore
-      const properties = x.properties;
-
       const dataTypes = getPropertyDataTypes(ans);
       const notionColumnNames = getPropertyDescriptions(ans);
 
-      (Object.keys(ans) as [keyof OtherMeta]).forEach(property => {
-         ans[property] = this._fromNotionProperty(properties, dataTypes[property], notionColumnNames[property]);
-      });    
+      for (let property of (Object.keys(ans) as [keyof OtherMeta])) {
+         ans[property] = await this._fromNotionPropertyAsync(x, dataTypes[property], notionColumnNames[property]);
+      }
       return ans;
   }
 
-   private _fromNotionProperty(allProperties: any, columnType: string, columnName: string): string {
+   private async _fromNotionPropertyAsync(searchResult: PageObjectResponse | PartialPageObjectResponse | PartialDatabaseObjectResponse | DatabaseObjectResponse, columnType: string, columnName: string) {
+      // @ts-ignore
+      const allProperties = searchResult.properties;
       switch (columnType) {
          case 'Title': 
             // @ts-ignore notion hq is not up to date?
             return (allProperties[columnName] as TitlePropertyItemObjectResponse).title[0]?.plain_text ?? "";
-         case 'Content':
-            console.log(allProperties[columnName]);
-            return '';
+         case 'FirstLineOFContent':
+            const pageDetail = await this._notionClient.blocks.children.list({block_id: searchResult.id, page_size: 50});
+            return (pageDetail.results[0] as ParagraphBlockObjectResponse)?.paragraph.rich_text[0]?.plain_text ?? '';
          default:
             return '';
       }
