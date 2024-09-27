@@ -44,7 +44,7 @@ class DependenciesPool {
 
    getContentRepository() {
       if (!this._contentRepository) {
-         this._contentRepository = new ContentRepository();
+         this._contentRepository = new ContentRepository(this._notionClient, this.getSecret());
       }
 
       return this._contentRepository;

@@ -9,7 +9,7 @@ export class Content {
    @DataType("MultiSelect")
    public keywords: string[] = [];
 
-   @PropertyDescription('inverted indices')
+   @PropertyDescription('DescriptiveKey')
    @DataType("Text")
    public descriptiveKey: string = '';
 

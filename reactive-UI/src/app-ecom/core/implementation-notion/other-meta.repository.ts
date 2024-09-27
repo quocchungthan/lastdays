@@ -4,12 +4,13 @@ import { IConfiguration } from "../contracts/configuration.interface";
 import { OtherMeta } from "../contracts/other-meta.model";
 import { PageObjectResponse, PartialPageObjectResponse, PartialDatabaseObjectResponse, DatabaseObjectResponse, SelectPropertyItemObjectResponse, NumberPropertyItemObjectResponse, DatePropertyItemObjectResponse, MultiSelectPropertyItemObjectResponse, TitlePropertyItemObjectResponse, ParagraphBlockObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 import { getPropertyDataTypes, getPropertyDescriptions } from "../../../utilities/property-extractor/description-extractor";
+import { BaseNotionRepository } from "./base-notion.repository";
 
-export class OtherMetaRepository implements IOtherMetaRespository {
+export class OtherMetaRepository extends BaseNotionRepository implements IOtherMetaRespository {
    static PropertyNameDisabled: string = 'disabled';
 
    constructor(private _notionClient: Client, private _config: IConfiguration) {
-      
+      super(_notionClient);
    }
 
    public async getAllAsync(): Promise<OtherMeta[]> {
@@ -32,23 +33,8 @@ export class OtherMetaRepository implements IOtherMetaRespository {
       const notionColumnNames = getPropertyDescriptions(ans);
 
       for (let property of (Object.keys(ans) as [keyof OtherMeta])) {
-         ans[property] = await this._fromNotionPropertyAsync(x, dataTypes[property], notionColumnNames[property]);
+         ans[property] = await this.fromNotionPropertyAsync(x, dataTypes[property], notionColumnNames[property]);
       }
       return ans;
   }
-
-   private async _fromNotionPropertyAsync(searchResult: PageObjectResponse | PartialPageObjectResponse | PartialDatabaseObjectResponse | DatabaseObjectResponse, columnType: string, columnName: string) {
-      // @ts-ignore
-      const allProperties = searchResult.properties;
-      switch (columnType) {
-         case 'Title': 
-            // @ts-ignore notion hq is not up to date?
-            return (allProperties[columnName] as TitlePropertyItemObjectResponse).title[0]?.plain_text ?? "";
-         case 'FirstLineOFContent':
-            const pageDetail = await this._notionClient.blocks.children.list({block_id: searchResult.id, page_size: 50});
-            return (pageDetail.results[0] as ParagraphBlockObjectResponse)?.paragraph.rich_text[0]?.plain_text ?? '';
-         default:
-            return '';
-      }
-   }
 }

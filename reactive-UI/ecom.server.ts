@@ -41,22 +41,33 @@ function serveAllRoutesUseTheAngularEngine(server: express.Express, commonEngine
         providers: [{ provide: APP_BASE_HREF, useValue: baseUrl }],
       });
 
-      pool.getMetaRepository().getAllAsync()
-         .then((metas) => {
-            const pageTitle = metas.filter(x => x.name === 'default title')[0].content;
-            // Add meta tag for the any UI route
-            if (!originalUrl.startsWith('/api')) {
-               const metaTag = '<meta name="modified-by-ssr" content="true">';
-               // Inject the meta tag before the closing </head> tag
-               const modifiedHtml = html.replace('</head>', `${metaTag}</head>`)
-                  .replace('<title>Agile Link - Simplicity is essential</title>', `<title>${pageTitle}</title>`);
-               res.send(modifiedHtml);
-            } else {
-               res.send(html);
-            }
-         });
+      const metas = await pool.getMetaRepository().getAllAsync()
+      const pageTitle = metas.filter(x => x.name === 'default title')[0].content;
+      // Add meta tag for the any UI route
+      if (!originalUrl.startsWith('/api')) {
+         if (originalUrl.startsWith('/bai-viet/')) {
+            const descriptiveKey = originalUrl.replace(/^\/bai-viet\/([a-zA-Z0-9-]+).*$/, "$1");
+            const contentTableId = metas.filter(x => x.name === 'content table id')[0].content;
+            const content = await pool.getContentRepository().getContentByDescriptiveKeyAsync(contentTableId, descriptiveKey);
+            const modifiedHtml = html.replace('<title>Agile Link - Simplicity is essential</title>', `<title>${content.pageTitle}</title>`);
+            res.send(modifiedHtml);
+            return;
+         }
+         const metaTag = '<meta name="modified-by-ssr" content="true">';
+         // Inject the meta tag before the closing </head> tag
+         const modifiedHtml = html.replace('</head>', `${metaTag}</head>`)
+            .replace('<title>Agile Link - Simplicity is essential</title>', `<title>${pageTitle}</title>`);
+         res.send(modifiedHtml);
+      } else {
+         res.send(html);
+      }
 
     } catch (err) {
+      // @ts-ignore
+      if (err?.message === "NOT_FOUND") {
+         res.redirect('/khong-tim-thay-trang');
+         return;
+      }
       next(err);
     }
   });
