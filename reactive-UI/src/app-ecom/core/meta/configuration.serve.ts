@@ -1,5 +1,5 @@
 import { DEFAULT_FAKE_VALUE } from '@config/default-value.constants';
-import path from 'path';
+import { IConfiguration } from '../contracts/configuration.interface';
 
 /**
  * For Windows OS: set the config in Env variable,
@@ -16,5 +16,5 @@ export const loadSecretConfiguration = () => {
     (x) => x !== DEFAULT_FAKE_VALUE
   );
 
-  return { port, notionEnabled, notion_Token, notion_MetaTableId };
+  return { port, notionEnabled, notion_Token, notion_MetaTableId } as IConfiguration;
 };
