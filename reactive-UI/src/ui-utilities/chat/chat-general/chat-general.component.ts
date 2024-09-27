@@ -30,6 +30,7 @@ export class ChatGeneralComponent {
   constructor(
     private _formBuilder: FormBuilder,
     interactiveChat: EcomChatService,
+    // TODO: translate service can be a pipe.
     private _tranlsate: TranslateService) {
     this._interactiveChat = interactiveChat;
     this.chatBoxForm = this._formBuilder.group({
