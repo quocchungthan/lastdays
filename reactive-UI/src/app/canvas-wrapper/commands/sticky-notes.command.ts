@@ -269,7 +269,7 @@ export class StickyNoteCommands {
     }
 
     private _isIntersect(shape: Shape<ShapeConfig>, stickyNote: Konva.Group): boolean {
-        const rect1 = shape.getClientRect();
+        const rect1 = shape instanceof Konva.Text ? {...shape.getClientRect(), x: shape.x(), y: shape.y()} : shape.getClientRect();
         const bg = StickyNoteCommands.extractBackground(stickyNote);
         const rect2: IRect = {
             x: stickyNote.x(),
