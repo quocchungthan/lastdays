@@ -34,7 +34,7 @@ export class NotionTimesheetService implements ITableClient<TimesheetRecord> {
                 }
             ],
           });
-        
+        console.log(pagingRecords.results);
         this._logger.log("Has more? " + pagingRecords.has_more);
         
         return pagingRecords.results.map((x) => this._mapToBusinessModel(x));
@@ -44,6 +44,7 @@ export class NotionTimesheetService implements ITableClient<TimesheetRecord> {
         const ans = new TimesheetRecord();
         // @ts-ignore
         const properties = x.properties;
+        console.log(properties);
 
         ans.masterGroup = (properties['Master Group'] as SelectPropertyItemObjectResponse).select?.name ?? '';
         ans.numberOfHours = (properties['Hours'] as NumberPropertyItemObjectResponse).number ?? 1;
@@ -53,7 +54,7 @@ export class NotionTimesheetService implements ITableClient<TimesheetRecord> {
         ans.project = (properties[NotionTimesheetService.PropertyNameProject] as MultiSelectPropertyItemObjectResponse).multi_select[0]?.name ?? '';
         // @ts-ignore
         ans.ticketId = this._getTicketPrefix() + (properties['Ticket ID'] as TitlePropertyItemObjectResponse).title[0]?.plain_text ?? "";
-
+        console.log(ans);
         return ans;
     }
 

@@ -18,7 +18,7 @@ export class ExcelTimesheetComposer implements IExcelComposer {
         let startRow = 3; // Data starts after the 'Sum' row and header row
         let rowNumber = startRow;
 
-        data.forEach((record) => {
+        data.sort((x, y) => x.date.getTime() - y.date.getTime()).forEach((record) => {
             // Create a new row with the row number
             const row = [rowNumber - 2, record.masterGroup, record.ticketId, record.description, record.numberOfHours, '', record.date];
             
@@ -68,7 +68,7 @@ export class ExcelTimesheetComposer implements IExcelComposer {
         let startRow = 2; // Data starts after the 'Sum' row and header row
         let rowNumber = startRow;
 
-        data.forEach((record) => {
+        data.sort((x, y) => x.date.getTime() - y.date.getTime()).forEach((record) => {
             // Create a new row with the row number
             const row = [rowNumber - 1, record.date, '', ' - ' + record.ticketId + ' ' + record.description, record.numberOfHours, ''];
             
