@@ -13,6 +13,7 @@ export class TextInputCommands {
     public static readonly IconPng = 'input.png';
     public static CLASS_NAME = "TEXT_INPUT";
     private _triggerTextInputFinishedCallback?: () => void;
+    private _triggerTextInputCanceledCallback?: () => void;
 
     /**
      *
@@ -22,7 +23,9 @@ export class TextInputCommands {
         private _toolComposition: ToolCompositionService, 
         private _formModalService: FormModalService) {
             this._formModalService.onOk()
-                .subscribe(() => this._triggerTextInputFinishedCallback?.());
+                .subscribe(() => this._triggerTextInputFinishedCallback?.());           
+            this._formModalService.onCancel()
+                .subscribe(() => this._triggerTextInputCanceledCallback?.());
     }
 
     static buildEvent(brandNewDrawing: Konva.Text, boardId: string, targetId?: string) {
@@ -79,6 +82,14 @@ export class TextInputCommands {
                     contentComponent.builtComponent.y(contentComponent.preview.y() + contentComponent.builtComponent.y());
                     contentComponent.builtComponent.fill(this._toolComposition.color);
                     observer.next(contentComponent.builtComponent);
+                    contentComponent.ngOnDestroy();
+                } else {
+                    throw new Error("The native component should be ready right now when user hit submit button on the dialog");
+                }
+            }
+            this._triggerTextInputCanceledCallback = () => {
+                const contentComponent = this._formModalService.getDialogContentComponent();
+                if (contentComponent instanceof TextInputCommandsFormComponent) {
                     contentComponent.ngOnDestroy();
                 } else {
                     throw new Error("The native component should be ready right now when user hit submit button on the dialog");

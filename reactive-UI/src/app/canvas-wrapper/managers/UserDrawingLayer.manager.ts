@@ -234,6 +234,7 @@ export class UserDrawingLayerManager implements OnDestroy {
     */
     private _textInputStart(p: Point) {
         if (this._toolComposition.tool === TextInputCommands.CommandName) {
+            this._drawingToolEnd.next();
             this._textInput.renderComponentAndFocus(p)
                 .subscribe((newObjectNeedToBeSaved) => {
                     // New guid
