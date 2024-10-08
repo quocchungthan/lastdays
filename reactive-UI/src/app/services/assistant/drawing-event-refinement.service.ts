@@ -5,6 +5,7 @@ import { StickyNoteCommands } from '@canvas-module/commands/sticky-notes.command
 import { TextInputCommands } from '@canvas-module/commands/text-input.command';
 import { BaseEvent } from '@drawings/BaseEvent';
 import { PencilUpEvent, StickyNotePastedEvent, TextEnteredEvent, ToDrawingEvent } from '@drawings/EventQueue';
+import { AbstractEventQueueItem } from '@drawings/PureQueue.type';
 
 @Injectable({
   providedIn: 'root'
@@ -38,6 +39,6 @@ export class DrawingEventRefinementService {
       TextInputCommands.fillEvent(mapped, this._boardId);
     }
 
-    return mapped;
+    return mapped as BaseEvent & AbstractEventQueueItem;
   }
 }

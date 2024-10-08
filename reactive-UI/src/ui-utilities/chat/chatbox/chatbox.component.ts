@@ -7,7 +7,7 @@ import { DatePipe } from '@angular/common';
 import { SyncingService } from '../../../dependencies/socket-communication/syncing.service';
 import { DrawingAssistantService } from '@ai/ui-client/drawing-assistant.service';
 import { DrawingEventRefinementService } from '../../../app/services/assistant/drawing-event-refinement.service';
-import { EventsCompositionService } from '@drawings/events-composition.service';
+import { UserDrawingLayerManager } from '@canvas-module/managers/UserDrawingLayer.manager';
 
 @Component({
   selector: 'chat-box',
@@ -34,8 +34,8 @@ export class ChatboxComponent implements OnDestroy {
     private _tranlsate: TranslateService,
     private _syncingService: SyncingService,
     private _drawingAssistantService: DrawingAssistantService,
-    private _eventCompositionService: EventsCompositionService,
     private _refinementService: DrawingEventRefinementService,
+    private _userDrawingManager: UserDrawingLayerManager,
     private _identities: IdentitiesService) {
     this.chatBoxForm = this._formBuilder.group({
       message: ['', Validators.required]
@@ -113,11 +113,11 @@ export class ChatboxComponent implements OnDestroy {
       time: new Date(),
       avatarUrl: this.fallbackAvatar()
     });
-    this._drawingAssistantService.generateDrawingEvents(userMessage)
-      .subscribe((generated) => {
-        generated.forEach(de => {
-          this._eventCompositionService.insert(this._refinementService.refine(de));
-        });
+    this._drawingAssistantService.generateDrawingEvents(userMessage, this._syncingService.getCurrentAllEvents())
+      .subscribe(async (generated) => {
+        for (let de of generated) {
+          await this._userDrawingManager.generallyProcessNewEvent(this._refinementService.refine(de));
+        }
       });
     this.chatBoxForm.reset();
     this._scrollToBottom();

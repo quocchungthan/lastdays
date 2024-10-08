@@ -34,9 +34,8 @@ export const injectAssistantEndpoints = (server: express.Express) => {
     server.use(express.json());
     router.post(GENERATE_DRAWING_EVENTS, async (req, res) => {
         try {
-            const userMessage = (req.body as GenerateDrawingEvent).userMessage;
-            logger.log("Received message: " + userMessage);
-            const allMessageContent = await resolveReceivedMessageAsync(userMessage, openai, logger);
+            const body = req.body as GenerateDrawingEvent;
+            const allMessageContent = await resolveReceivedMessageAsync(body.userMessage, openai, logger, body.existingDrawingEvents);
 
             res.status(HttpStatusCode.Ok)
                 .setHeader('Content-Type', 'application/json')
@@ -66,7 +65,7 @@ export const injectAssistantEndpoints = (server: express.Express) => {
     server.use(OPEN_AI_ENDPOINT_PREFIX, router);
 }
 
-async function resolveReceivedMessageAsync(userMessage: string, openai: OpenAI, logger: ConsoleLogger) {
+async function resolveReceivedMessageAsync(userMessage: string, openai: OpenAI, logger: ConsoleLogger, existingEvents: any[] = []) {
     const cacheService = dependenciesPool.backup();
     const cachedResponse = await cacheService.getAsync([
         {
@@ -77,7 +76,7 @@ async function resolveReceivedMessageAsync(userMessage: string, openai: OpenAI, 
         }
     ]);
     /** With no history yet: TODO: one board one conversation history and the history */
-    const chatCompleteAsync = await setupChatContextAsync(openai, secrets.openAI_ModelName);
+    const chatCompleteAsync = await setupChatContextAsync(openai, secrets.openAI_ModelName, existingEvents);
     const rawResponse = cachedResponse?.assistantResponse ? cachedResponse?.assistantResponse : (await chatCompleteAsync(userMessage)).choices.map(x => x.message.content);
     console.log(rawResponse);
     const allMessageContent = rawResponse.map((x => validateAndRemoveWrapper(x)))

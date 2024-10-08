@@ -19,13 +19,14 @@ export class DrawingAssistantService {
       });
   }
 
-  generateDrawingEvents(userMessage: string) {
+  generateDrawingEvents(userMessage: string, existingEvents: any[]) {
     if (!this._assistantEnabled) {
       return of([]);
     };
 
     return this._httpClient.post<BaseEvent[][]>(OPEN_AI_ENDPOINT_PREFIX + GENERATE_DRAWING_EVENTS, {
-      userMessage: userMessage
+      userMessage: userMessage,
+      existingDrawingEvents: existingEvents
     } as GenerateDrawingEvent)
       .pipe(map((choices) => {
         return choices[0] ?? [];

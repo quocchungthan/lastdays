@@ -9,7 +9,7 @@ When('I type {string} in the text area', (text: string) => {
 });
 
 When('I choose {int}th color in the color board', (index: number) => {
-   cy.get('[data-cy=text-input-command-color-board]')
+   cy.get('color-board')
       .should('exist')
       .find('.color-box')
       .eq(index)

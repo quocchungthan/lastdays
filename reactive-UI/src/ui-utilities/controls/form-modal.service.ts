@@ -7,7 +7,8 @@ export enum DialogFeedback {
   None,
   Ok,
   Cancel,
-  Open
+  Open,
+  PreviewRendered,
 }
 
 @Injectable({
@@ -19,7 +20,6 @@ export class FormModalService {
   private _contentComponent?: ModalContentComponent;
 
   constructor() { }
-
   open(contentType: (typeof ModalContentComponent)) {
     this._contentType = contentType;
     this._dialogFeedbacks.next(DialogFeedback.Open);
@@ -61,5 +61,13 @@ export class FormModalService {
 
   onOpen() {
     return this._dialogFeedbacks.pipe((filter(x => x === DialogFeedback.Open)));
+  }
+
+  onPreviewRendered() {
+    return this._dialogFeedbacks.pipe((filter(x => x === DialogFeedback.PreviewRendered)));
+  }
+  
+  firePreviewRendered() {
+    this._dialogFeedbacks.next(DialogFeedback.PreviewRendered);
   }
 }
