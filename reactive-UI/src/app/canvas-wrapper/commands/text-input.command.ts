@@ -57,12 +57,23 @@ export class TextInputCommands {
     }
     // #end region
 
-    public renderComponentAndFocus() {
+    public renderComponentAndFocus(p: Point) {
         return new Observable<Konva.Text>((observer) => {
+            this._formModalService.onPreviewRendered().subscribe(() => {
+                const contentComponent = this._formModalService.getDialogContentComponent();
+                if (contentComponent instanceof TextInputCommandsFormComponent) {
+                    contentComponent.preview.position({ x: p.x - contentComponent.preview.width(), y: p.y - contentComponent.preview.height()});
+                    this._layer.add(contentComponent.preview);
+                } else {
+                    throw new Error("The native component should be ready right now when user hit submit button on the dialog");
+                }
+            });
             this._formModalService.open(TextInputCommandsFormComponent);
             this._triggerTextInputFinishedCallback = () => {
                 const contentComponent = this._formModalService.getDialogContentComponent();
                 if (contentComponent instanceof TextInputCommandsFormComponent) {
+                    contentComponent.builtComponent.x(contentComponent.preview.x() + contentComponent.builtComponent.x());
+                    contentComponent.builtComponent.y(contentComponent.preview.y() + contentComponent.builtComponent.y());
                     observer.next(contentComponent.builtComponent);
                     contentComponent.ngOnDestroy();
                 } else {

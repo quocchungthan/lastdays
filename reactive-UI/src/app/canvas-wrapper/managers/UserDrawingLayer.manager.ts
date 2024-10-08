@@ -234,14 +234,13 @@ export class UserDrawingLayerManager implements OnDestroy {
     */
     private _textInputStart(p: Point) {
         if (this._toolComposition.tool === TextInputCommands.CommandName) {
-            this._textInput.renderComponentAndFocus()
+            this._textInput.renderComponentAndFocus(p)
                 .subscribe((newObjectNeedToBeSaved) => {
                     // New guid
                     // Check if it can paste onto a sticky note
                     // Trigger event
                     // Save to db
                     // Sync to others
-                    newObjectNeedToBeSaved.position(p);
                     const newId = guid.create().toString();
                     newObjectNeedToBeSaved.addName(newId);
                     this._triggerTextEnteredEvent(newObjectNeedToBeSaved);

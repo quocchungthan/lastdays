@@ -13,6 +13,7 @@ import { ColorBoardComponent } from '../../../ui-utilities/painting/color-board/
 import { SUPPORTED_COLORS } from '../../../configs/theme.constants';
 import { Dimension } from '../../../ui-utilities/types/Dimension';
 import { TextInputCommands } from '../commands/text-input.command';
+import { Point } from '@ui/types/Point';
 
 @Component({
   selector: 'app-text-input-commands-form',
@@ -32,7 +33,7 @@ export class TextInputCommandsFormComponent
   @ViewChild('textEditor')
   textEditor!: TextEditorComponent;
   private _konvaText!: Konva.Text;
-  private _konvaStage!: Konva.Stage;
+  private _textLayer?: Konva.Group;
 
   constructor(private _translateService: TranslateService) {
     super(_translateService);
@@ -43,6 +44,10 @@ export class TextInputCommandsFormComponent
 
   get builtComponent() {
     return this._konvaText;
+  }
+
+  get preview() {
+    return this._textLayer!;
   }
 
   setColor($event: string) {
@@ -57,32 +62,39 @@ export class TextInputCommandsFormComponent
   }
 
   ngOnDestroy(): void {
-    this._konvaStage.destroy();
+    this.preview?.destroy();
   }
 
   setText($event: string) {
     this.currentText = $event;
-    this._konvaText.setText(this.currentText);
+    this._updateTextLayer();
   }
 
   renderPreview() {
-    this._konvaStage = new Konva.Stage({
-      width: this.textEditor.width,
-      height: 200,
-      container: this.textPreviewContainerId,
-    });
+    this._textLayer = this._buildPlaceholderTextLayer({ x: 0, y: 0 });
+    this.onPreviewCreated.emit();
+  }
 
+  private _updateTextLayer() {
+    if (!this._konvaText) {
+      return;
+    }
+
+    this._konvaText.setText(this.currentText);
+  }
+
+  private _buildPlaceholderTextLayer(position: Point) {
     this._konvaText = TextInputCommandsFormComponent.BuildTextComponent(
       this.currentText,
       this.selectedColor,
-      { x: 30, y: 60 },
+      position,
       {
         width: 250,
         height: 60,
       }
     );
 
-    const textLayer = new Konva.Layer();
+    const textLayer = new Konva.Group();
     textLayer.add(this._konvaText);
     const transformer = new Konva.Transformer({
       nodes: [this._konvaText],
@@ -98,7 +110,7 @@ export class TextInputCommandsFormComponent
       this.textEditor.focus();
     });
     textLayer.add(transformer);
-    this._konvaStage.add(textLayer);
+    return textLayer;
   }
 
   public static BuildTextComponent(

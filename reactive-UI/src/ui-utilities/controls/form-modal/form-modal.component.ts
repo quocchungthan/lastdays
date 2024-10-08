@@ -54,8 +54,11 @@ export class FormModalComponent implements OnInit {
     // clear dynamic components shown in the container previously    
     this.vcr.clear();
     this._component = this.vcr.createComponent(componentType);
-    this.cdr.detectChanges();
     this._formModalService.storeDialogContentComponent(this._component.instance);
+    this._component.instance.onPreviewCreated.subscribe(() => {
+      this._formModalService.firePreviewRendered();
+    });
+    this.cdr.detectChanges();
   }
 
   handleCancel() {

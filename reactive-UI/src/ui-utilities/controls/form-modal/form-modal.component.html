@@ -1,9 +1,10 @@
 
 <div
-    [ngClass]="{'opacity-0 pointer-events-none': !isOpening}"
-    class="fixed inset-0 z-[999] grid h-screen w-screen place-items-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300">
+    [ngClass]="{'opacity-0': !isOpening}"
+    class="fixed inset-0 pointer-events-none pointer z-[999] grid h-screen w-screen place-items-end transition-opacity duration-300">
     <div
     data-cy="form-modal"
+    [ngClass]="{'pointer-events-none': !isOpening, 'pointer-events-auto': isOpening}"
     class="relative m-4 w-1/4 min-w-[25%] max-w-[25%] rounded-lg bg-white font-sans text-base font-light leading-relaxed text-blue-gray-500 antialiased shadow-2xl">
     <div
         class="flex items-center p-4 font-sans text-2xl antialiased font-semibold leading-snug shrink-0 text-blue-gray-900">
