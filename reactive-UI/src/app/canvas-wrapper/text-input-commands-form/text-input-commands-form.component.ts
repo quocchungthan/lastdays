@@ -26,7 +26,6 @@ export class TextInputCommandsFormComponent
   extends ModalContentComponent
   implements AfterViewInit, OnDestroy
 {
-  selectedColor: string = SUPPORTED_COLORS[0];
   override dialogTitle = 'DIALOG_TITLE_TEXT_INPUT';
   currentText: string = '';
   textPreviewContainerId = TEXT_PREVIEW_CONTAINER;
@@ -48,12 +47,6 @@ export class TextInputCommandsFormComponent
 
   get preview() {
     return this._textLayer!;
-  }
-
-  setColor($event: string) {
-    this.selectedColor = $event;
-    this._konvaText.fill(this.selectedColor);
-    this.textEditor.focus();
   }
 
   ngAfterViewInit(): void {
@@ -86,7 +79,7 @@ export class TextInputCommandsFormComponent
   private _buildPlaceholderTextLayer(position: Point) {
     this._konvaText = TextInputCommandsFormComponent.BuildTextComponent(
       this.currentText,
-      this.selectedColor,
+      SUPPORTED_COLORS[0],
       position,
       {
         width: 250,

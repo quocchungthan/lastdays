@@ -63,6 +63,9 @@ export class TextInputCommands {
                 const contentComponent = this._formModalService.getDialogContentComponent();
                 if (contentComponent instanceof TextInputCommandsFormComponent) {
                     contentComponent.preview.position({ x: p.x - contentComponent.preview.width(), y: p.y - contentComponent.preview.height()});
+                    contentComponent.preview.children
+                        .filter(x => x instanceof Konva.Text)
+                        .map(x => x as Konva.Text)[0]?.fill(this._toolComposition.color);
                     this._layer.add(contentComponent.preview);
                 } else {
                     throw new Error("The native component should be ready right now when user hit submit button on the dialog");
@@ -74,6 +77,7 @@ export class TextInputCommands {
                 if (contentComponent instanceof TextInputCommandsFormComponent) {
                     contentComponent.builtComponent.x(contentComponent.preview.x() + contentComponent.builtComponent.x());
                     contentComponent.builtComponent.y(contentComponent.preview.y() + contentComponent.builtComponent.y());
+                    contentComponent.builtComponent.fill(this._toolComposition.color);
                     observer.next(contentComponent.builtComponent);
                     contentComponent.ngOnDestroy();
                 } else {
