@@ -61,7 +61,7 @@ export const readUserInstructionAsync = async () => {
 //     });
 // }
 
-export const setupChatContextAsync = async (client: OpenAI, modelName: string) => {
+export const setupChatContextAsync = async (client: OpenAI, modelName: string, existingEvents: any[]) => {
     const conversationHistory: ChatCompletionMessageParam[] = [
         {
             role: 'system',
@@ -73,8 +73,14 @@ export const setupChatContextAsync = async (client: OpenAI, modelName: string) =
         },
         {
             role: 'user',
+            content: "Existing events: " + JSON.stringify(existingEvents)
+        },
+        {
+            role: 'user',
             content: await readUserInstructionAsync()
         },
+        // TODO: fill the next message with the response from assistant role=assistant and also add the user message as correction
+        // May better to work with thread?
     ];
 
     // Get response from the assistant

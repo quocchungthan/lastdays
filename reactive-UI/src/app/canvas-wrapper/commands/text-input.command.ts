@@ -13,6 +13,7 @@ export class TextInputCommands {
     public static readonly IconPng = 'input.png';
     public static CLASS_NAME = "TEXT_INPUT";
     private _triggerTextInputFinishedCallback?: () => void;
+    private _triggerTextInputCanceledCallback?: () => void;
 
     /**
      *
@@ -22,7 +23,9 @@ export class TextInputCommands {
         private _toolComposition: ToolCompositionService, 
         private _formModalService: FormModalService) {
             this._formModalService.onOk()
-                .subscribe(() => this._triggerTextInputFinishedCallback?.());
+                .subscribe(() => this._triggerTextInputFinishedCallback?.());           
+            this._formModalService.onCancel()
+                .subscribe(() => this._triggerTextInputCanceledCallback?.());
     }
 
     static buildEvent(brandNewDrawing: Konva.Text, boardId: string, targetId?: string) {
@@ -57,13 +60,36 @@ export class TextInputCommands {
     }
     // #end region
 
-    public renderComponentAndFocus() {
+    public renderComponentAndFocus(p: Point) {
         return new Observable<Konva.Text>((observer) => {
+            this._formModalService.onPreviewRendered().subscribe(() => {
+                const contentComponent = this._formModalService.getDialogContentComponent();
+                if (contentComponent instanceof TextInputCommandsFormComponent) {
+                    contentComponent.preview.position({ x: p.x - contentComponent.preview.width(), y: p.y - contentComponent.preview.height()});
+                    contentComponent.preview.children
+                        .filter(x => x instanceof Konva.Text)
+                        .map(x => x as Konva.Text)[0]?.fill(this._toolComposition.color);
+                    this._layer.add(contentComponent.preview);
+                } else {
+                    throw new Error("The native component should be ready right now when user hit submit button on the dialog");
+                }
+            });
             this._formModalService.open(TextInputCommandsFormComponent);
             this._triggerTextInputFinishedCallback = () => {
                 const contentComponent = this._formModalService.getDialogContentComponent();
                 if (contentComponent instanceof TextInputCommandsFormComponent) {
+                    contentComponent.builtComponent.x(contentComponent.preview.x() + contentComponent.builtComponent.x());
+                    contentComponent.builtComponent.y(contentComponent.preview.y() + contentComponent.builtComponent.y());
+                    contentComponent.builtComponent.fill(this._toolComposition.color);
                     observer.next(contentComponent.builtComponent);
+                    contentComponent.ngOnDestroy();
+                } else {
+                    throw new Error("The native component should be ready right now when user hit submit button on the dialog");
+                }
+            }
+            this._triggerTextInputCanceledCallback = () => {
+                const contentComponent = this._formModalService.getDialogContentComponent();
+                if (contentComponent instanceof TextInputCommandsFormComponent) {
                     contentComponent.ngOnDestroy();
                 } else {
                     throw new Error("The native component should be ready right now when user hit submit button on the dialog");
