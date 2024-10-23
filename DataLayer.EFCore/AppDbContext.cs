@@ -5,6 +5,8 @@ namespace DataLayer.EFCore
 {
 	public class AppDbContext : DbContext
 	{
+		public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+
 		public DbSet<User> Users { get; set; }
 
 		public DbSet<EventLog> Events { get; set; }
@@ -13,7 +15,21 @@ namespace DataLayer.EFCore
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
+			modelBuilder.Entity<User>()
+				.HasKey(x => x.Id);
+			modelBuilder.Entity<EventLog>()
+				.HasKey(x => x.Id);
+			modelBuilder.Entity<Board>()
+				.HasKey(x => x.Id);
 
+			modelBuilder.Entity<Board>()
+				.HasOne(x => x.LastEvent)
+				.WithOne()
+				.OnDelete(DeleteBehavior.Cascade);
+			modelBuilder.Entity<Board>()
+				.HasOne(x => x.FirstEvent)
+				.WithOne()
+				.OnDelete(DeleteBehavior.Cascade);
 		}
 	}
 }
