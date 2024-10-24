@@ -14,8 +14,9 @@ var host = Host.CreateDefaultBuilder(args)
 	 .ConfigureServices((context, services) =>
 	 {
 		 // Configure DbContext with SQL Server
+		 var connectionString = context.Configuration.GetConnectionString("DefaultConnection");
 		 services.AddDbContext<AppDbContext>(options =>
-			  options.UseNpgsql("YourConnectionStringHere"));
+			  options.UseNpgsql(connectionString));
 
 		 // Register other services as needed
 	 })

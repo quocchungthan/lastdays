@@ -45,7 +45,7 @@ namespace Tests.Integration.EntityRelations
 			Assert.True(await _dbContext.Users.Where(x => x.Id == newUser.Id).CountAsync() == 1);
 			Assert.True(await _dbContext.Events.Where(x => x.Id == newUser.LastEvent.Id).CountAsync() == 1);
 
-			await _dbContext.Boards.Where(x => x.Id == newUser.Id).ExecuteDeleteAsync();
+			await _dbContext.Users.Where(x => x.Id == newUser.Id).ExecuteDeleteAsync();
 
 			Assert.True(await _dbContext.Users.Where(x => x.Id == newUser.Id).CountAsync() == 0);
 			Assert.True(await _dbContext.Events.Where(x => x.Id == newUser.LastEvent.Id).CountAsync() == 0);
