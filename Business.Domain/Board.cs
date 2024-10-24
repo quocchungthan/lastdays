@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 
 namespace Business.Domain
 {
@@ -8,8 +11,14 @@ namespace Business.Domain
 
 		public string Name { get; set; }
 
-		public EventLog LastEvent { get; set; }
+		public ICollection<EventLog> LastEvents { get; set; }
 
-		public EventLog FirstEvent { get; set; }
+		public ICollection<EventLog> FirstEvents { get; set; }
+
+		[NotMapped]
+		public virtual EventLog LastEvent => LastEvents.FirstOrDefault();
+
+		[NotMapped]
+		public virtual EventLog FirstEvent => LastEvents.FirstOrDefault();
 	}
 }

@@ -23,11 +23,15 @@ namespace DataLayer.EFCore
 				.HasKey(x => x.Id);
 
 			modelBuilder.Entity<Board>()
-				.HasOne(x => x.LastEvent)
+				.HasMany(x => x.LastEvents)
 				.WithOne()
 				.OnDelete(DeleteBehavior.Cascade);
 			modelBuilder.Entity<Board>()
-				.HasOne(x => x.FirstEvent)
+				.HasMany(x => x.FirstEvents)
+				.WithOne()
+				.OnDelete(DeleteBehavior.Cascade);
+			modelBuilder.Entity<User>()
+				.HasMany(x => x.LastEvents)
 				.WithOne()
 				.OnDelete(DeleteBehavior.Cascade);
 		}

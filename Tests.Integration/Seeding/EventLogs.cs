@@ -1,5 +1,6 @@
 ﻿using Business.Domain;
 using DataLayer.EFCore;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Tests.Integration.Seeding
@@ -11,8 +12,10 @@ namespace Tests.Integration.Seeding
 			User newUser = new User
 			{
 				Name = nameOfUser,
-				LastEvent = new EventLog
-				{
+				LastEvents = new List<EventLog> { 
+					new EventLog
+					{
+					}
 				}
 			};
 			context.Users.Add(newUser);
@@ -26,11 +29,12 @@ namespace Tests.Integration.Seeding
 			Board newBoard = new Board
 			{
 				Name = nameOfBoard,
-				LastEvent = new EventLog
+				LastEvents = new List<EventLog> { new EventLog
 				{
-				},
-				FirstEvent = new EventLog
+				} },
+				FirstEvents = new List<EventLog> { new EventLog
 				{
+				}
 				}
 			};
 			context.Boards.Add(newBoard);
