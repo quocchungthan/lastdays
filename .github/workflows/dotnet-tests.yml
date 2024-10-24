@@ -1,0 +1,25 @@
+name: Dotnet Tests
+
+on: [push, pull_request]
+
+jobs:
+  dotnet-test:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '8.0.204' # Change this line if you need a specific version
+
+      - name: Install dependencies
+        run: |
+          cd scheduledjobs
+          dotnet restore
+
+      - name: Run .NET tests
+        run: |
+          cd scheduledjobs
+          dotnet run
