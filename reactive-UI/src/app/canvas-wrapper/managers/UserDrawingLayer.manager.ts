@@ -56,7 +56,7 @@ export class UserDrawingLayerManager implements OnDestroy {
         private _syncingService: SyncingService,
         private _formModalService: FormModalService,
         private _keys: KeysService) {
-        this._drawingLayer = new Konva.Layer();
+        this._drawingLayer = new Konva.Layer({name: "DRAWING_LAYER"});
         this._placeholderLayer = new Konva.Layer();
         this._pencil = new PencilCommands(this._drawingLayer, _toolComposition);
         this._textInput = new TextInputCommands(this._drawingLayer, _toolComposition, this._formModalService);
