@@ -20,6 +20,7 @@ export const loadSecretConfiguration = () => {
     const assistantEnabled = [openAI_Key, openAI_ProjectId, openAI_OrganizationId, openAI_ModelName].every(x => x !== DEFAULT_FAKE_VALUE);
     const useBackup = true;
     const jsonBackupPath = './cachedResponses.json';
+    const debugMode = process.env['AL_DEBUG'] === 'true';
 
     return { port,
         openAI_Key,
@@ -29,6 +30,7 @@ export const loadSecretConfiguration = () => {
         websocketEnabled, assistantEnabled,
         useBackup,
         jsonBackupPath,
-        openAI_MaxToken
+        openAI_MaxToken,
+        debugMode
     };
 }

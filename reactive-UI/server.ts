@@ -10,7 +10,7 @@ import { loadSecretConfiguration } from './src/dependencies/meta/configuration.s
 import { HttpStatusCode } from '@angular/common/http';
 import { MetaConfiguration } from './src/dependencies/meta/model/configuration.interface';
 
-const {port, useBackup, assistantEnabled, websocketEnabled} = loadSecretConfiguration();
+const {port, useBackup, assistantEnabled, websocketEnabled, debugMode} = loadSecretConfiguration();
 
 // The Express app is exported so that it can be used by serverless Functions.
 export function app(): express.Express {
@@ -32,7 +32,8 @@ export function app(): express.Express {
         useBackup,
         port,
         assistantEnabled,
-        websocketEnabled
+        websocketEnabled,
+        debugMode
       } as MetaConfiguration)
   });
 
