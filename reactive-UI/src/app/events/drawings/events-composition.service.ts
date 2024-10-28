@@ -6,6 +6,7 @@ import { PureQueue, AbstractEventQueueItem } from './PureQueue.type';
 import { PencilCommands } from '@canvas-module/commands/pencil.command';
 import { StickyNoteCommands } from '@canvas-module/commands/sticky-notes.command';
 import { TextInputCommands } from '@canvas-module/commands/text-input.command';
+import { BehaviorSubject } from 'rxjs';
 
 export enum ComparisonResult {
   EQUAL,
@@ -19,8 +20,13 @@ export class EventsCompositionService {
   private _pencil!: PencilCommands;
   private _stickyNote!: StickyNoteCommands;
   private _textInput!: TextInputCommands;
+  private _localQueueChanges = new BehaviorSubject<PureQueue>([]);
 
   constructor() {
+  }
+
+  getLocalQueueChanged() {
+    return this._localQueueChanges.asObservable();
   }
 
   compare(allEvents: PureQueue): ComparisonResult {
@@ -83,6 +89,7 @@ export class EventsCompositionService {
 
       this._queue.push(cloneDeep(element));
     });
+    this._localQueueChanges.next(this._queue);
 
     this._forAsync()
       .then(() => {
@@ -166,6 +173,7 @@ export class EventsCompositionService {
           // console.log('handle done');
         });
     }
+    this._localQueueChanges.next(this._queue);
     // TODO: interact with db outside of this service
     // TODO: send notification outside of this service.
   }
