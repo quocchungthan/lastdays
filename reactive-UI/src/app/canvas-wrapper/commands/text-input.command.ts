@@ -80,6 +80,8 @@ export class TextInputCommands {
                 if (contentComponent instanceof TextInputCommandsFormComponent) {
                     contentComponent.builtComponent.x(contentComponent.preview.x() + contentComponent.builtComponent.x());
                     contentComponent.builtComponent.y(contentComponent.preview.y() + contentComponent.builtComponent.y());
+                    contentComponent.builtComponent.width(contentComponent.builtComponent.textWidth);
+                    contentComponent.builtComponent.height(contentComponent.builtComponent.textHeight);
                     contentComponent.builtComponent.fill(this._toolComposition.color);
                     observer.next(contentComponent.builtComponent);
                     contentComponent.ngOnDestroy();

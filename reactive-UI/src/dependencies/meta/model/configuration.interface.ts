@@ -3,4 +3,5 @@ export interface MetaConfiguration {
     port: number;
     assistantEnabled: boolean;
     websocketEnabled: boolean;
+    debugMode: boolean;
 }

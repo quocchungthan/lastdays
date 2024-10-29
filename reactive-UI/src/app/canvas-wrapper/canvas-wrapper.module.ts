@@ -8,6 +8,7 @@ import { ChatboxComponent } from '../../ui-utilities/chat/chatbox/chatbox.compon
 import { ColorBoardComponent } from '../../ui-utilities/painting/color-board/color-board.component';
 import { BookmarkComponent } from '../../ui-utilities/icons/bookmark/bookmark.component';
 import { BookmarkedComponent } from '../../ui-utilities/icons/bookmarked/bookmarked.component';
+import { StatusLayerComponent } from "../../debugging/uicomponents/status-layer/status-layer.component";
 
 const routes: Routes = [
   {
@@ -29,7 +30,8 @@ const routes: Routes = [
     ColorBoardComponent,
     BookmarkComponent,
     BookmarkedComponent,
-    CommonModule
-  ]
+    CommonModule,
+    StatusLayerComponent
+]
 })
 export class CanvasWrapperModule { }
