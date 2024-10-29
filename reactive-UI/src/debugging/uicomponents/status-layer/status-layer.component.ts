@@ -11,6 +11,8 @@ import { KonvaObjectService } from '@canvas-module/services/3rds/konva-object.se
 import Konva from 'konva';
 import { SUPPORTED_COLORS } from '@config/theme.constants';
 import { RectConfig } from 'konva/lib/shapes/Rect';
+import { Point } from '@ui/types/Point';
+import { Dimension } from '@ui/types/Dimension';
 
 @Component({
   selector: 'debug-status-layer',
@@ -55,7 +57,9 @@ export class StatusLayerComponent {
         this.realTimeEvents = this._realTimeEvents();
         if (!this.viewPort()) return;
         if (!this.debugEnabled) return;
-        this._addRectLayer();
+        setTimeout(() => {
+          this._addRectLayer();
+        }, 250);
       });
   }
 
@@ -66,20 +70,34 @@ export class StatusLayerComponent {
     layer.removeChildren();
     const drawingLayer = stage.children.find(x => x instanceof Konva.Layer && x.name() === 'DRAWING_LAYER');
     drawingLayer?.children.forEach(child => {
+      let bounderPosition: Point = { x: child.x(), y: child.y() };
+      let bounderDimension: Dimension = { width: child.width(), height: child.height() };
+      if (child.className === 'Line') {
+        const lineRect = child.getClientRect();
+        bounderPosition = { x: (lineRect.x - stage.x()) / stage.scaleX(), y: (lineRect.y - stage.y()) / stage.scaleY() };
+        bounderDimension = { width: lineRect.width / stage.scaleX(), height: lineRect.height / stage.scaleY() };
+      }
+
+      if (child instanceof Konva.Group && child.width() * child.height() === 0 && child.hasChildren()) {
+        bounderDimension = {
+          width: child.children.reduce((a, c) => a > c.width() ? a : c.width() , 0),
+          height: child.children.reduce((a, c) => a > c.height() ? a : c.height() , 0) 
+        };
+      }
       const rect: RectConfig = {
-        x: child.x(),
-        y: child.y(),
-        height: child.height(),
-        width: child.width(),
-        stroke: SUPPORTED_COLORS[3],
-        strokeWidth: 2,
-        dash: [2, 10]
+        x: bounderPosition.x,
+        y: bounderPosition.y,
+        height: bounderDimension.height,
+        width: bounderDimension.width,
+        stroke: SUPPORTED_COLORS[2],
+        strokeWidth: 1,
+        dash: [3, 5]
       };
-      // TODO: the position of rects are not accurate.
-      // console.log(child.className, rect);
-      // layer.add(new Konva.Rect(rect));
+      layer.add(new Konva.Rect(rect));
     });
     stage.add(layer);
+    layer.setZIndex(0);
+    drawingLayer?.setZIndex(2);
   }
 
   getEventDisplayString(e: BaseEvent) {
