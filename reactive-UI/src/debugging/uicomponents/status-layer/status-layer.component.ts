@@ -59,7 +59,7 @@ export class StatusLayerComponent {
         if (!this.debugEnabled) return;
         setTimeout(() => {
           this._addRectLayer();
-        }, 250);
+        }, 1000);
       });
   }
 
@@ -94,6 +94,22 @@ export class StatusLayerComponent {
         dash: [3, 5]
       };
       layer.add(new Konva.Rect(rect));
+      layer.add(new Konva.Text({
+        text: JSON.stringify({x: Math.round(bounderPosition.x), y: Math.round(bounderPosition.y)}),
+        x: bounderPosition.x - 11,
+        y: bounderPosition.y - 11,
+        fontSize: 11,
+        fontFamily: 'Baelast',
+        fill: SUPPORTED_COLORS[2]
+      }));
+      layer.add(new Konva.Text({
+        text: `${Math.round(bounderDimension.width)}x${Math.round(bounderDimension.height)}`,
+        x: bounderPosition.x + bounderDimension.width - 22,
+        y: bounderPosition.y + bounderDimension.height + 2,
+        fontSize: 11,
+        fontFamily: 'Baelast',
+        fill: SUPPORTED_COLORS[2]
+      }));
     });
     stage.add(layer);
     layer.setZIndex(0);
