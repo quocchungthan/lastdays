@@ -7,6 +7,14 @@ Then('The snapshot of the board should remain the same', () => {
    boardDetail.screenshot();
 });
 
+Then('The snapshot of the save icon should remain the same', () => {
+   boardDetail.getToolBar().snapshotTheSaveIcon();
+});
+
+Then('The title of document should be {string}', (titleExpected) => {
+   cy.title().should('eq', titleExpected);
+});
+
 When('I click at the text input icon in the toolbar', () => {
    boardDetail.getToolBar()
       .clickTextInput();

@@ -25,6 +25,8 @@ import { ViewPortEventsManager } from '@canvas-module/managers/ViewPortEvents.ma
 import { KonvaObjectService } from '@canvas-module/services/3rds/konva-object.service';
 import { EventsCompositionService } from '@drawings/events-composition.service';
 import { ToolCompositionService } from '@states/tool-composition.service';
+import { BoardsService } from '@uidata/boards.service';
+import { MetaService } from '@browser/meta.service';
 
 @Component({
   selector: 'app-board-detail',
@@ -83,6 +85,8 @@ export class BoardDetailComponent implements AfterViewInit {
     private _konvaObjectService: KonvaObjectService,
     private _viewportSizeService: ViewportSizeService,
     private _canvasManager: CanvasManager,
+    private _boards: BoardsService,
+    private _metaService: MetaService,
     private _toolCompositionService: ToolCompositionService
   ) {
     this._activatedRoute.params.subscribe((x) => {
@@ -142,10 +146,14 @@ export class BoardDetailComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // TODO: add test that user click to a board, click home, and repeat that action multiple time. the app crashed.
     setTimeout(() => this._resetTheViewPort());
     this._viewportSizeService.blockTheWheel();
     const subscription = this._urlExtractor.currentBoardIdChanges().subscribe((id) => {
+      this._boards.detail(id)
+        .then(b => {
+          if (!b) return;
+          this._metaService.setPageName('Board - ' + b.name);
+        });
       this._savedBoards.index().then(savedBoards => {
         this.isSaved = savedBoards.some(x => x.boardId === id);
         subscription.unsubscribe();

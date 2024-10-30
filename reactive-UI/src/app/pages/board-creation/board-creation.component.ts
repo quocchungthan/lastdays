@@ -15,6 +15,8 @@ import { EventsCompositionService } from '../../events/drawings/events-compositi
 import { MetaService } from '../../services/browser/meta.service';
 import { WarningBoxComponent } from '../../../ui-utilities/static-component/warning-box/warning-box.component';
 import { TranslateService } from '@ngx-translate/core';
+import { SavedBoardsService } from '@uidata/saved-boards.service';
+import { SavedBoard } from '@uidata/entities/SavedBoard';
 
 @Component({
   selector: 'app-board-creation',
@@ -37,6 +39,7 @@ export class BoardCreationComponent implements AfterViewInit {
     private _router: Router,
     private _events: EventsService,
     private _metaService: MetaService,
+    private _savedBoards: SavedBoardsService,
     private _translationService: TranslateService,
     ) {
     this.boardCreationForm = this._formBuilder.group({
@@ -72,6 +75,10 @@ export class BoardCreationComponent implements AfterViewInit {
         boardCreated.boardId = boardCreated.targetId = justCreated.id;
         boardCreated.board = justCreated;
         return this._events.create(boardCreated);
+      }).then((e) => {
+        const savedBoardAfterCreated = new SavedBoard();
+        savedBoardAfterCreated.boardId = e.boardId;
+        return this._savedBoards.create(savedBoardAfterCreated);
       }).then((e) => {
         this._router.navigate([SEGMENT_TO_BOARD_DETAIL, e.boardId]);
       });
