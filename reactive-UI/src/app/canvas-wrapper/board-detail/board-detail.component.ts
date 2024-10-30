@@ -142,7 +142,8 @@ export class BoardDetailComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this._resetTheViewPort();
+    // TODO: add test that user click to a board, click home, and repeat that action multiple time. the app crashed.
+    setTimeout(() => this._resetTheViewPort());
     this._viewportSizeService.blockTheWheel();
     const subscription = this._urlExtractor.currentBoardIdChanges().subscribe((id) => {
       this._savedBoards.index().then(savedBoards => {
