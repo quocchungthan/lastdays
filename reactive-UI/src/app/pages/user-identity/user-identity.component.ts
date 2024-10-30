@@ -52,7 +52,7 @@ export class UserIdentityComponent {
 
   onSubmit() {
     if (!this.userForm.valid) {
-      this._toaster.error(JSON.stringify(this.userForm.errors));
+      this._toaster.error("Board name can't be '" + this.userForm.controls.displayName.value + "'");
 
       return;
     }

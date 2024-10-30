@@ -60,7 +60,7 @@ export class BoardCreationComponent implements AfterViewInit {
 
   onSubmit() {
     if (!this.boardCreationForm.valid) {
-      this._toaster.error(JSON.stringify(this.boardCreationForm.errors));
+      this._toaster.error("Board name can't be '" + this.boardCreationForm.controls.name.value + "'");
 
       return;
     }
