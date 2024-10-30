@@ -1,12 +1,14 @@
 import Konva from 'konva';
 import { LineConfig } from 'konva/lib/shapes/Line';
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Point } from '../../../ui-utilities/types/Point';
 import { PRIMARY_COLOR } from '../../../configs/theme.constants';
 import { KonvaObjectService } from '../services/3rds/konva-object.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Injectable()
-export class BackgroundLayerManager {
+export class BackgroundLayerManager implements OnDestroy {
+    private unsubscribe$ = new Subject<void>();
     private _backgroundLayer!: Konva.Layer;
     private _viewPort!: Konva.Stage;
     private _theme =  {
@@ -28,7 +30,7 @@ export class BackgroundLayerManager {
     _middleLeft: Point = { x: 0, y: 0 };
     _middleRight: Point = { x: 0, y: 0 };
     constructor(_konvaObjects: KonvaObjectService) {
-        _konvaObjects.viewPortChanges.subscribe((s) => {
+        _konvaObjects.viewPortChanges.pipe(takeUntil(this.unsubscribe$)).subscribe((s) => {
             if (s.children.some(x => x === this._backgroundLayer)) {
                 return;
             }
@@ -38,6 +40,11 @@ export class BackgroundLayerManager {
             this._viewPort = s;
         });
     }
+
+    ngOnDestroy(): void {
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
+      }
 
     get rulersGroup () {
         return this._backgroundLayer.children.find(x => x.name() === this._rulersGroupName) as Konva.Group;

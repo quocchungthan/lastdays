@@ -136,6 +136,10 @@ export class StickyNoteCommands {
         return null;
     }
 
+    cleanUpGarbage() {
+        this._internalTextInput.cleanUpGarbage();
+    }
+
     private _doAttach(shape: Shape<ShapeConfig>, foundStickyNoteAsBackground: Group) {
         if (shape instanceof Konva.Line) {
             const cloned = shape.clone();

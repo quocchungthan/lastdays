@@ -27,4 +27,11 @@ export class ToolBar {
             .get('[data-cy=option-]')
             .click();
     }
+
+    snapshotTheSaveIcon() {
+        this._getToolbar()
+            .get('icon-bookmark')
+            .first()
+            .should('be.visible').matchImageSnapshot();
+    }
 }

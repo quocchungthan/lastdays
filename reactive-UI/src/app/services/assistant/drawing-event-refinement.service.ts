@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { UrlExtractorService } from '@browser/url-extractor.service';
 import { PencilCommands } from '@canvas-module/commands/pencil.command';
 import { StickyNoteCommands } from '@canvas-module/commands/sticky-notes.command';
@@ -6,16 +6,18 @@ import { TextInputCommands } from '@canvas-module/commands/text-input.command';
 import { BaseEvent } from '@drawings/BaseEvent';
 import { PencilUpEvent, StickyNotePastedEvent, TextEnteredEvent, ToDrawingEvent } from '@drawings/EventQueue';
 import { AbstractEventQueueItem } from '@drawings/PureQueue.type';
+import { Subject, takeUntil } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
-export class DrawingEventRefinementService {
+export class DrawingEventRefinementService implements OnDestroy {
   private _boardId: string = '';
+  private unsubscribe$ = new Subject<void>();
 
   constructor(private _urlExtractor: UrlExtractorService) { 
     this._urlExtractor.currentBoardIdChanges()
-      .subscribe((boardId) => {
+      .pipe(takeUntil(this.unsubscribe$)).subscribe((boardId) => {
         this._boardId = boardId;
       });
   }
@@ -40,5 +42,10 @@ export class DrawingEventRefinementService {
     }
 
     return mapped as BaseEvent & AbstractEventQueueItem;
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 }

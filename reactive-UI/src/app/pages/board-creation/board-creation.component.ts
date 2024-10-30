@@ -1,4 +1,4 @@
-import { AfterViewInit, Component } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy } from '@angular/core';
 import { LastVisits } from '../../viewmodels/agile-domain/last-visits.viewmodel';
 import { TopbarComponent } from '../../../ui-utilities/layout/topbar/topbar.component';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -15,6 +15,9 @@ import { EventsCompositionService } from '../../events/drawings/events-compositi
 import { MetaService } from '../../services/browser/meta.service';
 import { WarningBoxComponent } from '../../../ui-utilities/static-component/warning-box/warning-box.component';
 import { TranslateService } from '@ngx-translate/core';
+import { SavedBoardsService } from '@uidata/saved-boards.service';
+import { SavedBoard } from '@uidata/entities/SavedBoard';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-board-creation',
@@ -24,7 +27,8 @@ import { TranslateService } from '@ngx-translate/core';
   templateUrl: './board-creation.component.html',
   styleUrl: './board-creation.component.scss'
 })
-export class BoardCreationComponent implements AfterViewInit {
+export class BoardCreationComponent implements AfterViewInit, OnDestroy {
+  private unsubscribe$ = new Subject<void>();
   lastVisits: LastVisits = new LastVisits;
   boardCreationForm: FormGroup<{name: FormControl<string | null>}>;
   warningDataIsPublic: string = 'WARNING_DATA_IS_PUBLIC';
@@ -37,6 +41,7 @@ export class BoardCreationComponent implements AfterViewInit {
     private _router: Router,
     private _events: EventsService,
     private _metaService: MetaService,
+    private _savedBoards: SavedBoardsService,
     private _translationService: TranslateService,
     ) {
     this.boardCreationForm = this._formBuilder.group({
@@ -48,19 +53,22 @@ export class BoardCreationComponent implements AfterViewInit {
         this.lastVisits = lastVisits;
       });
     this._translationService.get([this.warningDataIsPublic, this.createBoardText])
-      .subscribe((translatedMessages) => {
+      .pipe(takeUntil(this.unsubscribe$)).subscribe((translatedMessages) => {
         this.warningDataIsPublic = translatedMessages[this.warningDataIsPublic];
         this.createBoardText = translatedMessages[this.createBoardText];
       })
   }
-
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+  }
   ngAfterViewInit(): void {
     this._metaService.resetPageName();
   }
 
   onSubmit() {
     if (!this.boardCreationForm.valid) {
-      this._toaster.error(JSON.stringify(this.boardCreationForm.errors));
+      this._toaster.error("Board name can't be '" + this.boardCreationForm.controls.name.value + "'");
 
       return;
     }
@@ -72,6 +80,10 @@ export class BoardCreationComponent implements AfterViewInit {
         boardCreated.boardId = boardCreated.targetId = justCreated.id;
         boardCreated.board = justCreated;
         return this._events.create(boardCreated);
+      }).then((e) => {
+        const savedBoardAfterCreated = new SavedBoard();
+        savedBoardAfterCreated.boardId = e.boardId;
+        return this._savedBoards.create(savedBoardAfterCreated);
       }).then((e) => {
         this._router.navigate([SEGMENT_TO_BOARD_DETAIL, e.boardId]);
       });

@@ -5,15 +5,17 @@ import { CursorManager } from './Cursor.manager';
 import { UserDrawingLayerManager } from './UserDrawingLayer.manager';
 import { StickyNoteCommands } from '../commands/sticky-notes.command';
 import { PencilCommands } from '../commands/pencil.command';
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { TextInputCommands } from '../commands/text-input.command';
 import { Wheel } from '../../../ui-utilities/types/Wheel';
 import { KonvaObjectService } from '../services/3rds/konva-object.service';
 import { UrlExtractorService } from '../../services/browser/url-extractor.service';
 import { BoardsService } from '../../services/data-storages/boards.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Injectable()
-export class CanvasManager {
+export class CanvasManager implements OnDestroy {
+    private unsubscribe$ = new Subject<void>();
     private _viewPort!: Konva.Stage;
 
     constructor(
@@ -24,14 +26,19 @@ export class CanvasManager {
         private _background: BackgroundLayerManager,
         private _cursorManager: CursorManager,
         private _userDrawing: UserDrawingLayerManager) {
-        _konvaObjects.viewPortChanges.subscribe((s) => {
+        _konvaObjects.viewPortChanges.pipe(takeUntil(this.unsubscribe$)).subscribe((s) => {
             this.initiateBasedOnBackgroundStage(s, boards, _urlExtractor);
         });
 
         _userDrawing.onDrawingToolEnd()
-            .subscribe(() => {
+            .pipe(takeUntil(this.unsubscribe$)).subscribe(() => {
                 this.setTool('');
             })
+    }
+
+    ngOnDestroy(): void {
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
     }
 
     public get tool () {
@@ -40,21 +47,21 @@ export class CanvasManager {
 
     private initiateBasedOnBackgroundStage(stage: Konva.Stage, boards: BoardsService, _urlExtractor: UrlExtractorService) {
         this._viewPort = stage;
-        this._viewPortEvents.onDragStart().subscribe(() => {
+        this._viewPortEvents.onDragStart().pipe(takeUntil(this.unsubscribe$)).subscribe(() => {
             this._cursorManager.grabbing();
         });
 
-        this._viewPortEvents.onDragEnd().subscribe(() => {
+        this._viewPortEvents.onDragEnd().pipe(takeUntil(this.unsubscribe$)).subscribe(() => {
             this._background.putTheRuler();
         });
 
-        this._viewPortEvents.onTouchEnd().subscribe(() => {
+        this._viewPortEvents.onTouchEnd().pipe(takeUntil(this.unsubscribe$)).subscribe(() => {
             if (!this.tool) {
                 this._cursorManager.reset();
             }
         });
 
-        this._viewPortEvents.onWheel().subscribe((wheelEventData) => {
+        this._viewPortEvents.onWheel().pipe(takeUntil(this.unsubscribe$)).subscribe((wheelEventData) => {
             this._background.putTheRuler();
             this._onRequestZooming(wheelEventData);
         });

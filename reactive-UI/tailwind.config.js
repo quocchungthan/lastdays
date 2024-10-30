@@ -5,7 +5,11 @@ module.exports = {
     "./node_modules/flowbite/**/*.js"
   ],
   theme: {
-    extend: {},
+    extend: {
+      boxShadow: {
+        glow: '0 0 10px rgba(52,152,219, 0.8)', // Customize the glow color and intensity
+      },
+    },
   },
   plugins: [
     require('flowbite/plugin')

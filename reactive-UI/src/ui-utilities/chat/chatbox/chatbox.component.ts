@@ -8,6 +8,7 @@ import { SyncingService } from '../../../dependencies/socket-communication/synci
 import { DrawingAssistantService } from '@ai/ui-client/drawing-assistant.service';
 import { DrawingEventRefinementService } from '../../../app/services/assistant/drawing-event-refinement.service';
 import { UserDrawingLayerManager } from '@canvas-module/managers/UserDrawingLayer.manager';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'chat-box',
@@ -18,6 +19,7 @@ import { UserDrawingLayerManager } from '@canvas-module/managers/UserDrawingLaye
   styleUrl: './chatbox.component.scss'
 })
 export class ChatboxComponent implements OnDestroy {
+  private unsubscribe$ = new Subject<void>();
   isExpandingChatBox = false;
   chatBoxForm: FormGroup<{message: FormControl<string | null>}>;
   onlineStatusAsString: string = '';
@@ -41,25 +43,25 @@ export class ChatboxComponent implements OnDestroy {
       message: ['', Validators.required]
     });
     this._tranlsate.get([this._joinedTheChannelText, this.typingText, this.youText])
-      .subscribe((translated) => {
+      .pipe(takeUntil(this.unsubscribe$)).subscribe((translated) => {
         this._joinedTheChannelText = translated[this._joinedTheChannelText];
         this.typingText = translated[this.typingText];
         this.youText = translated[this.youText];
       });
 
     this._syncingService.getOnlineStatus()
-      .subscribe((onlineStatus: string) => {
+      .pipe(takeUntil(this.unsubscribe$)).subscribe((onlineStatus: string) => {
         this.rawStatusClass = onlineStatus;
         this._tranlsate.get(onlineStatus, {
           '0': this._syncingService.participantCount
         })
-        .subscribe((tranlated) => {
+        .pipe(takeUntil(this.unsubscribe$)).subscribe((tranlated) => {
           this.onlineStatusAsString = tranlated;
         });
       });
 
     this._syncingService.onChatMessageReceived()
-      .subscribe(newText => {
+      .pipe(takeUntil(this.unsubscribe$)).subscribe(newText => {
         this.populatedChatMessages.push({
           messageText: newText.text,
           displayName: newText.displayName,
@@ -70,7 +72,7 @@ export class ChatboxComponent implements OnDestroy {
       });
 
     this._syncingService.getNewIdentitySubscription()
-      .subscribe((newIdentity) => {
+      .pipe(takeUntil(this.unsubscribe$)).subscribe((newIdentity) => {
         this._identities.detail(newIdentity.id)
           .then((existed) => {
             if (existed) {
@@ -95,6 +97,8 @@ export class ChatboxComponent implements OnDestroy {
   }
   ngOnDestroy(): void {
     this._syncingService.disconnect();
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   private fallbackAvatar(): string {
@@ -114,7 +118,7 @@ export class ChatboxComponent implements OnDestroy {
       avatarUrl: this.fallbackAvatar()
     });
     this._drawingAssistantService.generateDrawingEvents(userMessage, this._syncingService.getCurrentAllEvents())
-      .subscribe(async (generated) => {
+      .pipe(takeUntil(this.unsubscribe$)).subscribe(async (generated) => {
         for (let de of generated) {
           await this._userDrawingManager.generallyProcessNewEvent(this._refinementService.refine(de));
         }

@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, effect, signal, WritableSignal } from '@angular/core';
+import { Component, effect, OnDestroy, signal, WritableSignal } from '@angular/core';
 import { MetaConfiguration } from '../../../dependencies/meta/model/configuration.interface';
 import { ActivatedRoute } from '@angular/router';
-import { catchError, of } from 'rxjs';
+import { catchError, debounceTime, of, Subject, takeUntil } from 'rxjs';
 import { EventsCompositionService } from '@drawings/events-composition.service';
 import { ToBaseEvent } from '@drawings/EventQueue';
 import { BaseEvent } from '@drawings/BaseEvent';
@@ -13,6 +13,7 @@ import { SUPPORTED_COLORS } from '@config/theme.constants';
 import { RectConfig } from 'konva/lib/shapes/Rect';
 import { Point } from '@ui/types/Point';
 import { Dimension } from '@ui/types/Dimension';
+import { CANVAS_CHANGE_THROTTLE_TIME } from '@config/delay.constants';
 
 @Component({
   selector: 'debug-status-layer',
@@ -21,12 +22,15 @@ import { Dimension } from '@ui/types/Dimension';
   templateUrl: './status-layer.component.html',
   styleUrl: './status-layer.component.scss'
 })
-export class StatusLayerComponent {
+export class StatusLayerComponent implements OnDestroy {
   debugEnabled: boolean;
+  forcedOff: boolean = false;
   _realTimeEvents: WritableSignal<BaseEvent[]> = signal([]);
   _debugEnabled: WritableSignal<boolean> = signal(false);
   realTimeEvents: BaseEvent[] = [];
   viewPort: WritableSignal<Konva.Stage | null> = signal(null);
+  private _requestAddRect = new Subject<void>();
+  private unsubscribe$ = new Subject<void>();
   
 
   constructor(private _httpClient: HttpClient,
@@ -38,29 +42,41 @@ export class StatusLayerComponent {
       .pipe(catchError(() => {
         return of({debugMode: true});
       }))
-      .subscribe((configuration) => {
+      .pipe(takeUntil(this.unsubscribe$)).subscribe((configuration) => {
         this._debugEnabled.set(configuration.debugMode);
       });
 
       _eventCompositionService.getLocalQueueChanged()
-        .subscribe((events) => {
+        .pipe(takeUntil(this.unsubscribe$)).subscribe((events) => {
           this._realTimeEvents.set(events.map(ToBaseEvent)
             .filter(x => !isNil(x)).map(x => x as BaseEvent).sort((b, a) => a.modifiedTime.getTime() - b.modifiedTime.getTime()));
         });
       _konvaObjectService.viewPortChanges
-        .subscribe(viewPort => {
+        .pipe(takeUntil(this.unsubscribe$)).subscribe(viewPort => {
           this.viewPort.set(viewPort);
         });
-
+      this._requestAddRect
+        .pipe(debounceTime(CANVAS_CHANGE_THROTTLE_TIME))
+        .pipe(takeUntil(this.unsubscribe$)).subscribe(() => {
+          this._addRectLayer();
+        });
       effect(() => {
         this.debugEnabled = this._debugEnabled();
         this.realTimeEvents = this._realTimeEvents();
         if (!this.viewPort()) return;
         if (!this.debugEnabled) return;
-        setTimeout(() => {
-          this._addRectLayer();
-        }, 1000);
+        this._requestAddRect.next();
       });
+  }
+
+  forceDebugMode() {
+    this.forcedOff = !this.forcedOff;
+    this._requestAddRect.next();
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   private _addRectLayer() {
@@ -68,6 +84,9 @@ export class StatusLayerComponent {
     if (!stage) return;
     const layer = stage.children.find(x => x instanceof Konva.Layer && x.name() === "DEBUG_LAYER") ?? new Konva.Layer({name: "DEBUG_LAYER"});
     layer.removeChildren();
+    if (this.forcedOff == true) {
+      return;
+    }
     const drawingLayer = stage.children.find(x => x instanceof Konva.Layer && x.name() === 'DRAWING_LAYER');
     drawingLayer?.children.forEach(child => {
       let bounderPosition: Point = { x: child.x(), y: child.y() };

@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   Component,
   HostListener,
+  OnDestroy,
   ViewChild,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -25,6 +26,9 @@ import { ViewPortEventsManager } from '@canvas-module/managers/ViewPortEvents.ma
 import { KonvaObjectService } from '@canvas-module/services/3rds/konva-object.service';
 import { EventsCompositionService } from '@drawings/events-composition.service';
 import { ToolCompositionService } from '@states/tool-composition.service';
+import { BoardsService } from '@uidata/boards.service';
+import { MetaService } from '@browser/meta.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-board-detail',
@@ -43,7 +47,8 @@ import { ToolCompositionService } from '@states/tool-composition.service';
   templateUrl: './board-detail.component.html',
   styleUrl: './board-detail.component.scss',
 })
-export class BoardDetailComponent implements AfterViewInit {
+export class BoardDetailComponent implements AfterViewInit, OnDestroy {
+  private unsubscribe$ = new Subject<void>();
   KONVA_CONTAINER = KONVA_CONTAINER;
 
   @ViewChild('topBar')
@@ -83,11 +88,17 @@ export class BoardDetailComponent implements AfterViewInit {
     private _konvaObjectService: KonvaObjectService,
     private _viewportSizeService: ViewportSizeService,
     private _canvasManager: CanvasManager,
+    private _boards: BoardsService,
+    private _metaService: MetaService,
     private _toolCompositionService: ToolCompositionService
   ) {
-    this._activatedRoute.params.subscribe((x) => {
+    this._activatedRoute.params.pipe(takeUntil(this.unsubscribe$)).subscribe((x) => {
       this._urlExtractor.setBoardId(x['id']);
     });
+  }
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   get selectedToolId() {
@@ -122,7 +133,7 @@ export class BoardDetailComponent implements AfterViewInit {
 
   toggleSavedStatus() {
     this.isSaved = !this.isSaved;
-    const subscription = this._urlExtractor.currentBoardIdChanges().subscribe((id) => {
+    const subscription = this._urlExtractor.currentBoardIdChanges().pipe(takeUntil(this.unsubscribe$)).subscribe((id) => {
       if (this.isSaved) {
         var newSavingAction = new SavedBoard();
 
@@ -142,9 +153,14 @@ export class BoardDetailComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this._resetTheViewPort();
+    setTimeout(() => this._resetTheViewPort());
     this._viewportSizeService.blockTheWheel();
-    const subscription = this._urlExtractor.currentBoardIdChanges().subscribe((id) => {
+    const subscription = this._urlExtractor.currentBoardIdChanges().pipe(takeUntil(this.unsubscribe$)).subscribe((id) => {
+      this._boards.detail(id)
+        .then(b => {
+          if (!b) return;
+          this._metaService.setPageName('Board - ' + b.name);
+        });
       this._savedBoards.index().then(savedBoards => {
         this.isSaved = savedBoards.some(x => x.boardId === id);
         subscription.unsubscribe();
@@ -156,7 +172,7 @@ export class BoardDetailComponent implements AfterViewInit {
   private _resetTheViewPort() {
     this._konvaObjectService.initKonvaObject();
     this._konvaObjectService.setYOffset(this.topBar?.height ?? 0);
-    this._konvaObjectService.viewPortChanges.subscribe(() => {
+    this._konvaObjectService.viewPortChanges.pipe(takeUntil(this.unsubscribe$)).subscribe(() => {
       this._canvasManager.drawBackground();
     });
   }

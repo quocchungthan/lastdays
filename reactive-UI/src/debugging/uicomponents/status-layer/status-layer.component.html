@@ -1,10 +1,17 @@
-@if (debugEnabled) {
+@if (debugEnabled && !forcedOff) {
    <div class="fixed top-0 border-4 left-0 w-full h-full z-50 bg-transparent pointer-events-none flex  border-blue-500">
-        <p class="text-blue-500 absolute top-0 right-8 text-lg font-semibold">Debug Mode!</p>
         <div class="w-[30%] h-[90%] absolute top-10 right-1 overflow-y-scroll">
             @for (item of realTimeEvents; track $index) {
                <pre class="text-xs text-gray-500 whitespace-pre-wrap  break-all  p-1 rounded">{{getEventDisplayString(item)}}</pre>
             }
         </div>
     </div>
+}
+@if (debugEnabled) {
+    <p class="text-blue-500 absolute top-0 p-1.5 right-8 text-lg font-semibold">
+        <label class="inline-flex items-center cursor-pointer pointer-events-auto">
+        <input type="checkbox" [checked]="debugEnabled && !forcedOff" (change)="forceDebugMode()" value="" class="sr-only peer">
+        <div class="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+        <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">Debug mode</span>
+    </label></p>
 }

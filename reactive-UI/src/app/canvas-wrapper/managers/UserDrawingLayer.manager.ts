@@ -1,7 +1,7 @@
 import Konva from "konva";
 import { Injectable, OnDestroy } from "@angular/core";
 import { CursorManager } from "./Cursor.manager";
-import { Subject, debounceTime } from "rxjs";
+import { Subject, debounceTime, takeUntil } from "rxjs";
 import { Group } from "konva/lib/Group";
 import guid from "guid";
 import { Line, LineConfig } from "konva/lib/shapes/Line";
@@ -25,9 +25,12 @@ import { EventsCompositionService } from '@drawings/events-composition.service';
 import { AbstractEventQueueItem } from '@drawings/PureQueue.type';
 import { ToolCompositionService } from '@states/tool-composition.service';
 import { ViewPortEventsManager } from './ViewPortEvents.manager';
+import { CANVAS_CHANGE_THROTTLE_TIME } from "@config/delay.constants";
+import { BoardPreviewsService } from "@uidata/boardPreviews.service";
 
 @Injectable()
 export class UserDrawingLayerManager implements OnDestroy {
+    private unsubscribe$ = new Subject<void>();
     private _drawingLayer: Konva.Layer;
     // TODO: Theme and tool are duplicated where they're stored
     private _theme =  {
@@ -55,6 +58,7 @@ export class UserDrawingLayerManager implements OnDestroy {
         private _eventsService: EventsService,
         private _syncingService: SyncingService,
         private _formModalService: FormModalService,
+        private _boardPreviews: BoardPreviewsService,
         private _keys: KeysService) {
         this._drawingLayer = new Konva.Layer({name: "DRAWING_LAYER"});
         this._placeholderLayer = new Konva.Layer();
@@ -67,10 +71,10 @@ export class UserDrawingLayerManager implements OnDestroy {
             .setTextInputCommand(this._textInput);
 
         this._stickyNote.onStickyNoteMoved()
-            .subscribe(id => {
+            .pipe(takeUntil(this.unsubscribe$)).subscribe(id => {
                 this._triggerEventStickyNoteMoved(id);
             });
-        _konvaObjects.viewPortChanges.subscribe(s => {
+        _konvaObjects.viewPortChanges.pipe(takeUntil(this.unsubscribe$)).subscribe(s => {
             if (s.children.some(x => x === this._drawingLayer)) {
                 return;
             }
@@ -82,7 +86,7 @@ export class UserDrawingLayerManager implements OnDestroy {
         this._startSubscribingEvents();
         this._urlExtractor.currentBoardIdChanges()
             .pipe(debounceTime(50))
-            .subscribe((id) => {
+            .pipe(takeUntil(this.unsubscribe$)).subscribe((id) => {
                 if (this._boardId !== id) {
                     this._boardId = id;
                     this._loadExistingDrawings();
@@ -94,7 +98,7 @@ export class UserDrawingLayerManager implements OnDestroy {
             });
 
         this._keys.onUndo()
-            .subscribe(() => {
+            .pipe(takeUntil(this.unsubscribe$)).subscribe(() => {
                 this._triggerUndoEvent();
             })
     }
@@ -109,6 +113,10 @@ export class UserDrawingLayerManager implements OnDestroy {
 
     ngOnDestroy() {
         this._drawingLayer.removeChildren();
+        this._textInput.cleanUpGarbage();
+        this._stickyNote.cleanUpGarbage();
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
     }
 
     generallyProcessNewEvent(event: BaseEvent & AbstractEventQueueItem) {
@@ -134,17 +142,22 @@ export class UserDrawingLayerManager implements OnDestroy {
     
     private async _loadDrawingObjectsAsync() {
         const all = await this._eventsService.indexAndMap(this._boardId);
+        this._eventsCompositionService.getLocalQueueChanged()
+            .pipe(debounceTime(CANVAS_CHANGE_THROTTLE_TIME))
+            .pipe(takeUntil(this.unsubscribe$)).subscribe(() => {
+                this._capturePreview();
+            });
         this._syncingService.listen(this._boardId)
             .peerCheck(all.map(x => ToBaseEvent(x)!))
         this._syncingService.onEventAdded()
-            .subscribe((newEvent) => {
+            .pipe(takeUntil(this.unsubscribe$)).subscribe((newEvent) => {
                 if (newEvent instanceof BoardedCreatedEvent) {
                     this._synceBoardData([newEvent]);
                 }
                 this._insertIfNotExisted(newEvent);
             });
         this._syncingService.onEventsReset()
-            .subscribe((allEvents) => {
+            .pipe(takeUntil(this.unsubscribe$)).subscribe((allEvents) => {
                 this._synceBoardData(allEvents.filter(x => x instanceof BoardedCreatedEvent) as BoardedCreatedEvent[]);
                 this._overwriteEventsByBoardId(allEvents)
                     .then(() => {
@@ -155,6 +168,11 @@ export class UserDrawingLayerManager implements OnDestroy {
             });
         this._eventsCompositionService
             .build(all);
+    }
+    private _capturePreview() {
+        const dataURL = this._viewPort.toDataURL();
+        this._boardPreviews.saveOrUpdateByBoardId(this._boardId, dataURL)
+            .then(() => {});
     }
     private async _overwriteEventsByBoardId(allEvents: BaseEvent[]) {
         const listEventsOfCurrentBoard = await this._eventsService.indexAndMap(this._boardId);
@@ -203,26 +221,26 @@ export class UserDrawingLayerManager implements OnDestroy {
 
     private _startSubscribingEvents() {
         this._events.onTouchStart()
-            .subscribe((p) => {
+            .pipe(takeUntil(this.unsubscribe$)).subscribe((p) => {
                 if (this._toolComposition.tool === PencilCommands.CommandName) {
                     this._pencil.penDown(p);
                 }
             });
         this._events.onTouchMove()
-            .subscribe((p) => {
+            .pipe(takeUntil(this.unsubscribe$)).subscribe((p) => {
                 if (this._toolComposition.tool === PencilCommands.CommandName) {
                     this._pencil.penMove(p);
                 }
             });
 
         this._events.onTouchEnd()
-            .subscribe((p) => {
+            .pipe(takeUntil(this.unsubscribe$)).subscribe((p) => {
                 this._pencilEnd();
                 this._stickyNoteEnd();
                 this._textInputStart(p);
             });
         this._events.onMouseOut()
-            .subscribe((p) => {
+            .pipe(takeUntil(this.unsubscribe$)).subscribe((p) => {
                 this._pencilEnd();
             });
     }
@@ -236,7 +254,7 @@ export class UserDrawingLayerManager implements OnDestroy {
         if (this._toolComposition.tool === TextInputCommands.CommandName) {
             this._drawingToolEnd.next();
             this._textInput.renderComponentAndFocus(p)
-                .subscribe((newObjectNeedToBeSaved) => {
+                .pipe(takeUntil(this.unsubscribe$)).subscribe((newObjectNeedToBeSaved) => {
                     // New guid
                     // Check if it can paste onto a sticky note
                     // Trigger event
@@ -355,9 +373,9 @@ export class UserDrawingLayerManager implements OnDestroy {
             .then(() => {
                 this._cursor.grabbing();
                 this._events.onCursorMove()
-                    .subscribe((p) => {
+                    .pipe(takeUntil(this.unsubscribe$)).subscribe((p) => {
                         this._stickyNote.movePlaceholder(p);
                     });
-            })
+            });
     }
 }
