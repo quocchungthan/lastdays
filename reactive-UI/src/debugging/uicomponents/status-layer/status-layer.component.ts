@@ -24,6 +24,7 @@ import { CANVAS_CHANGE_THROTTLE_TIME } from '@config/delay.constants';
 })
 export class StatusLayerComponent implements OnDestroy {
   debugEnabled: boolean;
+  forcedOff: boolean = false;
   _realTimeEvents: WritableSignal<BaseEvent[]> = signal([]);
   _debugEnabled: WritableSignal<boolean> = signal(false);
   realTimeEvents: BaseEvent[] = [];
@@ -68,6 +69,11 @@ export class StatusLayerComponent implements OnDestroy {
       });
   }
 
+  forceDebugMode() {
+    this.forcedOff = !this.forcedOff;
+    this._requestAddRect.next();
+  }
+
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
@@ -78,6 +84,9 @@ export class StatusLayerComponent implements OnDestroy {
     if (!stage) return;
     const layer = stage.children.find(x => x instanceof Konva.Layer && x.name() === "DEBUG_LAYER") ?? new Konva.Layer({name: "DEBUG_LAYER"});
     layer.removeChildren();
+    if (this.forcedOff == true) {
+      return;
+    }
     const drawingLayer = stage.children.find(x => x instanceof Konva.Layer && x.name() === 'DRAWING_LAYER');
     drawingLayer?.children.forEach(child => {
       let bounderPosition: Point = { x: child.x(), y: child.y() };
