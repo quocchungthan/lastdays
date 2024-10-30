@@ -1,0 +1,44 @@
+name: Deploy Angular App to S3
+
+on:
+  push:
+    branches:
+      - master
+      - enablers/refactor-code
+  workflow_run:
+    workflows: ["Cypress Tests", "Dotnet Tests"]
+    types:
+      - completed
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    if: ${{ github.event_name == 'push' || (github.event.workflow_run.conclusion == 'success' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/enablers/refactor-code')) }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'  # Adjust as necessary
+
+    - name: Install dependencies
+      run: npm install
+      working-directory: ./reactive-UI  # Set the working directory
+
+    - name: Build the app
+      run: npm run build -- --prod
+      working-directory: ./reactive-UI  # Set the working directory
+
+    - name: Deploy to S3
+      uses: jakejarvis/s3-sync-action@master
+      with:
+        args: --acl public-read --follow-symlinks --exclude '.git/*' --exclude 'README.md'  # Customize as needed
+        bucket: ${{ secrets.S3_BUCKET }}
+        region: ${{ secrets.AWS_REGION }}
+        aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        source_dir: './reactive-UI/dist/reactive-ui/browser'  # Updated source directory
