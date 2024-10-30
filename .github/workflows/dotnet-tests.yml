@@ -1,6 +1,12 @@
 name: Dotnet Tests
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master  # Only trigger on push to master
+  pull_request:
+    branches:  # Trigger on pull requests to any branch
+      - '**'  # Matches any branch
 
 jobs:
   dotnet-test:
