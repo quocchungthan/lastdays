@@ -1,5 +1,5 @@
 import Konva from "konva";
-import { Observable } from "rxjs";
+import { Observable, Subject, takeUntil } from "rxjs";
 import { FormModalService } from "../../../ui-utilities/controls/form-modal.service";
 import { Point } from "../../../ui-utilities/types/Point";
 import { TextEnteredEvent } from "../../events/drawings/EventQueue";
@@ -12,6 +12,7 @@ export class TextInputCommands {
     public static readonly CommandName = "text-input";
     public static readonly IconPng = 'input.png';
     public static CLASS_NAME = "TEXT_INPUT";
+    private unsubscribe$ = new Subject<void>();
     private _triggerTextInputFinishedCallback?: () => void;
     private _triggerTextInputCanceledCallback?: () => void;
 
@@ -23,9 +24,9 @@ export class TextInputCommands {
         private _toolComposition: ToolCompositionService, 
         private _formModalService: FormModalService) {
             this._formModalService.onOk()
-                .subscribe(() => this._triggerTextInputFinishedCallback?.());           
+                .pipe(takeUntil(this.unsubscribe$)).subscribe(() => this._triggerTextInputFinishedCallback?.());           
             this._formModalService.onCancel()
-                .subscribe(() => this._triggerTextInputCanceledCallback?.());
+                .pipe(takeUntil(this.unsubscribe$)).subscribe(() => this._triggerTextInputCanceledCallback?.());
     }
 
     static buildEvent(brandNewDrawing: Konva.Text, boardId: string, targetId?: string) {
@@ -50,6 +51,11 @@ export class TextInputCommands {
         return nativeElement.name().split(" ").find(x => x !== "" && x !== TextInputCommands.CLASS_NAME) ?? "";
     }
 
+    cleanUpGarbage(): void {
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
+    }
+
     // #start region - TODO: decide the size of text
     public penDown(position: Point) {
         
@@ -62,7 +68,7 @@ export class TextInputCommands {
 
     public renderComponentAndFocus(p: Point) {
         return new Observable<Konva.Text>((observer) => {
-            this._formModalService.onPreviewRendered().subscribe(() => {
+            this._formModalService.onPreviewRendered().pipe(takeUntil(this.unsubscribe$)).subscribe(() => {
                 const contentComponent = this._formModalService.getDialogContentComponent();
                 if (contentComponent instanceof TextInputCommandsFormComponent) {
                     contentComponent.preview.position({ x: p.x - contentComponent.preview.width(), y: p.y - contentComponent.preview.height()});

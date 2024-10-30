@@ -2,7 +2,7 @@ import { Observable } from 'rxjs';
 
 export function subscriptionToPromise<T>(observable: Observable<T>): Promise<T> {
     return new Promise<T>((resolve, reject) => {
-        const subscription = observable.subscribe({
+        const subscription = observable.pipe(takeUntil(this.unsubscribe$)).subscribe({
             next: resolve,
             error: reject,
             complete: () => {

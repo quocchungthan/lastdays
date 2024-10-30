@@ -1,7 +1,7 @@
 import Konva from 'konva';
-import { Observable, Subject, debounceTime, filter, map } from 'rxjs';
+import { Observable, Subject, debounceTime, filter, map, takeUntil } from 'rxjs';
 import { isNil } from 'lodash';
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Point } from '../../../ui-utilities/types/Point';
 import { Wheel } from '../../../ui-utilities/types/Wheel';
 import { KonvaObjectService } from '../services/3rds/konva-object.service';
@@ -13,7 +13,8 @@ export enum KonvaMouseButton {
 }
 
 @Injectable()
-export class ViewPortEventsManager {
+export class ViewPortEventsManager implements OnDestroy {
+    private unsubscribe$ = new Subject<void>();
     private _dragStart: Subject<Point | null>;
     private _dragEnd: Subject<Point | null>;
     private _wheel: Subject<Wheel | null>;
@@ -26,7 +27,7 @@ export class ViewPortEventsManager {
     private _viewPort!: Konva.Stage;
     
     constructor(_konvaObjects: KonvaObjectService) {
-        _konvaObjects.viewPortChanges.subscribe(s => {
+        _konvaObjects.viewPortChanges.pipe(takeUntil(this.unsubscribe$)).subscribe(s => {
             this._viewPort = s;
             this._registerEventListener();
         })
@@ -39,6 +40,10 @@ export class ViewPortEventsManager {
         this._mouseEnter = new Subject<void>();
         this._mouseOut = new Subject<void>();
         this._wheel = new Subject<Wheel | null>();
+    }
+    ngOnDestroy() {
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
     }
 
     public onMouseEnter() {

@@ -1,11 +1,18 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { Subject, takeUntil } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
-export class MetaService {
+export class MetaService implements OnDestroy {
+  private unsubscribe$ = new Subject<void>();
   constructor(private _translateService: TranslateService) {}
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+  }
 
   public setPageName(content: string) {
     document.title = content;
@@ -21,7 +28,7 @@ export class MetaService {
 
   public resetPageName() {
     this._translateService.get("SLOGAN")
-      .subscribe((translatedSlogan) => {
+      .pipe(takeUntil(this.unsubscribe$)).subscribe((translatedSlogan) => {
         this.setPageName("Agile Link - " + translatedSlogan);
       });
   }

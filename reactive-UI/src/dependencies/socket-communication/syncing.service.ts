@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { WebSocketSubject, webSocket } from 'rxjs/webSocket'
-import { BehaviorSubject, EMPTY, Observable, Subject, catchError, filter, map, tap } from 'rxjs';
+import { BehaviorSubject, EMPTY, Observable, Subject, catchError, filter, map, takeUntil, tap } from 'rxjs';
 import { cloneDeep, isNil } from 'lodash';
 import { ChatTextEventData, SayHelloEventData, WSEvent, WSEventType } from './web-socket-model';
 import { UserIdentity } from '@uidata/entities/Identity';
@@ -20,11 +20,12 @@ export const StatusTranslatatbleString = {
 @Injectable({
   providedIn: 'root'
 })
-export class SyncingService {
+export class SyncingService implements OnDestroy {
   private _ws?: WebSocketSubject<WSEvent>;
   private _allEventsChanges = new BehaviorSubject<BaseEvent>(null!);
   private _allEventsReset = new Subject<void>();
   private _allEventsBaseEvent: BaseEvent[] = [];
+  private unsubscribe$ = new Subject<void>();
 
   /**
    * 0 => disconnected
@@ -55,6 +56,11 @@ export class SyncingService {
       .then((s) => {
         this._currentUser = s;
       });
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   public onChatMessageReceived() {
@@ -243,6 +249,6 @@ export class SyncingService {
       tap({
         error: error => console.log(error),
       }), catchError(_ => EMPTY))
-      .subscribe(this._onMessageReceive.bind(this));
+      .pipe(takeUntil(this.unsubscribe$)).subscribe(this._onMessageReceive.bind(this));
   }
 }

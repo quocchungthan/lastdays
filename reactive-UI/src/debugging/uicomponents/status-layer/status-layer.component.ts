@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, effect, signal, WritableSignal } from '@angular/core';
+import { Component, effect, OnDestroy, signal, WritableSignal } from '@angular/core';
 import { MetaConfiguration } from '../../../dependencies/meta/model/configuration.interface';
 import { ActivatedRoute } from '@angular/router';
-import { catchError, debounceTime, of, Subject } from 'rxjs';
+import { catchError, debounceTime, of, Subject, takeUntil } from 'rxjs';
 import { EventsCompositionService } from '@drawings/events-composition.service';
 import { ToBaseEvent } from '@drawings/EventQueue';
 import { BaseEvent } from '@drawings/BaseEvent';
@@ -22,13 +22,14 @@ import { CANVAS_CHANGE_THROTTLE_TIME } from '@config/delay.constants';
   templateUrl: './status-layer.component.html',
   styleUrl: './status-layer.component.scss'
 })
-export class StatusLayerComponent {
+export class StatusLayerComponent implements OnDestroy {
   debugEnabled: boolean;
   _realTimeEvents: WritableSignal<BaseEvent[]> = signal([]);
   _debugEnabled: WritableSignal<boolean> = signal(false);
   realTimeEvents: BaseEvent[] = [];
   viewPort: WritableSignal<Konva.Stage | null> = signal(null);
   private _requestAddRect = new Subject<void>();
+  private unsubscribe$ = new Subject<void>();
   
 
   constructor(private _httpClient: HttpClient,
@@ -40,22 +41,22 @@ export class StatusLayerComponent {
       .pipe(catchError(() => {
         return of({debugMode: true});
       }))
-      .subscribe((configuration) => {
+      .pipe(takeUntil(this.unsubscribe$)).subscribe((configuration) => {
         this._debugEnabled.set(configuration.debugMode);
       });
 
       _eventCompositionService.getLocalQueueChanged()
-        .subscribe((events) => {
+        .pipe(takeUntil(this.unsubscribe$)).subscribe((events) => {
           this._realTimeEvents.set(events.map(ToBaseEvent)
             .filter(x => !isNil(x)).map(x => x as BaseEvent).sort((b, a) => a.modifiedTime.getTime() - b.modifiedTime.getTime()));
         });
       _konvaObjectService.viewPortChanges
-        .subscribe(viewPort => {
+        .pipe(takeUntil(this.unsubscribe$)).subscribe(viewPort => {
           this.viewPort.set(viewPort);
         });
       this._requestAddRect
         .pipe(debounceTime(CANVAS_CHANGE_THROTTLE_TIME))
-        .subscribe(() => {
+        .pipe(takeUntil(this.unsubscribe$)).subscribe(() => {
           this._addRectLayer();
         });
       effect(() => {
@@ -65,6 +66,11 @@ export class StatusLayerComponent {
         if (!this.debugEnabled) return;
         this._requestAddRect.next();
       });
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   private _addRectLayer() {

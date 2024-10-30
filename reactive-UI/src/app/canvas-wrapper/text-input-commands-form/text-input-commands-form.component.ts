@@ -14,6 +14,7 @@ import { SUPPORTED_COLORS } from '../../../configs/theme.constants';
 import { Dimension } from '../../../ui-utilities/types/Dimension';
 import { TextInputCommands } from '../commands/text-input.command';
 import { Point } from '@ui/types/Point';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-text-input-commands-form',
@@ -31,12 +32,13 @@ export class TextInputCommandsFormComponent
   textPreviewContainerId = TEXT_PREVIEW_CONTAINER;
   @ViewChild('textEditor')
   textEditor!: TextEditorComponent;
+  private unsubscribe$ = new Subject<void>();
   private _konvaText!: Konva.Text;
   private _textLayer?: Konva.Group;
 
   constructor(private _translateService: TranslateService) {
     super(_translateService);
-    this._translateService.get(this.dialogTitle).subscribe((translated) => {
+    this._translateService.get(this.dialogTitle).pipe(takeUntil(this.unsubscribe$)).subscribe((translated) => {
       this.dialogTitle = translated;
     });
   }
@@ -56,6 +58,8 @@ export class TextInputCommandsFormComponent
 
   ngOnDestroy(): void {
     this.preview?.destroy();
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   setText($event: string) {

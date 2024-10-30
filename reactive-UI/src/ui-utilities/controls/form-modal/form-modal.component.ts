@@ -5,12 +5,13 @@ import {
   Component,
   ComponentRef,
   inject,
+  OnDestroy,
   OnInit,
   ViewChild,
   ViewContainerRef,
 } from '@angular/core';
 import { FormModalService } from '../form-modal.service';
-import { filter } from 'rxjs';
+import { filter, Subject, takeUntil } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { ModalContentComponent } from './IModalContentComponent';
 
@@ -21,7 +22,7 @@ import { ModalContentComponent } from './IModalContentComponent';
   templateUrl: './form-modal.component.html',
   styleUrl: './form-modal.component.scss',
 })
-export class FormModalComponent implements OnInit, AfterViewInit {
+export class FormModalComponent implements OnInit, AfterViewInit, OnDestroy {
   isOpening = false;
   cancelText = 'FORM_DIALOG_CANCEL';
   submitText = 'FORM_DIALOG_SUBMIT';
@@ -30,6 +31,7 @@ export class FormModalComponent implements OnInit, AfterViewInit {
   vcr!: ViewContainerRef;
   cdr = inject(ChangeDetectorRef);
   private _component!: ComponentRef<ModalContentComponent>;
+  private unsubscribe$ = new Subject<void>();
 
   get dialogTitle() {
     return this._component?.instance?.dialogTitle ?? '';
@@ -41,10 +43,15 @@ export class FormModalComponent implements OnInit, AfterViewInit {
   ) {
     this._translateService
       .get([this.cancelText, this.submitText])
-      .subscribe((result) => {
+      .pipe(takeUntil(this.unsubscribe$)).subscribe((result) => {
         this.cancelText = result[this.cancelText];
         this.submitText = result[this.submitText];
       });
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   ngAfterViewInit(): void {
@@ -55,7 +62,7 @@ export class FormModalComponent implements OnInit, AfterViewInit {
     this._formModalService
       .onOpen()
       .pipe(filter(() => !this.isOpening))
-      .subscribe(() => {
+      .pipe(takeUntil(this.unsubscribe$)).subscribe(() => {
         this.isOpening = true;
         this.renderDynamicComponents();
       });
@@ -74,7 +81,7 @@ export class FormModalComponent implements OnInit, AfterViewInit {
     this._formModalService.storeDialogContentComponent(
       this._component.instance
     );
-    this._component.instance.onPreviewCreated.subscribe(() => {
+    this._component.instance.onPreviewCreated.pipe(takeUntil(this.unsubscribe$)).subscribe(() => {
       this._formModalService.firePreviewRendered();
     });
     this.cdr.detectChanges();
