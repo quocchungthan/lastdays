@@ -26,6 +26,8 @@ import { AbstractEventQueueItem } from '@drawings/PureQueue.type';
 import { ToolCompositionService } from '@states/tool-composition.service';
 import { ViewPortEventsManager } from './ViewPortEvents.manager';
 import { subscriptionToPromise } from "@ui/asynchronous/observableAndPromises";
+import { CANVAS_CHANGE_THROTTLE_TIME } from "@config/delay.constants";
+import { BoardPreviewsService } from "@uidata/boardPreviews.service";
 
 @Injectable()
 export class UserDrawingLayerManager implements OnDestroy {
@@ -56,6 +58,7 @@ export class UserDrawingLayerManager implements OnDestroy {
         private _eventsService: EventsService,
         private _syncingService: SyncingService,
         private _formModalService: FormModalService,
+        private _boardPreviews: BoardPreviewsService,
         private _keys: KeysService) {
         this._drawingLayer = new Konva.Layer({name: "DRAWING_LAYER"});
         this._placeholderLayer = new Konva.Layer();
@@ -135,6 +138,11 @@ export class UserDrawingLayerManager implements OnDestroy {
     
     private async _loadDrawingObjectsAsync() {
         const all = await this._eventsService.indexAndMap(this._boardId);
+        this._eventsCompositionService.getLocalQueueChanged()
+            .pipe(debounceTime(CANVAS_CHANGE_THROTTLE_TIME))
+            .subscribe(() => {
+                this._capturePreview();
+            });
         this._syncingService.listen(this._boardId)
             .peerCheck(all.map(x => ToBaseEvent(x)!))
         this._syncingService.onEventAdded()
@@ -156,6 +164,11 @@ export class UserDrawingLayerManager implements OnDestroy {
             });
         this._eventsCompositionService
             .build(all);
+    }
+    private _capturePreview() {
+        const dataURL = this._viewPort.toDataURL();
+        this._boardPreviews.saveOrUpdateByBoardId(this._boardId, dataURL)
+            .then(() => {});
     }
     private async _overwriteEventsByBoardId(allEvents: BaseEvent[]) {
         const listEventsOfCurrentBoard = await this._eventsService.indexAndMap(this._boardId);
@@ -355,10 +368,10 @@ export class UserDrawingLayerManager implements OnDestroy {
         this._stickyNote.attachStickyNotePlaceholder()
             .then(() => {
                 this._cursor.grabbing();
-                return subscriptionToPromise(this._events.onCursorMove())
-            })
-            .then((p) => {
-                this._stickyNote.movePlaceholder(p);
+                this._events.onCursorMove()
+                    .subscribe((p) => {
+                        this._stickyNote.movePlaceholder(p);
+                    });
             });
     }
 }
