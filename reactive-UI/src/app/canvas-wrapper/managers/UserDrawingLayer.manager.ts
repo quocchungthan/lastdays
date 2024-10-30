@@ -25,6 +25,7 @@ import { EventsCompositionService } from '@drawings/events-composition.service';
 import { AbstractEventQueueItem } from '@drawings/PureQueue.type';
 import { ToolCompositionService } from '@states/tool-composition.service';
 import { ViewPortEventsManager } from './ViewPortEvents.manager';
+import { subscriptionToPromise } from "@ui/asynchronous/observableAndPromises";
 
 @Injectable()
 export class UserDrawingLayerManager implements OnDestroy {
@@ -354,10 +355,10 @@ export class UserDrawingLayerManager implements OnDestroy {
         this._stickyNote.attachStickyNotePlaceholder()
             .then(() => {
                 this._cursor.grabbing();
-                this._events.onCursorMove()
-                    .subscribe((p) => {
-                        this._stickyNote.movePlaceholder(p);
-                    });
+                return subscriptionToPromise(this._events.onCursorMove())
             })
+            .then((p) => {
+                this._stickyNote.movePlaceholder(p);
+            });
     }
 }
