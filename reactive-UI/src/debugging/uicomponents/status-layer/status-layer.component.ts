@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, effect, signal, WritableSignal } from '@angular/core';
 import { MetaConfiguration } from '../../../dependencies/meta/model/configuration.interface';
 import { ActivatedRoute } from '@angular/router';
-import { catchError, of } from 'rxjs';
+import { catchError, debounceTime, of, Subject } from 'rxjs';
 import { EventsCompositionService } from '@drawings/events-composition.service';
 import { ToBaseEvent } from '@drawings/EventQueue';
 import { BaseEvent } from '@drawings/BaseEvent';
@@ -13,6 +13,7 @@ import { SUPPORTED_COLORS } from '@config/theme.constants';
 import { RectConfig } from 'konva/lib/shapes/Rect';
 import { Point } from '@ui/types/Point';
 import { Dimension } from '@ui/types/Dimension';
+import { CANVAS_CHANGE_THROTTLE_TIME } from '@config/delay.constants';
 
 @Component({
   selector: 'debug-status-layer',
@@ -27,6 +28,7 @@ export class StatusLayerComponent {
   _debugEnabled: WritableSignal<boolean> = signal(false);
   realTimeEvents: BaseEvent[] = [];
   viewPort: WritableSignal<Konva.Stage | null> = signal(null);
+  private _requestAddRect = new Subject<void>();
   
 
   constructor(private _httpClient: HttpClient,
@@ -51,15 +53,17 @@ export class StatusLayerComponent {
         .subscribe(viewPort => {
           this.viewPort.set(viewPort);
         });
-
+      this._requestAddRect
+        .pipe(debounceTime(CANVAS_CHANGE_THROTTLE_TIME))
+        .subscribe(() => {
+          this._addRectLayer();
+        });
       effect(() => {
         this.debugEnabled = this._debugEnabled();
         this.realTimeEvents = this._realTimeEvents();
         if (!this.viewPort()) return;
         if (!this.debugEnabled) return;
-        setTimeout(() => {
-          this._addRectLayer();
-        }, 1000);
+        this._requestAddRect.next();
       });
   }
 
