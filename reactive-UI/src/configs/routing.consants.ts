@@ -4,3 +4,4 @@ export const WEB_SOCKET_PATH = '/ws';
 export const OPEN_AI_ENDPOINT_PREFIX = '/api/open-ai';
 
 export const GENERATE_DRAWING_EVENTS = '/generate-drawing-event';
+export const DESCRIBE_DRAWING_EVENT = '/describe-event';
