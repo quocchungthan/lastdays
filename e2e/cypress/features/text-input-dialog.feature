@@ -61,3 +61,15 @@ Scenario: It can attach text into a sticky note after Submit 2
    And I click the Submit button of form modal
    And I press on the board and move from 350, 170 to 100, 100
    Then The snapshot of the board should remain the same
+
+Scenario: It can be rotated
+   When I open the home page
+   And I input 'first board' the board name and click submit
+   And I click at pencil tool
+   And I draw a line from 425, 70 to 350, 170
+   And I click at the text input icon in the toolbar
+   And I click on the board at position 300, 120
+   And I type 'Lengendary text' in the text area
+   And I rotate the text a bit from anchor 425, 70
+   And I click the Submit button of form modal
+   Then The snapshot of rect 250, 70 to 550, 170 should remain the same

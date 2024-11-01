@@ -66,6 +66,12 @@ export class FormModalComponent implements OnInit, AfterViewInit, OnDestroy {
         this.isOpening = true;
         this.renderDynamicComponents();
       });
+    this._formModalService
+      .onCancel()
+      .pipe(filter(() => this.isOpening))
+      .pipe(takeUntil(this.unsubscribe$)).subscribe(() => {
+        this.isOpening = false;
+      });
   }
 
   handleSubmit() {

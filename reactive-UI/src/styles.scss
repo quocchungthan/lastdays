@@ -7,3 +7,8 @@
     font-family: 'Baelast';
     src: url('assets/fonts/Baelast.otf') format('opentype');
 }
+
+body {
+    overscroll-behavior: none;
+    touch-action: none;
+ }

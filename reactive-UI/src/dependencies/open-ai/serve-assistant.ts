@@ -1,9 +1,9 @@
 import express from 'express';
-import { GENERATE_DRAWING_EVENTS, OPEN_AI_ENDPOINT_PREFIX } from '@config/routing.consants';
+import { DESCRIBE_DRAWING_EVENT, GENERATE_DRAWING_EVENTS, OPEN_AI_ENDPOINT_PREFIX } from '@config/routing.consants';
 import { ConsoleLogger } from '@com/connection.manager';
 import OpenAI from 'openai';
 import { HttpStatusCode } from '@angular/common/http';
-import { readDrawingEventTypescriptSchemaAsync, setupChatContextAsync } from './assistant.setup';
+import { readDrawingEventTypescriptSchemaAsync, setupChatContextAsync, setupChatContextForDescribingAsync } from './assistant.setup';
 import { GenerateDrawingEvent } from './model/GenerateDrawingEvent.req';
 import { loadSecretConfiguration } from '../meta/configuration.serve';
 import { dependenciesPool } from '../dependencies.pool';
@@ -12,6 +12,7 @@ import { CachedResponse } from './model/CachedResponse.entity';
 import { DEFAULT_FAKE_VALUE } from '@config/default-value.constants';
 import BackupWithJsonFileService from './backup/backup-json-file';
 import { isArray } from 'lodash';
+import { DescribeDrawingEvent } from './model/DescribeDrawingEvent.req';
 
 const secrets = loadSecretConfiguration();
 
@@ -47,6 +48,21 @@ export const injectAssistantEndpoints = (server: express.Express) => {
         }
     });
 
+    router.post(DESCRIBE_DRAWING_EVENT, async (req, res) => {
+        try {
+            const body = req.body as DescribeDrawingEvent;
+            const description = await describeEventAsync(body.newDrawingEvent, openai, logger, body.existingDrawingEvents);
+
+            res.status(HttpStatusCode.Ok)
+                .setHeader('Content-Type', 'application/json')
+                .send({description, eventId: body.newDrawingEvent.id})
+                .end();
+        } catch (e) {
+            logger.log(JSON.stringify(e));
+            res.status(HttpStatusCode.InternalServerError).end();
+        }
+    });
+
     router.get('/ts-schema', async (req, res) => {
         res.status(HttpStatusCode.Ok)
             .setHeader('Content-Type', 'text/typescript')
@@ -63,6 +79,12 @@ export const injectAssistantEndpoints = (server: express.Express) => {
     });
 
     server.use(OPEN_AI_ENDPOINT_PREFIX, router);
+}
+
+async function describeEventAsync(newEvent: any, openai: OpenAI, logger: ConsoleLogger, existingEvents: any[] = []) {
+    const chatCompleteAsync = await setupChatContextForDescribingAsync(openai, secrets.openAI_ModelName, existingEvents);
+    const rawResponse = (await chatCompleteAsync(newEvent)).choices.map(x => x.message.content)
+    return rawResponse.join(' ');
 }
 
 async function resolveReceivedMessageAsync(userMessage: string, openai: OpenAI, logger: ConsoleLogger, existingEvents: any[] = []) {

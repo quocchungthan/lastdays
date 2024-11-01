@@ -114,7 +114,10 @@ export class TextInputCommandsFormComponent
     text: string,
     color: string,
     pos: { x: number; y: number },
-    size: Dimension
+    size: Dimension,
+    skewX: number = 0,
+    skewY: number = 0,
+    rotation: number = 0,
   ) {
     return new Konva.Text({
       name: TextInputCommands.CLASS_NAME,
@@ -127,6 +130,9 @@ export class TextInputCommandsFormComponent
       lineHeight: 1,
       draggable: true,
       fontFamily: 'Baelast',
+      skewX,
+      skewY,
+      rotation,
       fill: color,
     });
   }

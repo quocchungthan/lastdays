@@ -30,7 +30,7 @@ export class ToolBar {
 
     snapshotTheSaveIcon() {
         this._getToolbar()
-            .get('icon-bookmark')
+            .get('icon-bookmarked')
             .first()
             .should('be.visible').matchImageSnapshot();
     }
