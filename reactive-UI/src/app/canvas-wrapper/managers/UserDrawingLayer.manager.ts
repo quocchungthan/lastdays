@@ -20,7 +20,7 @@ import { StickyNoteCommands } from '@canvas-module/commands/sticky-notes.command
 import { TextInputCommands } from '@canvas-module/commands/text-input.command';
 import { KonvaObjectService } from '@canvas-module/services/3rds/konva-object.service';
 import { BaseEvent } from '@drawings/BaseEvent';
-import { ToBaseEvent, BoardedCreatedEvent, ToDrawingEvent, StickyNoteMovedEvent, GeneralUndoEvent, StickyNotePastedEvent, InkAttachedToStickyNoteEvent, TextAttachedToStickyNoteEvent, PencilUpEvent, TextEnteredEvent } from '@drawings/EventQueue';
+import { ToBaseEvent, BoardedCreatedEvent, ToDrawingEvent, StickyNoteMovedEvent, GeneralUndoEvent, InkAttachedToStickyNoteEvent, TextAttachedToStickyNoteEvent, PencilUpEvent, TextEnteredEvent } from '@drawings/EventQueue';
 import { EventsCompositionService } from '@drawings/events-composition.service';
 import { AbstractEventQueueItem } from '@drawings/PureQueue.type';
 import { ToolCompositionService } from '@states/tool-composition.service';
@@ -236,7 +236,7 @@ export class UserDrawingLayerManager implements OnDestroy {
         this._events.onTouchEnd()
             .pipe(takeUntil(this.unsubscribe$)).subscribe((p) => {
                 this._pencilEnd();
-                this._stickyNoteEnd();
+                this._stickyNoteEnd(p);
                 this._textInputStart(p);
             });
         this._events.onMouseOut()
@@ -273,9 +273,10 @@ export class UserDrawingLayerManager implements OnDestroy {
     }
 
     // TODO: move to command class, tool should owns its logic
-    private _stickyNoteEnd() {
+    private _stickyNoteEnd(p: Point) {
         if (this._toolComposition.tool === StickyNoteCommands.CommandName) {
             const brandNewDrawing = this._stickyNote.putnew();
+
             this._drawingToolEnd.next();
             if (!brandNewDrawing) {
                 return;
@@ -368,8 +369,13 @@ export class UserDrawingLayerManager implements OnDestroy {
             this._stickyNote.detachPlaceholder();
             return;
         }
-
-        this._stickyNote.attachStickyNotePlaceholder()
+        const currentStagePosition = this._viewPort.position();
+        currentStagePosition.x /= this._viewPort.scaleX();
+        currentStagePosition.y /= this._viewPort.scaleX();
+        this._stickyNote.attachStickyNotePlaceholder({
+            x: this._viewPort.width() / 2 - currentStagePosition.x,
+            y: this._viewPort.height() / 2 - currentStagePosition.y
+        })
             .then(() => {
                 this._cursor.grabbing();
                 this._events.onCursorMove()

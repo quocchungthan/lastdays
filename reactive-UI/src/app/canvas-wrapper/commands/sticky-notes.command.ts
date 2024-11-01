@@ -242,11 +242,11 @@ export class StickyNoteCommands {
         });
     }
 
-    public attachStickyNotePlaceholder(): Promise<void> {
+    public attachStickyNotePlaceholder(center: Point): Promise<void> {
         const stickyNoteImageUrl = StickyNoteCommands.getRandomImageUrl();
         return new Promise<void>((res, rej) => {
             Konva.Image.fromURL(stickyNoteImageUrl, (image) => {
-                var placeholder = this._adjustImage(image);
+                var placeholder = this._adjustImage(image, center);
                 this._stickyNotePlaceHolderName.forEach(n => placeholder.addName(n));
                 this._foundation.add(placeholder);
                 res();
@@ -289,7 +289,7 @@ export class StickyNoteCommands {
         newKonvaObject.draggable(true);
     }
 
-    private _adjustImage(image: Konva.Image) {
+    private _adjustImage(image: Konva.Image, center?: Point) {
         const placeholder = new Konva.Group();
         placeholder.setAttr(StickyNoteCommands.BackgroundUrlAttrName, image.attrs.image.currentSrc);
         const stickyNoteRatio = image.width() / image.height();
@@ -297,7 +297,11 @@ export class StickyNoteCommands {
         image.width(this._standardStickyNoteSize);
         image.height(this._standardStickyNoteSize / stickyNoteRatio);
         placeholder.add(image);
-        
+
+        if (center) {
+            placeholder.x(center.x - this._standardStickyNoteSize / 2);
+            placeholder.y(center.y - this._standardStickyNoteSize / stickyNoteRatio / 2);
+        }
         return placeholder;
     }
 
