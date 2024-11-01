@@ -1,7 +1,10 @@
 <topbar #topBar size="minimal">
     <div class="flex justify-between bg-white" data-cy="tool-bar">
-        <tool-selector [selectedToolId]="this.selectedToolId" [tools]="supportedDrawingTools" (toolSelected)="onToolSelected($event)"></tool-selector>
-        <color-board [hidden]="notSupportColor(selectedToolId)" (colorSelected)="setColor($event)" [selectedColor]="selectedColor"></color-board>
+        <div class="flex gap-2">
+            <icon-undo style="cursor: pointer"  (click)="triggerUndo()"></icon-undo>
+            <tool-selector [selectedToolId]="this.selectedToolId" [tools]="supportedDrawingTools" (toolSelected)="onToolSelected($event)"></tool-selector>
+            <color-board [hidden]="notSupportColor(selectedToolId)" (colorSelected)="setColor($event)" [selectedColor]="selectedColor"></color-board>
+        </div>
         <div class="flex gap-1 pr-1">
         <icon-full-screen style="cursor: pointer"  (click)="toggleFullScreen()"></icon-full-screen>
             @if (isSaved) {

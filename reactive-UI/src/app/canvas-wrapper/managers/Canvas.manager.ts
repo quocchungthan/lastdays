@@ -12,6 +12,7 @@ import { KonvaObjectService } from '../services/3rds/konva-object.service';
 import { UrlExtractorService } from '../../services/browser/url-extractor.service';
 import { BoardsService } from '../../services/data-storages/boards.service';
 import { Subject, takeUntil } from 'rxjs';
+import { GeneralUndoEvent } from '@drawings/EventQueue';
 
 @Injectable()
 export class CanvasManager implements OnDestroy {
@@ -39,6 +40,12 @@ export class CanvasManager implements OnDestroy {
     ngOnDestroy(): void {
         this.unsubscribe$.next();
         this.unsubscribe$.complete();
+    }
+
+    triggerUndoEvent(boardId: string) {
+        const event = new GeneralUndoEvent();
+        event.boardId = boardId;
+        this._userDrawing.generallyProcessNewEvent(event);
     }
 
     public get tool () {

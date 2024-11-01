@@ -10,6 +10,7 @@ import { BookmarkComponent } from '../../ui-utilities/icons/bookmark/bookmark.co
 import { BookmarkedComponent } from '../../ui-utilities/icons/bookmarked/bookmarked.component';
 import { StatusLayerComponent } from "../../debugging/uicomponents/status-layer/status-layer.component";
 import { FullScreenComponent } from "../../ui-utilities/icons/full-screen/full-screen.component";
+import { UndoComponent } from "../../ui-utilities/icons/undo/undo.component";
 
 const routes: Routes = [
   {
@@ -33,7 +34,8 @@ const routes: Routes = [
     BookmarkedComponent,
     CommonModule,
     StatusLayerComponent,
-    FullScreenComponent
+    FullScreenComponent,
+    UndoComponent
 ]
 })
 export class CanvasWrapperModule { }

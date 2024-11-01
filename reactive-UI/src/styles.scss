@@ -12,3 +12,37 @@ body {
     overscroll-behavior: none;
     touch-action: none;
  }
+
+.icon-custom {
+    .tooltip {
+        visibility: hidden;
+        /* width: 89px; */
+        background-color: black;
+        color: #fff;
+        text-align: center;
+        border-radius: 5px;
+        padding: 5px;
+        position: absolute;
+        z-index: 1;
+        /* top: 50%; */
+        right: 200%;
+        margin-left: -30px;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    span.tooltip.tooltip--right {
+        right: -200%;
+    }
+    &:hover .tooltip{
+        visibility: visible;
+        opacity: 1;
+    }
+}
+
+/* Prevent text selection */
+.no-select {
+    user-select: none; /* Non-standard, supported by most modern browsers */
+    -moz-user-select: none; /* Firefox */
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10+ */
+  }

@@ -82,6 +82,7 @@ export class BoardDetailComponent implements AfterViewInit, OnDestroy {
       iconUrl: `${TOOL_ICON_FOLDER}${TextInputCommands.IconPng}`,
     },
   ];
+  private _boardId: string = '';
 
   constructor(
     private _savedBoards: SavedBoardsService,
@@ -106,6 +107,10 @@ export class BoardDetailComponent implements AfterViewInit, OnDestroy {
     } else {
       this._fullscreenService.exitFullscreen();
     }
+  }
+
+  triggerUndo() {
+    this._canvasManager.triggerUndoEvent(this._boardId);
   }
 
   ngOnDestroy(): void {
@@ -146,6 +151,7 @@ export class BoardDetailComponent implements AfterViewInit, OnDestroy {
   toggleSavedStatus() {
     this.isSaved = !this.isSaved;
     const subscription = this._urlExtractor.currentBoardIdChanges().pipe(takeUntil(this.unsubscribe$)).subscribe((id) => {
+      this._boardId = id;
       if (this.isSaved) {
         var newSavingAction = new SavedBoard();
 
