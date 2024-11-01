@@ -1,7 +1,7 @@
 import { Then, When } from "cypress-cucumber-preprocessor/steps";
 import { BoardDetailPage } from "../po/board-detail.page.po";
 
-const boardDetail = new BoardDetailPage()
+const boardDetail = new BoardDetailPage();
 
 Then('The snapshot of the board should remain the same', () => {
    boardDetail.screenshot();
@@ -32,5 +32,20 @@ When('I click on the board at position {int}, {int}', (x: number, y: number) => 
 
 When('I press on the board and move from {int}, {int} to {int}, {int}', (x: number, y: number, dx: number, dy: number) => {
    boardDetail.pressMouseToALineForm({x, y}, {x: dx, y: dy});
+});
+
+When('I draw a line from {int}, {int} to {int}, {int}', (x: number, y: number, dx: number, dy: number) => {
+   boardDetail.pressMouseToALineForm({x, y}, {x: dx, y: dy});
+});
+
+Then('The snapshot of rect {int}, {int} to {int}, {int} should remain the same', (x: number, y: number, dx: number, dy: number) => {
+   cy.get('[data-cy=drawing-container]').matchImageSnapshot({
+      clip: {
+         x,
+         y,
+         width: dx - x,
+         height: dy - y
+      }
+   });
 });
 
