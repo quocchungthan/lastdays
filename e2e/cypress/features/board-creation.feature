@@ -8,7 +8,7 @@ Scenario: display the board immediately after created from home page
 Scenario: boards I created should be saved automatically
   When I open the home page
   And I input 'first board' the board name and click submit
-  Then The snapshot of the board should remain the same
+  Then The snapshot of the save icon should remain the same
 
 
 Scenario: create multiple board in a short time
