@@ -55,6 +55,7 @@ export class TextInputCommands {
     }
 
     cleanUpGarbage(): void {
+        this._formModalService.discard();
         this.unsubscribe$.next();
         this.unsubscribe$.complete();
     }
@@ -92,7 +93,7 @@ export class TextInputCommands {
                     contentComponent.builtComponent.width(contentComponent.builtComponent.textWidth);
                     contentComponent.builtComponent.height(contentComponent.builtComponent.textHeight);
                     contentComponent.builtComponent.fill(this._toolComposition.color);
-                    console.log(contentComponent.builtComponent.attrs, contentComponent.preview.attrs);
+
                     observer.next(contentComponent.builtComponent);
                     contentComponent.ngOnDestroy();
                 } else {
