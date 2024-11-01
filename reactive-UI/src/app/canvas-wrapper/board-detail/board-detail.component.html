@@ -2,12 +2,14 @@
     <div class="flex justify-between bg-white" data-cy="tool-bar">
         <tool-selector [selectedToolId]="this.selectedToolId" [tools]="supportedDrawingTools" (toolSelected)="onToolSelected($event)"></tool-selector>
         <color-board [hidden]="notSupportColor(selectedToolId)" (colorSelected)="setColor($event)" [selectedColor]="selectedColor"></color-board>
-
-        @if (isSaved) {
-            <icon-bookmarked style="cursor: pointer" (click)="toggleSavedStatus()"></icon-bookmarked>
-        } @else {
-            <icon-bookmark style="cursor: pointer" (click)="toggleSavedStatus()"></icon-bookmark>
-        }
+        <div class="flex gap-1 pr-1">
+        <icon-full-screen style="cursor: pointer"  (click)="toggleFullScreen()"></icon-full-screen>
+            @if (isSaved) {
+                <icon-bookmarked style="cursor: pointer" (click)="toggleSavedStatus()"></icon-bookmarked>
+            } @else {
+                <icon-bookmark style="cursor: pointer" (click)="toggleSavedStatus()"></icon-bookmark>
+            }
+        </div>
     </div>
 </topbar>
 <div data-cy="drawing-container" id="{{KONVA_CONTAINER}}"></div>

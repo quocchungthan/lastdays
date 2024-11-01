@@ -29,6 +29,7 @@ import { ToolCompositionService } from '@states/tool-composition.service';
 import { BoardsService } from '@uidata/boards.service';
 import { MetaService } from '@browser/meta.service';
 import { Subject, takeUntil } from 'rxjs';
+import { FullScreenService } from '@browser/fullscreen.service';
 
 @Component({
   selector: 'app-board-detail',
@@ -43,6 +44,7 @@ import { Subject, takeUntil } from 'rxjs';
     ToolCompositionService,
     EventsCompositionService,
     SyncingService,
+    FullScreenService,
   ],
   templateUrl: './board-detail.component.html',
   styleUrl: './board-detail.component.scss',
@@ -90,12 +92,22 @@ export class BoardDetailComponent implements AfterViewInit, OnDestroy {
     private _canvasManager: CanvasManager,
     private _boards: BoardsService,
     private _metaService: MetaService,
-    private _toolCompositionService: ToolCompositionService
+    private _toolCompositionService: ToolCompositionService,
+    private _fullscreenService: FullScreenService,
   ) {
     this._activatedRoute.params.pipe(takeUntil(this.unsubscribe$)).subscribe((x) => {
       this._urlExtractor.setBoardId(x['id']);
     });
   }
+
+  toggleFullScreen() {
+    if (!this._fullscreenService.isFullscreen()) {
+      this._fullscreenService.requestFullscreen();
+    } else {
+      this._fullscreenService.exitFullscreen();
+    }
+  }
+
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
