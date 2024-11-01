@@ -113,7 +113,7 @@ export const setupChatContextForDescribingAsync = async (client: OpenAI, modelNa
         },
         {
             role: 'user',
-            content: "Describe the drawing in human-readable language from new json drawing event after all Existing drawing events"
+            content: "Describe the drawing in human-readable language from new json drawing event after all Existing drawing events, make the description short yet have sufficient numeric factors."
         },
         // TODO: fill the next message with the response from assistant role=assistant and also add the user message as correction
         // May better to work with thread?

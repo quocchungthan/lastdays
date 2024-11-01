@@ -14,12 +14,13 @@ import { RectConfig } from 'konva/lib/shapes/Rect';
 import { Point } from '@ui/types/Point';
 import { Dimension } from '@ui/types/Dimension';
 import { CANVAS_CHANGE_THROTTLE_TIME } from '@config/delay.constants';
-import { DrawingAssistantService } from '@ai/ui-client/drawing-assistant.service';
+import { EventDescriptionService } from '../event-description.service';
 
 @Component({
   selector: 'debug-status-layer',
   standalone: true,
   imports: [],
+  providers: [EventDescriptionService],
   templateUrl: './status-layer.component.html',
   styleUrl: './status-layer.component.scss'
 })
@@ -32,15 +33,16 @@ export class StatusLayerComponent implements OnDestroy {
   viewPort: WritableSignal<Konva.Stage | null> = signal(null);
   private _requestAddRect = new Subject<void>();
   private unsubscribe$ = new Subject<void>();
-  private _mappedEventDescription: {[key in string]: string} = {};
+
   private _requestDescribeEvent = new Subject<void>();
   
 
   constructor(private _httpClient: HttpClient,
     private _activated: ActivatedRoute,
     private _eventCompositionService: EventsCompositionService,
-    private _drawingAssistantService: DrawingAssistantService,
-    private _konvaObjectService: KonvaObjectService) {
+    private _konvaObjectService: KonvaObjectService,
+    private _eventDescriptionService: EventDescriptionService
+  ) {
     this.debugEnabled = false;
     _httpClient.get<MetaConfiguration>('/api/configuration')
       .pipe(catchError(() => {
@@ -72,6 +74,7 @@ export class StatusLayerComponent implements OnDestroy {
       effect(() => {
         this.debugEnabled = this._debugEnabled();
         this.realTimeEvents = this._realTimeEvents();
+        this._eventDescriptionService.tryPreLoadSavedDescription(this.realTimeEvents.map(x => x.id));
         this._requestDescribeEvent.next();
         if (!this.viewPort()) return;
         if (!this.debugEnabled) return;
@@ -79,20 +82,18 @@ export class StatusLayerComponent implements OnDestroy {
       });
   }
 
+
   private _describeLastEvent() {
     if (!this.realTimeEvents.length) {
       return;
     }
     const lastEvent = this.realTimeEvents[0];
+    if (this._eventDescriptionService.getFromCache(lastEvent.id)) return;
     const existingEvents = [...this.realTimeEvents];
     existingEvents.reverse();
     existingEvents.pop();
 
-    this._drawingAssistantService.describeDrawingEvent(lastEvent, existingEvents)
-      .pipe(takeUntil(this.unsubscribe$))
-      .subscribe((response) => {
-        this._mappedEventDescription[response.eventId] = response.description;
-      });
+    this._eventDescriptionService.describeEvent(lastEvent, existingEvents);
   }
 
   forceDebugMode() {
@@ -162,8 +163,9 @@ export class StatusLayerComponent implements OnDestroy {
   }
 
   getEventDisplayString(e: BaseEvent) {
-    if (this._mappedEventDescription[e.id]) {
-      return this._mappedEventDescription[e.id];
+    const cached = this._eventDescriptionService.getFromCache(e.id);
+    if (cached) {
+      return cached;
     }
     const x = omit(e, ['boardId', 'createdByUserId', 'modifiedTime', 'code']) as any;
 
