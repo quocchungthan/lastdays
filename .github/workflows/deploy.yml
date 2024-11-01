@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-      - enablers/refactor-code
+      - enhancements/usability-fullscreen-ipad-compatition
   workflow_run:
     workflows: ["Cypress Tests", "Dotnet Tests"]
     types:
