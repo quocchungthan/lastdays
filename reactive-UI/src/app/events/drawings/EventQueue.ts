@@ -54,6 +54,9 @@ export class TextEnteredEvent extends TextEnteredEventPoco implements AbstractEv
         this.containerWidth = itself.containerWidth;
         this.containerheight = itself.containerheight;
         this.position = itself.position;
+        this.skewX = itself.skewX;
+        this.skewY = itself.skewY;
+        this.rotation = itself.rotation;
     }
 }
 

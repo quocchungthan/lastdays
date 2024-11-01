@@ -34,6 +34,9 @@ export class TextEnteredEventPoco extends BaseEvent {
     position: Point = { x: 0, y: 0 };
     containerWidth: number = 0;
     containerheight: number = 0;
+    rotation: number = 0;
+    skewY: number = 0;
+    skewX: number = 0;
 }
 
 export class TextAttachedToStickyNoteEventPoco extends BaseEvent {

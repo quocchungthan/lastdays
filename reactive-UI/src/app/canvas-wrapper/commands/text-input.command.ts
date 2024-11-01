@@ -34,6 +34,9 @@ export class TextInputCommands {
         TextInputCommands.fillEvent(event, boardId, targetId);
         event.text = brandNewDrawing.text();
         event.color = brandNewDrawing.fill();
+        event.skewX = brandNewDrawing.skewX();
+        event.skewY = brandNewDrawing.skewY();
+        event.rotation = brandNewDrawing.rotation();
         event.position = brandNewDrawing.position();
         event.containerWidth = brandNewDrawing.width();
         event.containerheight = brandNewDrawing.height();
@@ -89,6 +92,7 @@ export class TextInputCommands {
                     contentComponent.builtComponent.width(contentComponent.builtComponent.textWidth);
                     contentComponent.builtComponent.height(contentComponent.builtComponent.textHeight);
                     contentComponent.builtComponent.fill(this._toolComposition.color);
+                    console.log(contentComponent.builtComponent.attrs, contentComponent.preview.attrs);
                     observer.next(contentComponent.builtComponent);
                     contentComponent.ngOnDestroy();
                 } else {
@@ -126,7 +130,10 @@ export class TextInputCommands {
             {
               width: event.containerWidth,
               height: event.containerheight,
-            }
+            },
+            event.skewX,
+            event.skewY,
+            event.rotation
           );
         konvaText.addName(event.targetId);
         konvaText.draggable(false);
