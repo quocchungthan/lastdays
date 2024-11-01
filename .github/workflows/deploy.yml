@@ -14,7 +14,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    if: ${{ github.event_name == 'push' || (github.event.workflow_run.conclusion == 'success' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/enablers/refactor-code')) }}
+    if: ${{ github.event_name == 'push' || (github.event.workflow_run.conclusion == 'success' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/enhancements/usability-fullscreen-ipad-compatition')) }}
 
     steps:
     - name: Checkout code
