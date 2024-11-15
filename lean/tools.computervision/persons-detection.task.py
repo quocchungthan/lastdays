@@ -54,6 +54,26 @@ def save_detections_to_file(detections, video_time, video_filename):
     except Exception as e:
         print(f"Error saving detections: {e}")
 
+# Function to load the last processed record from the JSON file
+def get_last_processed_time_from_file():
+    json_filename = envVariables.VIDEO_ASSETS_DIR + generate_json_filename('part_00.mp4')
+    if os.path.exists(json_filename):
+        try:
+            with open(json_filename, 'r') as f:
+                lines = f.readlines()
+                if lines:
+                    last_entry = json.loads(lines[-1])  # Get the latest detection entry
+                    return last_entry["video_time"]
+        except Exception as e:
+            print(f"Error reading detection file: {e}")
+    return 0  # If no previous records, start from the beginning
+
+# Get the last processed time (in milliseconds) from the JSON file
+last_processed_time = get_last_processed_time_from_file()
+
+# Set the video capture position to resume from the last processed time
+cap.set(cv2.CAP_PROP_POS_MSEC, last_processed_time)
+
 # Detection loop
 frame_counter = 0
 while True:
