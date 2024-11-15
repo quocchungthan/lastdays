@@ -4,6 +4,10 @@ import express from 'express';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import bootstrap from './src/main.server';
+import { loadSecretConfiguration } from './src/backend.services/configuration';
+import { serve as serveFlashCardAssistant } from './src/backend.services';
+
+const secret = loadSecretConfiguration();
 
 // The Express app is exported so that it can be used by serverless Functions.
 export function app(): express.Express {
@@ -20,6 +24,16 @@ export function app(): express.Express {
   // Example Express Rest API endpoints
   // server.get('/api/**', (req, res) => { });
   // Serve static files from /browser
+  server.get('/api/configuration', (req, res) => {
+    res.json({
+      notionEnabled: secret.notionEnabled,
+      assistantEnabled: secret.assistantEnabled,
+    })
+    .end();
+  });
+
+  serveFlashCardAssistant(server);
+
   server.get('**', express.static(browserDistFolder, {
     maxAge: '1y',
     index: 'index.html',
@@ -45,7 +59,7 @@ export function app(): express.Express {
 }
 
 function run(): void {
-  const port = process.env['PORT'] || 4000;
+  const port = secret.port;
 
   // Start up the Node server
   const server = app();
