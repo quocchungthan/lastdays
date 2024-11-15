@@ -7,6 +7,8 @@ const { notion_Token, notion_PageId } = loadSecretConfiguration();
 
 export class EnglishWordStorageService {
     private notionClient: Client;
+    private cache: { content: any; timestamp: number } | null = null;
+    private readonly cacheExpirationTime = 15 * 60 * 1000; // 15 minutes in milliseconds
 
     constructor() {
         // Initialize the Notion client with the API key
@@ -16,6 +18,12 @@ export class EnglishWordStorageService {
     // Fetch the content from Notion and extract the required information
     async fetchAsync(): Promise<EnglishWords> {
         try {
+            // If the cache exists and is still valid, return cached data
+            if (this.isCacheValid()) {
+                console.log('Returning cached data');
+                return this.cache!.content;
+            }
+
             const pageId = notion_PageId; // Notion page ID from your secrets
             // Extract block content (you may need to use `blocks.children` API to get children)
             const contentBlocks = await this.getPageContent(pageId);
@@ -23,6 +31,12 @@ export class EnglishWordStorageService {
             const englishWords = new EnglishWords();
             englishWords.pureHtmlContent = this.extractHtmlContent(contentBlocks); // Extract HTML content
             englishWords.primitiveItems = this.extractBoldWords(englishWords.pureHtmlContent); // Extract bolded words
+
+            // Cache the result and store the current timestamp
+            this.cache = {
+                content: englishWords,
+                timestamp: Date.now()
+            };
 
             return englishWords;
         } catch (error) {
@@ -43,6 +57,16 @@ export class EnglishWordStorageService {
             console.error("Error fetching page blocks:", error);
             throw error;
         }
+    }
+
+    // Check if the cache is still valid (within the last 15 minutes)
+    private isCacheValid(): boolean {
+        if (!this.cache) {
+            return false;
+        }
+
+        const currentTime = Date.now();
+        return (currentTime - this.cache.timestamp) <= this.cacheExpirationTime;
     }
 
     // Fisher-Yates shuffle to randomize the order of items in the array
