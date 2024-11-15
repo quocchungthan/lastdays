@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { Question, WordOption } from "./flashcard.entity";
+import { Question } from "./flashcard.entity";
 import { loadSecretConfiguration } from "./configuration";
 
 const secrets = loadSecretConfiguration();
@@ -10,18 +10,43 @@ const newOpenAiClient = () => {
        project: secrets.openAI_ProjectId,
        apiKey: secrets.openAI_Key
    });
-}
+};
 
 export class FlashCardAssistantService {
+   private usedWords: Set<string> = new Set(); // Set to track previously used words
+
+   // Option to reset the used words set if needed
+   resetUsedWords() {
+      this.usedWords.clear();
+   }
+
+   // Fisher-Yates shuffle to randomize the order of words
+   private shuffleArray(array: string[]): string[] {
+      for (let i = array.length - 1; i > 0; i--) {
+         const j = Math.floor(Math.random() * (i + 1));
+         [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+      }
+      return array;
+   }
+
    async generateRandomQuestion(words: string[], pureHtmlContent: string, optionCount: number = 2): Promise<Question> {
       if (optionCount < 2) {
          throw Error("Invalid input, there must be at least 2 options.");
       }
 
+      // Filter out words that have already been asked
+      let unusedWords = words.filter(word => !this.usedWords.has(word));
+      if (unusedWords.length < 2) {
+         this.usedWords = new Set(); // Set to track previously used words
+         unusedWords = words;
+      }
+      // Shuffle the unused words to introduce randomness
+      const shuffledWords = this.shuffleArray([...unusedWords]);
+
       const openAiClient = newOpenAiClient();
 
       // Prepare the prompt for OpenAI model
-      const prompt = `Create a question based on the following words: ${words.join(", ")}. 
+      const prompt = `Create a question based on the following words: ${shuffledWords.join(", ")}. 
       The question should be relevant to the context provided and could be a vocabulary or general knowledge question. 
       The HTML content is: ${pureHtmlContent}. 
       
@@ -51,6 +76,10 @@ export class FlashCardAssistantService {
             { 
                role: "user", 
                content: prompt 
+            },
+            { 
+               role: "user", 
+               content: "You can use both the main words and the words within HTML content, but the main words are more important. However, this is not absolute." 
             }
          ],
       });
@@ -59,20 +88,19 @@ export class FlashCardAssistantService {
       let generatedQuestion: Question;
       try {
          generatedQuestion = JSON.parse(response.choices?.[0].message.content?.trim() || "");
-         
          // Validate the structure of the response
          if (!this.isValidQuestion(generatedQuestion)) {
             throw new Error("Invalid response structure from OpenAI.");
-         }
-         
-         // Ensure the number of options matches the requested count
-         if (generatedQuestion.options.length !== optionCount) {
-            throw new Error(`Expected ${optionCount} options, but received ${generatedQuestion.options.length}.`);
          }
       } catch (error) {
          console.error("Error parsing the response:", error);
          throw new Error("Failed to generate valid flashcard JSON.");
       }
+
+      // Mark the words in the question as used
+      generatedQuestion.options.forEach(option => {
+         this.usedWords.add(option.word);
+      });
 
       // Return the constructed Question object
       return generatedQuestion;
