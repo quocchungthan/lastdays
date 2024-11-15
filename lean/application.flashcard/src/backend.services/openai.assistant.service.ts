@@ -27,7 +27,7 @@ export class FlashCardAssistantService {
 
       // Call the OpenAI API to generate a question based on the provided words and content
       const response = await openAiClient.chat.completions.create({
-         model: "gpt-4", // or "gpt-3.5-turbo"
+         model: secrets.openAI_ModelName, // or "gpt-3.5-turbo"
          messages: [
             { role: "system", content: "You are an assistant that helps create flashcards." },
             { role: "user", content: prompt },
