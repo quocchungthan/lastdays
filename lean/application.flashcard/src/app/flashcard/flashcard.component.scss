@@ -1,0 +1,71 @@
+/* flashcard.component.css */
+.flashcard-container {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   max-width: 400px;
+   margin: auto;
+   padding: 20px;
+   border-radius: 10px;
+   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+   background-color: #fff;
+ }
+ 
+ .question {
+   margin-bottom: 20px;
+ }
+ 
+ .options {
+   display: flex;
+   flex-direction: column;
+   margin-bottom: 20px;
+ }
+ 
+ .option {
+   padding: 10px;
+   margin: 5px;
+   border: 1px solid #ddd;
+   border-radius: 5px;
+   cursor: pointer;
+   transition: background-color 0.3s ease;
+ }
+ 
+ .option.selected {
+   background-color: #d0f0c0;
+ }
+ 
+ .option.correct {
+   background-color: #4caf50;
+   color: white;
+ }
+ 
+ .option.incorrect {
+   background-color: #f44336;
+   color: white;
+ }
+ 
+ .feedback {
+   font-weight: bold;
+ }
+ 
+ .correct {
+   color: #4caf50;
+ }
+ 
+ .incorrect {
+   color: #f44336;
+ }
+ 
+ .next-button {
+   padding: 10px 20px;
+   background-color: #2196f3;
+   color: white;
+   border: none;
+   border-radius: 5px;
+   cursor: pointer;
+ }
+ 
+ .next-button:hover {
+   background-color: #1976d2;
+ }
+ 
