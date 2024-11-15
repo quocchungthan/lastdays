@@ -22,7 +22,7 @@ export class EnglishWordStorageService {
 
             const englishWords = new EnglishWords();
             englishWords.pureHtmlContent = this.extractHtmlContent(contentBlocks); // Extract HTML content
-            englishWords.primitiveItems = this.extractBoldWords(contentBlocks); // Extract bolded words
+            englishWords.primitiveItems = this.extractBoldWords(englishWords.pureHtmlContent); // Extract bolded words
 
             return englishWords;
         } catch (error) {
@@ -45,46 +45,74 @@ export class EnglishWordStorageService {
         }
     }
 
-    // Extract bolded words from the content blocks
-    private extractBoldWords(blocks: any[]): string[] {
-        const boldWords: string[] = [];
+      // Extract bolded words from HTML content (using regex to match words inside <b> tags)
+      private extractBoldWords(htmlContent: string): string[] {
+         const boldWords: string[] = [];
+         
+         // Regex to match content between <b> and the first non-alphabet character
+         const regex = /<b>([a-zA-Z\s]+)\W/g;
+         let match;
 
-        blocks.forEach(block => {
-            // Check for paragraph blocks and extract bolded text
-            if (block.type === "paragraph" && block.paragraph.rich_text) {
-               // TODO: solve the type
-                block.paragraph.rich_text.forEach((text: any) => {
-                    if (text.annotations?.bold && text.text?.content) {
-                        boldWords.push(text.text.content);
-                    }
-                });
+         // Loop through all matches
+         while ((match = regex.exec(htmlContent)) !== null) {
+            const boldText = match[1].trim(); // Extracted bold word
+            // Ensure the word is valid and alphabetic
+            if (boldText) {
+               boldWords.push(boldText);
             }
-        });
+         }
 
-        return boldWords;
-    }
+         return boldWords;
+      }
 
-    // Extract HTML content (with <b> tags for bolded words)
     private extractHtmlContent(blocks: any[]): string {
-        let htmlContent = "";
-
-        blocks.forEach(block => {
-            if (block.type === "paragraph" && block.paragraph.rich_text) {
-               // TODO: solve the type
-                block.paragraph.rich_text.forEach((text: any) => {
-                    if (text.text?.content) {
-                        // Wrap bolded text with <b> tag
-                        if (text.annotations?.bold) {
-                            htmlContent += `<b>${text.text.content}</b>`;
-                        } else {
-                            htmlContent += text.text.content;
-                        }
-                    }
-                });
-                htmlContent += "<br>"; // Add line break after each paragraph
-            }
-        });
-
-        return htmlContent;
-    }
+      let htmlContent = "";
+  
+      blocks.forEach(block => {
+          // Handle different block types
+          if (block.type === "paragraph" && block.paragraph.rich_text) {
+              block.paragraph.rich_text.forEach((text: any) => {
+                  if (text.text?.content) {
+                      // Wrap bolded text with <b> tag
+                      if (text.annotations?.bold) {
+                          htmlContent += `<b>${text.text.content}</b>`;
+                      } else {
+                          htmlContent += text.text.content;
+                      }
+                  }
+              });
+              htmlContent += "<br>"; // Add line break after each paragraph
+          } else if (block.type === "bulleted_list_item" && block.bulleted_list_item.rich_text) {
+              block.bulleted_list_item.rich_text.forEach((text: any) => {
+                  if (text.text?.content) {
+                      if (text.annotations?.bold) {
+                          htmlContent += `<b>${text.text.content}</b>`;
+                      } else {
+                          htmlContent += text.text.content;
+                      }
+                  }
+              });
+              htmlContent += "<br>"; // Add line break after each bulleted item
+          } else if (block.type === "numbered_list_item" && block.numbered_list_item.rich_text) {
+              block.numbered_list_item.rich_text.forEach((text: any) => {
+                  if (text.text?.content) {
+                      if (text.annotations?.bold) {
+                          htmlContent += `<b>${text.text.content}</b>`;
+                      } else {
+                          htmlContent += text.text.content;
+                      }
+                  }
+              });
+              htmlContent += "<br>"; // Add line break after each numbered item
+          }
+  
+          // If the block has children (e.g., nested lists or other components), recurse through them
+          if (block.has_children) {
+              // Recursively extract HTML content from child blocks
+              htmlContent += this.extractHtmlContent(block.children || []);
+          }
+      });
+  
+      return htmlContent;
+  }
 }

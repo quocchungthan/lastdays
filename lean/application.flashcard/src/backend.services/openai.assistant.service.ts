@@ -15,55 +15,85 @@ const newOpenAiClient = () => {
 export class FlashCardAssistantService {
    async generateRandomQuestion(words: string[], pureHtmlContent: string, optionCount: number = 2): Promise<Question> {
       if (optionCount < 2) {
-         throw Error("Invalid input, there's at least 2 options");
+         throw Error("Invalid input, there must be at least 2 options.");
       }
 
       const openAiClient = newOpenAiClient();
 
       // Prepare the prompt for OpenAI model
-      const prompt = `Create a question based on the following words: ${words.join(", ")}.
-      The question should be relevant to the context provided and could be a vocabulary or general knowledge question.
-      The HTML content is: ${pureHtmlContent}`;
+      const prompt = `Create a question based on the following words: ${words.join(", ")}. 
+      The question should be relevant to the context provided and could be a vocabulary or general knowledge question. 
+      The HTML content is: ${pureHtmlContent}. 
+      
+      Please generate **exactly** ${optionCount} options, including the correct answer. Do not generate more or fewer options. 
+      Only provide the JSON object, no explanations or additional text.`;
 
       // Call the OpenAI API to generate a question based on the provided words and content
       const response = await openAiClient.chat.completions.create({
-         model: secrets.openAI_ModelName, // or "gpt-3.5-turbo"
+         model: secrets.openAI_ModelName, // e.g., "gpt-3.5-turbo" or "gpt-4"
          messages: [
-            { role: "system", content: "You are an assistant that helps create flashcards." },
-            { role: "user", content: prompt },
-            { role: "user", content: "You can use both the main words and the words within html content, just beware that the main words are more importants, but it's not aboslute." },
+            { 
+               role: "system", 
+               content: `You are an assistant that helps create flashcards. Return **ONLY** the JSON that matches this schema:
+               \`\`\`
+               export class WordOption {
+                  word: string = '';
+               }
+
+               export class Question {
+                  question: string = '';
+                  options: WordOption[] = [];
+                  correctAnswerIndex: number = -1;
+               }
+               \`\`\`
+               Ensure that the response contains only this JSON and nothing else. Do not include any text, explanations, or markdown formatting.` 
+            },
+            { 
+               role: "user", 
+               content: prompt 
+            }
          ],
       });
 
-      // Extract the question from the response
-      const generatedQuestion = response.choices?.[0].message.content?.trim();
-
-      if (!generatedQuestion) {
-         console.log(response, response.choices, response.choices[0], response.choices?.[0].message, response.choices?.[0].message.content);
-         throw Error("Response is not valid");
+      // Parse the response content as JSON
+      let generatedQuestion: Question;
+      try {
+         generatedQuestion = JSON.parse(response.choices?.[0].message.content?.trim() || "");
+         
+         // Validate the structure of the response
+         if (!this.isValidQuestion(generatedQuestion)) {
+            throw new Error("Invalid response structure from OpenAI.");
+         }
+         
+         // Ensure the number of options matches the requested count
+         if (generatedQuestion.options.length !== optionCount) {
+            throw new Error(`Expected ${optionCount} options, but received ${generatedQuestion.options.length}.`);
+         }
+      } catch (error) {
+         console.error("Error parsing the response:", error);
+         throw new Error("Failed to generate valid flashcard JSON.");
       }
 
-      // Generate options based on the provided words and content
-      const options: WordOption[] = [];
-      const correctAnswerIndex = Math.floor(Math.random() * optionCount); // Randomly choose correct answer index
-
-      // Randomly shuffle words to create incorrect answers
-      const shuffledWords = words.sort(() => 0.5 - Math.random()).slice(0, optionCount - 1);
-      shuffledWords.splice(correctAnswerIndex, 0, words[0]); // Insert the correct answer
-
-      // Create Option objects
-      shuffledWords.forEach(word => {
-         const option = new WordOption();
-         option.word = word;
-         options.push(option);
-      });
-
       // Return the constructed Question object
-      const question = new Question();
-      question.question = generatedQuestion;
-      question.options = options;
-      question.correctAnswerIndex = correctAnswerIndex;
+      return generatedQuestion;
+   }
 
-      return question;
+   // Helper function to validate if the generated object matches the Question structure
+   private isValidQuestion(question: any): question is Question {
+      if (!question || typeof question.question !== 'string' || !Array.isArray(question.options)) {
+         return false;
+      }
+
+      // Check that all options are WordOption objects
+      if (!question.options.every((opt: any) => typeof opt.word === 'string')) {
+         return false;
+      }
+
+      // Check that the correctAnswerIndex is valid
+      if (typeof question.correctAnswerIndex !== 'number' || question.correctAnswerIndex < 0) {
+         return false;
+      }
+
+      return true;
    }
 }
