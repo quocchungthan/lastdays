@@ -10,7 +10,7 @@ export function serve(server: express.Express) {
 
    router.get('/question', async (req, res) => {
       const data = await storage.fetchAsync();
-      res.json(await assistant.generateRandomQuestion(data.primitiveItems, data.pureHtmlContent, 2))
+      res.json(await assistant.generateRandomQuestion(data.primitiveItems, data.pureHtmlContent, 3))
          .status(200)
          .end();
    });
