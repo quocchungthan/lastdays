@@ -1,6 +1,7 @@
 import cv2
 import json
 import os
+import random
 from datetime import datetime
 from env import Env
 from utils.filename_helper import generate_json_filename
@@ -28,7 +29,6 @@ if not cap.isOpened():
     print("Error: Could not open video.")
     exit()
 
-
 # Load detection results from file
 def load_detections_from_file(video_filename):
     json_filename = envVariables.VIDEO_ASSETS_DIR + generate_json_filename(video_filename)
@@ -50,15 +50,18 @@ def milliseconds_to_timestamp(ms):
     return timestamp
 
 # Function to draw bounding boxes based on detections
-def draw_boxes(frame, detections, timestamp, scale_x, scale_y):
+def draw_boxes(frame, detections, timestamp_ms, scale_x, scale_y, time_window_ms=1000, object_tracker={}):
+    # We will only track the most recent bounding boxes and avoid erasing old ones
+    # Track new object detections
     for detection in detections:
-        # Match the timestamp to the detection
-        detection_timestamp = milliseconds_to_timestamp(detection['timestamp'])
-        if detection_timestamp == timestamp:  # Match the timestamp from the detection file
+        detection_timestamp_ms = detection['video_time']
+        
+        # Check if current timestamp is within the configurable time window
+        if abs(timestamp_ms - detection_timestamp_ms) <= time_window_ms:
             for obj in detection['detections']:
-                if obj['class'] == 'person':
+                if obj['class'] == 'person':  # Only draw boxes for 'person' class
                     x, y, w, h = obj['bbox']
-                    # Scale the bounding box coordinates
+                    # Scale the bounding box coordinates based on the resized frame
                     x = int(x * scale_x)
                     y = int(y * scale_y)
                     w = int(w * scale_x)
@@ -66,8 +69,36 @@ def draw_boxes(frame, detections, timestamp, scale_x, scale_y):
 
                     confidence = obj['confidence']
                     label = f"{obj['class']}: {confidence:.2f}"
-                    color = (0, 255, 0)  # Green for person
-                    cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
+
+                    # Calculate the center of the bounding box
+                    center_x = x + w // 2
+                    center_y = y + h // 2
+
+                    # Check if the object is already tracked, if not assign a new random color
+                    if obj['class'] not in object_tracker:
+                        object_tracker[obj['class']] = {}
+
+                    # Check for previously detected object in the tracker list
+                    matched = False
+                    for obj_id, obj_info in object_tracker[obj['class']].items():
+                        prev_center_x, prev_center_y, prev_color, prev_bbox = obj_info
+                        # If the center of the new box is close to the previous one, we consider it the same object
+                        if abs(center_x - prev_center_x) < 50 and abs(center_y - prev_center_y) < 50:
+                            matched = True
+                            # Reuse the color
+                            color = prev_color
+                            # Update the tracked bounding box
+                            object_tracker[obj['class']][obj_id] = (center_x, center_y, color, (x, y, w, h))
+                            break
+                    
+                    if not matched:
+                        # Assign a random color for the new object
+                        color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+                        obj_id = len(object_tracker[obj['class']])  # Unique ID for the object
+                        object_tracker[obj['class']][obj_id] = (center_x, center_y, color, (x, y, w, h))  # Add new object to tracker
+
+                    # Draw the bounding box with the corresponding color
+                    cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)  # Thinner line (change thickness to 1)
                     cv2.putText(frame, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
 
 # Function to resize frame while maintaining aspect ratio
@@ -94,6 +125,12 @@ detections = load_detections_from_file(video_filename)
 frame_counter = 0
 total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))  # Total number of frames in the video
 
+# Set the configurable time window for bounding box visibility (in milliseconds)
+time_window_ms = 50  # Change this value to adjust the duration (e.g., 1500 for 1.5 seconds)
+
+# Initialize an empty object tracker
+object_tracker = {}
+
 while True:
     ret, frame = cap.read()
     if not ret:
@@ -104,14 +141,11 @@ while True:
 
     # Get the current timestamp of the frame in milliseconds
     current_timestamp_ms = cap.get(cv2.CAP_PROP_POS_MSEC)
-    
-    # Convert milliseconds to a readable timestamp format
-    timestamp = milliseconds_to_timestamp(current_timestamp_ms)
 
     # Draw bounding boxes for detections at the current timestamp
     # Apply scaling factor for bounding boxes
     scale_x = scale_y = scale_factor
-    draw_boxes(frame, detections, timestamp, scale_x, scale_y)
+    draw_boxes(frame, detections, current_timestamp_ms, scale_x, scale_y, time_window_ms, object_tracker)
 
     # Display the frame with bounding boxes
     cv2.imshow("Person Detection", frame)
