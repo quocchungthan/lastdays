@@ -102,9 +102,7 @@ export function serve(server: express.Express) {
       // @ts-ignore
       req.session.bot_id = bot_id; // Save refresh token for later use
 
-      return res.send(
-        'Authorization successful! You can now interact with the Notion API.'
-      );
+      return res.redirect('/');
     } catch (error) {
       console.error('Error exchanging authorization code:', error);
       return res.status(500).send('Error exchanging authorization code');
