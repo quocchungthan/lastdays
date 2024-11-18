@@ -4,18 +4,34 @@ import { HttpStatusCode } from '@angular/common/http';
 import axios from 'axios';
 import crypto from 'crypto';
 import session from 'express-session';
+import { mapNotionPages, searchPages } from './pages.helper';
 
 export function serve(server: express.Express) {
   const router = express.Router();
   server.use(express.json());
   const secrets = loadSecretConfiguration();
 
-  router.get('/registered', async (req, res) => {});
+  router.get('/registered', async (req, res) => {
+   // @ts-ignore
+   const access_token = req.session.access_token;
+
+   if (!access_token) {
+      res.json([]).status(HttpStatusCode.NoContent).end();
+   } else {
+      try {
+         const pages = await searchPages(access_token);
+         res.json(mapNotionPages(pages)).status(HttpStatusCode.Ok).end();
+      } catch(err) {
+         console.log(err);
+         res.json([]).status(HttpStatusCode.NoContent).end();
+      }
+   }
+  });
 
   // Set up session middleware
   server.use(
     session({
-      secret: 'your-secret-key', // Use a strong secret key to sign the session ID cookie
+      secret: secrets.SESSION_Secret_Key, // Use a strong secret key to sign the session ID cookie
       resave: false, // Don't resave the session if it wasn't modified
       saveUninitialized: true, // Save an uninitialized session
       cookie: { secure: false }, // Use secure: true in production (needs HTTPS)
@@ -49,6 +65,9 @@ export function serve(server: express.Express) {
     if (state.toString() !== req.session.state) {
       return res.status(400).send('Invalid state');
     }
+    // @ts-ignore;
+    delete req.session.state;
+   
     try {
       // Step 3: Exchange the authorization code for an access token
       // Make the request to exchange the authorization code for an access token
@@ -71,7 +90,7 @@ export function serve(server: express.Express) {
         }
       );
 
-      const { access_token, refresh_token, expires_in } = tokenResponse.data;
+      const { access_token, workspace_id, bot_id } = tokenResponse.data;
 
       // Now you can use the access token to make API calls to Notion on behalf of the user
       // Example: save the token to the session, database, or a secure store
@@ -79,7 +98,9 @@ export function serve(server: express.Express) {
       // @ts-ignore
       req.session.access_token = access_token; // If using sessions
       // @ts-ignore
-      req.session.refresh_token = refresh_token; // Save refresh token for later use
+      req.session.workspace_id = workspace_id; // Save refresh token for later use
+      // @ts-ignore
+      req.session.bot_id = bot_id; // Save refresh token for later use
 
       return res.send(
         'Authorization successful! You can now interact with the Notion API.'
