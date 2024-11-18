@@ -1,0 +1,99 @@
+import express from 'express';
+import { loadSecretConfiguration } from './configuration';
+import { HttpStatusCode } from '@angular/common/http';
+import axios from 'axios';
+import crypto from 'crypto';
+import session from 'express-session';
+
+export function serve(server: express.Express) {
+  const router = express.Router();
+  server.use(express.json());
+  const secrets = loadSecretConfiguration();
+
+  router.get('/registered', async (req, res) => {});
+
+  // Set up session middleware
+  server.use(
+    session({
+      secret: 'your-secret-key', // Use a strong secret key to sign the session ID cookie
+      resave: false, // Don't resave the session if it wasn't modified
+      saveUninitialized: true, // Save an uninitialized session
+      cookie: { secure: false }, // Use secure: true in production (needs HTTPS)
+    })
+  );
+
+  router.get('/configuration', async (req, res) => {
+    const generatedCSRFState = generateState();
+    // @ts-ignore
+    req.session.state = generatedCSRFState; // If using sessions
+    res
+      .json({
+        enabled: secrets.notionEnabled,
+        authUrl:
+          secrets.NOTION_Authorization_Url + `&state=${generatedCSRFState}`,
+      })
+      .status(HttpStatusCode.Ok)
+      .end();
+  });
+
+  server.get('/callback', async (req, res) => {
+    // Extract the `code` and `state` from the query string
+    const { code, state } = req.query;
+
+    if (!code || !state) {
+      return res.status(400).send('Missing code or state');
+    }
+
+    // Validate the state to protect against CSRF
+    // @ts-ignore
+    if (state.toString() !== req.session.state) {
+      return res.status(400).send('Invalid state');
+    }
+    try {
+      // Step 3: Exchange the authorization code for an access token
+      // Make the request to exchange the authorization code for an access token
+      const tokenResponse = await axios.post(
+        'https://api.notion.com/v1/oauth/token',
+        {
+          grant_type: 'authorization_code',
+          code: code,
+          redirect_uri: secrets.NOTION_OAuth_Reidrect_Uri, // Your redirect URI
+        },
+        {
+          headers: {
+            Authorization: `Basic ${Buffer.from(
+              secrets.NOTION_OAuthClient_ID +
+                ':' +
+                secrets.NOTION_OAuth_Client_Secret
+            ).toString('base64')}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      const { access_token, refresh_token, expires_in } = tokenResponse.data;
+
+      // Now you can use the access token to make API calls to Notion on behalf of the user
+      // Example: save the token to the session, database, or a secure store
+
+      // @ts-ignore
+      req.session.access_token = access_token; // If using sessions
+      // @ts-ignore
+      req.session.refresh_token = refresh_token; // Save refresh token for later use
+
+      return res.send(
+        'Authorization successful! You can now interact with the Notion API.'
+      );
+    } catch (error) {
+      console.error('Error exchanging authorization code:', error);
+      return res.status(500).send('Error exchanging authorization code');
+    }
+  });
+
+  server.use('/api/portal', router);
+}
+
+// Utility function to generate state
+function generateState() {
+  return crypto.randomBytes(16).toString('hex');
+}

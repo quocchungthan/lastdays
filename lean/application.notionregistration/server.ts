@@ -4,6 +4,8 @@ import express from 'express';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import bootstrap from './src/main.server';
+import { serve } from './src/backend.services';
+import { loadSecretConfiguration } from './src/backend.services/configuration';
 
 // The Express app is exported so that it can be used by serverless Functions.
 export function app(): express.Express {
@@ -25,6 +27,8 @@ export function app(): express.Express {
     index: 'index.html',
   }));
 
+  serve(server);
+
   // All regular routes use the Angular engine
   server.get('**', (req, res, next) => {
     const { protocol, originalUrl, baseUrl, headers } = req;
@@ -45,7 +49,7 @@ export function app(): express.Express {
 }
 
 function run(): void {
-  const port = process.env['PORT'] || 4000;
+  const port = loadSecretConfiguration().port || 4000;
 
   // Start up the Node server
   const server = app();
