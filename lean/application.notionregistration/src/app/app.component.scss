@@ -1,0 +1,60 @@
+.container {
+   max-width: 1200px;
+   margin: 0 auto;
+   padding: 2rem;
+ }
+ h1 {
+   color: #333;
+   margin-bottom: 2rem;
+ }
+ .connect-section {
+   text-align: center;
+   margin-bottom: 2rem;
+ }
+ .connect-btn {
+   padding: 1rem 2rem;
+   font-size: 1.1rem;
+   background: #2eaadc;
+   text-decoration: none;
+   color: white;
+   border: none;
+   border-radius: 6px;
+   cursor: pointer;
+   transition: background 0.3s ease;
+ }
+ .connect-btn:hover {
+   background: #2591ba;
+ }
+
+ 
+ .tables-container {
+   margin-top: 2rem;
+ }
+ .notion-table {
+   width: 100%;
+   border-collapse: collapse;
+   background: white;
+   border-radius: 8px;
+   overflow: hidden;
+   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+ }
+ th, td {
+   padding: 1rem;
+   text-align: left;
+   border-bottom: 1px solid #eee;
+ }
+ th {
+   background: #f7f7f7;
+   font-weight: 600;
+ }
+ .view-btn {
+   padding: 0.5rem 1rem;
+   background: #2eaadc;
+   color: white;
+   border: none;
+   border-radius: 4px;
+   cursor: pointer;
+ }
+ .view-btn:hover {
+   background: #2591ba;
+ }

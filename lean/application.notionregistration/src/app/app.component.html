@@ -1,29 +1,38 @@
-<a [href]="authUrl">Connect Notion</a>
-<table class="fancy-table">
-  <thead>
-    <tr>
-      <th>Id</th>
-      <th>Name</th>
-      <th>Icon</th>
-      <th>Color</th>
-    </tr>
-  </thead>
-  <tbody>
-    @for (table of registeredTables; track $index) {
-
-    
-    <tr>
-      <td>{{ table.id }}</td>
-      <td>{{ table.name }}</td>
-      <td>
-        @if (table.icon) {
-          <img [src]="table.icon" alt="Icon" class="icon">
-        } @else {
-          <span class="empty-cell">No Icon</span>
-        }
-       
-      </td>
-    </tr>
-  }
-  </tbody>
-</table>
+<div class="container">
+  <h1>Notion Integration</h1>
+  <div class="connect-section">
+    <a class="connect-btn" [href]="authUrl">
+      Connect to Notion
+    </a>
+  </div>
+  <div class="tables-container">
+    <table class="notion-table">
+      <thead>
+        <tr>
+          <th [width]="370">Table Id</th>
+          <th>Name</th>
+          <th>Icon</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (table of registeredTables; track $index) {
+        <tr>
+          <td>{{ table.id }}</td>
+          <td>{{ table.name }}</td>
+          <td>
+            @if (table.icon) {
+              <img [height]="34" [width]="34" [src]="table.icon" alt="Icon" class="icon">
+            } @else {
+              <span class="empty-cell">No Icon</span>
+            }
+          </td>
+          <td>
+            <button class="view-btn">View</button>
+          </td>
+        </tr>
+      }
+      </tbody>
+    </table>
+  </div>
+</div>
