@@ -5,6 +5,8 @@ import axios from 'axios';
 import crypto from 'crypto';
 import session from 'express-session';
 import { mapNotionPages, searchPages } from './pages.helper';
+import { ClientIdentityService } from './client-identity.service';
+import { AccessService } from './access.service';
 
 export function serve(server: express.Express) {
   const router = express.Router();
@@ -12,8 +14,9 @@ export function serve(server: express.Express) {
   const secrets = loadSecretConfiguration();
 
   router.get('/registered', async (req, res) => {
-   // @ts-ignore
-   const access_token = req.session.access_token;
+    const clientIdentityService = new ClientIdentityService(req);
+    const accessService = new AccessService(clientIdentityService.getUserIdentity());
+   const access_token = (await accessService.retrieveAccessToken())?.accessToken;
 
    if (!access_token) {
       res.json([]).status(HttpStatusCode.NoContent).end();
@@ -38,15 +41,25 @@ export function serve(server: express.Express) {
     })
   );
 
+  router.get('*', (req, res, next) => {
+      // @ts-ignore
+      // const generatedCSRFState = req.session.state ?? generateState();
+      // @ts-ignore
+      // req.session.state = req.session.state ?? generateState(); // If using sessions
+
+      next();
+  });
+
   router.get('/configuration', async (req, res) => {
-    const generatedCSRFState = generateState();
     // @ts-ignore
-    req.session.state = generatedCSRFState; // If using sessions
+    // const generatedCSRFState = req.session.state ?? generateState();
+    // @ts-ignore
+    // req.session.state = req.session.state ?? generateState(); // If using sessions
     res
       .json({
         enabled: secrets.notionEnabled,
         authUrl:
-          secrets.NOTION_Authorization_Url + `&state=${generatedCSRFState}`,
+          secrets.NOTION_Authorization_Url,// + `&state=${generatedCSRFState}`,
       })
       .status(HttpStatusCode.Ok)
       .end();
@@ -55,18 +68,22 @@ export function serve(server: express.Express) {
   server.get('/callback', async (req, res) => {
     // Extract the `code` and `state` from the query string
     const { code, state } = req.query;
+    const clientIdentityService = new ClientIdentityService(req);
+    const accessService = new AccessService(clientIdentityService.getUserIdentity());
 
-    if (!code || !state) {
+    if (!code
+      // || !state
+      ) {
       return res.status(400).send('Missing code or state');
     }
 
-    // Validate the state to protect against CSRF
-    // @ts-ignore
-    if (state.toString() !== req.session.state) {
-      return res.status(400).send('Invalid state');
-    }
-    // @ts-ignore;
-    delete req.session.state;
+    // // Validate the state to protect against CSRF
+    // // @ts-ignore
+    // if (state.toString() !== req.session.state) {
+    //   return res.status(400).send('Invalid state');
+    // }
+    // // @ts-ignore;
+    // delete req.session.state;
    
     try {
       // Step 3: Exchange the authorization code for an access token
@@ -90,17 +107,11 @@ export function serve(server: express.Express) {
         }
       );
 
-      const { access_token, workspace_id, bot_id } = tokenResponse.data;
+      const { access_token, workspace_id, bot_id, expires_in } = tokenResponse.data;
 
       // Now you can use the access token to make API calls to Notion on behalf of the user
       // Example: save the token to the session, database, or a secure store
-
-      // @ts-ignore
-      req.session.access_token = access_token; // If using sessions
-      // @ts-ignore
-      req.session.workspace_id = workspace_id; // Save refresh token for later use
-      // @ts-ignore
-      req.session.bot_id = bot_id; // Save refresh token for later use
+      await accessService.storeAccessToken({accessToken: access_token, workspaceId: workspace_id, expiresIn: expires_in});
 
       return res.redirect('/');
     } catch (error) {

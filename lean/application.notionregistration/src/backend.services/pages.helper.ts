@@ -30,7 +30,7 @@ export async function searchPages(access_token: string) {
 
 export function mapNotionPages(pages: any[]) {
    return pages.map(page => {
-     const title = page.properties.title.title[0]?.plain_text || 'No Title'; // Get the title (fallback if not found)
+     const title = (page.properties.title || page.properties.name)?.title[0]?.plain_text || 'No Title'; // Get the title (fallback if not found)
      const icon = page.icon?.external?.url || null; // Get the icon link (null if not available)
      const color = page.icon?.external?.color || null; // Assuming color could be within the icon (check this if needed)
  
