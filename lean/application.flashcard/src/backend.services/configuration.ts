@@ -17,13 +17,10 @@ export const loadSecretConfiguration = () => {
     openAI_ModelName,
   ].every((x) => x !== DEFAULT_FAKE_VALUE);
 
-  const notion_Token = process.env['NOTION_TOKEN'] ?? DEFAULT_FAKE_VALUE;
+  const Storage_AlPortalBaseUrl = process.env['Storage_AlPortalBaseUrl'] ?? DEFAULT_FAKE_VALUE;
 
-  const notion_PageId = process.env['NOTION_ENGLISH_PAGE_ID'] ?? DEFAULT_FAKE_VALUE;
-
-  const notionEnabled = [
-   notion_Token,
-    notion_PageId,
+  const storageEnabled = [
+    Storage_AlPortalBaseUrl,
   ].every((x) => x !== DEFAULT_FAKE_VALUE);
 
   return {
@@ -34,8 +31,7 @@ export const loadSecretConfiguration = () => {
     openAI_ModelName,
     assistantEnabled,
     openAI_MaxToken,
-    notion_Token,
-    notion_PageId,
-    notionEnabled,
+    storageEnabled,
+    Storage_AlPortalBaseUrl
   };
 };

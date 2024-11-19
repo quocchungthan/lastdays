@@ -1,7 +1,7 @@
 export const DEFAULT_FAKE_VALUE = '<fake config>';
 
 export const loadSecretConfiguration = () => {
-  const port = process.env['PORT'] || 4201;
+  const port = process.env['PORT'] || 4011;
 
   const NOTION_Authorization_Url = process.env['NOTION_Authorization_Url'] ?? DEFAULT_FAKE_VALUE;
   const NOTION_OAuth_Client_Secret = process.env['NOTION_OAuth_Client_Secret'] ?? DEFAULT_FAKE_VALUE;
