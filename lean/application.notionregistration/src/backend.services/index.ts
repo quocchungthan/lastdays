@@ -55,11 +55,11 @@ export function serve(server: express.Express) {
     // const generatedCSRFState = req.session.state ?? generateState();
     // @ts-ignore
     // req.session.state = req.session.state ?? generateState(); // If using sessions
+    const authorizationUrl = `https://api.notion.com/v1/oauth/authorize?client_id=${secrets.NOTION_OAuthClient_ID}&response_type=code&owner=user&scope=read&redirect_uri=${encodeURIComponent(secrets.NOTION_OAuth_Reidrect_Uri)}`;
     res
       .json({
         enabled: secrets.notionEnabled,
-        authUrl:
-          secrets.NOTION_Authorization_Url,// + `&state=${generatedCSRFState}`,
+        authUrl: authorizationUrl,// + `&state=${generatedCSRFState}`,
       })
       .status(HttpStatusCode.Ok)
       .end();

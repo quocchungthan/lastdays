@@ -9,17 +9,31 @@ services:
   #     - "8000:8000"
   #   networks:
   #     - app-network
-
-  angular:
+  notion-registration:
     build:
       context: ..
-      dockerfile: agilelink-ci/Dockerfile.angular
+      dockerfile: agilelink-ci/Dockerfile.application.notionregistration
     ports:
-      - "81:3000"  # Maps port 81 on the host to port 3000 in the container
+      - "4011:4011"
     environment:
-      - PORT=3000  # Sets the PORT environment variable inside the container
+      - PORT=4011  # Sets the PORT environment variable inside the container
+      - NOTION_OAuth_Client_Secret=${NOTION_OAuth_Client_Secret}
+      - NOTION_OAuthClient_ID=${NOTION_OAuthClient_ID}
+      - NOTION_OAuth_Reidrect_Uri=http://localhost:4011/callback
+      - NOTION_REGISTERED_LIST_PAGE_ID=${NOTION_REGISTERED_LIST_PAGE_ID}
+      - SESSION_Secret_Key=${SESSION_Secret_Key}
     networks:
       - app-network
+  # angular:
+  #   build:
+  #     context: ..
+  #     dockerfile: agilelink-ci/Dockerfile.angular
+  #   ports:
+  #     - "81:3000"  # Maps port 81 on the host to port 3000 in the container
+  #   environment:
+  #     - PORT=3000  # Sets the PORT environment variable inside the container
+  #   networks:
+  #     - app-network
 
 networks:
   app-network:
