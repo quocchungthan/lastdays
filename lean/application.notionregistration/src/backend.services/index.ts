@@ -22,12 +22,13 @@ export function serve(server: express.Express) {
     );
     const access_token = (await accessService.retrieveAccessToken())
       ?.accessToken;
-
+    console.log(clientIdentityService.getUserIdentity(), access_token);
     if (!access_token) {
       res.json([]).status(HttpStatusCode.NoContent).end();
     } else {
       try {
         const pages = await searchPages(access_token);
+        console.log(pages);
         res.json(mapNotionPages(pages)).status(HttpStatusCode.Ok).end();
       } catch (err) {
         console.log(err);

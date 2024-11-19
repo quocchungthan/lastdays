@@ -1,7 +1,7 @@
 export const DEFAULT_FAKE_VALUE = '<fake config>';
 
 export const loadSecretConfiguration = () => {
-  const port = process.env['PORT'] || 4201;
+  const port = process.env['PORT'] || 4012;
   const openAI_Key = process.env['OPENAI_API_KEY'] ?? DEFAULT_FAKE_VALUE;
   const openAI_OrganizationId =
     process.env['OPENAI_ORGANIZATION_ID'] ?? DEFAULT_FAKE_VALUE;

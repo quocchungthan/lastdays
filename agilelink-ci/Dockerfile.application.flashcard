@@ -1,0 +1,31 @@
+# Use Node 18 as the base image for building the application
+FROM node:18 AS build
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy the package.json and package-lock.json for the application
+COPY ./lean/application.flashcard/package.json . 
+COPY ./lean/application.flashcard/package-lock.json .
+
+# Install the required dependencies
+RUN npm install
+
+# Copy the entire application source to the container
+COPY ./lean/application.flashcard/ .
+
+# Optionally, copy Git information (useful for CI/CD or other scenarios)
+COPY ./.git/ ./.git/
+
+# Build the application, skipping dev dependencies
+RUN npm run build --omit=dev
+
+# Remove node_modules from the final image to keep it lean
+RUN rm -rf node_modules
+
+# Expose the port your app will run on (change it to your preferred port)
+ARG PORT=4012
+EXPOSE ${PORT}
+
+# Start the application, specify the entry point file (update this if the path is different)
+CMD ["node", "dist/application.flashcard/server/server.mjs"]

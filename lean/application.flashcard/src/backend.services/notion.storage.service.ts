@@ -44,7 +44,7 @@ export class EnglishWordStorageService {
         }
 
         englishWords.primitiveItems = [...new Set(englishWords.primitiveItems)];
-
+        console.log(englishWords);
         return englishWords;
     }
 

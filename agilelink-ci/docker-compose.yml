@@ -10,6 +10,8 @@ services:
   #   networks:
   #     - app-network
   notion-registration:
+    container_name: notion_registration  # Custom container name
+    hostname: notion_registration.local            # Custom hostname (domain name)
     build:
       context: ..
       dockerfile: agilelink-ci/Dockerfile.application.notionregistration
@@ -20,8 +22,24 @@ services:
       - NOTION_OAuth_Client_Secret=${NOTION_OAuth_Client_Secret}
       - NOTION_OAuthClient_ID=${NOTION_OAuthClient_ID}
       - NOTION_OAuth_Reidrect_Uri=http://localhost:4011/callback
-      - NOTION_REGISTERED_LIST_PAGE_ID=${NOTION_REGISTERED_LIST_PAGE_ID}
       - SESSION_Secret_Key=${SESSION_Secret_Key}
+    networks:
+      - app-network
+  flashcard:
+    container_name: flashcard  # Custom container name
+    hostname: flashcard.local            # Custom hostname (domain name)
+    build:
+      context: ..
+      dockerfile: agilelink-ci/Dockerfile.application.flashcard
+    ports:
+      - "4012:4012"
+    environment:
+      - PORT=4012
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_ORGANIZATION_ID=${OPENAI_ORGANIZATION_ID}
+      - OPENAI_PROJECT_ID=${OPENAI_PROJECT_ID}
+      - OPENAI_MODEL_NAME=${OPENAI_MODEL_NAME}
+      - Storage_AlPortalBaseUrl=http://notion_registration:4011
     networks:
       - app-network
   # angular:
