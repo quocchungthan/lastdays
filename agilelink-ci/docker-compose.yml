@@ -42,6 +42,20 @@ services:
       - Storage_AlPortalBaseUrl=http://notion_registration:4011
     networks:
       - app-network
+  # nginx:
+  #   build:
+  #     context: ..
+  #     dockerfile: agilelink-ci/Dockerfile.nginx
+  #   ports:
+  #     - "80:80"
+  #   depends_on:
+  #     - notion-registration
+  #     - flashcard
+  #   environment:
+  #     - NOTION_REGISTRATION_URL=http://notion_registration:4011
+  #     - FLASHCARD_URL=http://flashcard:4012
+  #   networks:
+  #     - app-network
   # angular:
   #   build:
   #     context: ..

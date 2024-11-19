@@ -20,6 +20,14 @@ COPY ./.git/ ./.git/
 # Build the application, skipping dev dependencies
 RUN npm run build --omit=dev
 
+# # Now, update index.html to add "/portal/" before the JS and CSS filenames
+# RUN sed -i 's/src="\([^"]*\)\.js"/src="\/portal\/\1.js"/g' ./dist/application.notionregistration/browser/index.csr.html
+# RUN sed -i 's/href="\([^"]*\)\.css"/href="\/portal\/\1.css"/g' ./dist/application.notionregistration/browser/index.csr.html
+
+# # Now, update index.html to add "/portal/" before the JS and CSS filenames
+# RUN sed -i 's/src="\([^"]*\)\.js"/src="\/portal\/\1.js"/g' ./dist/application.notionregistration/browser/index.html
+# RUN sed -i 's/href="\([^"]*\)\.css"/href="\/portal\/\1.css"/g' ./dist/application.notionregistration/browser/index.html
+
 # Remove node_modules from the final image to keep it lean
 RUN rm -rf node_modules
 
