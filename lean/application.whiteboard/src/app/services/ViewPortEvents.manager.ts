@@ -81,6 +81,7 @@ export class ViewPortEventsManager implements OnDestroy {
                 cursor: this._currentRelativePosition(),
                 direction
             });
+            e.evt.preventDefault();
         });
 
         this._viewPort.on('dragend', () => {
