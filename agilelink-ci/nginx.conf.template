@@ -1,0 +1,64 @@
+# Events block is required for Nginx to function properly
+events {
+    worker_connections 1024;  # This is the number of simultaneous connections that can be handled by each worker process
+}
+
+# This is the main context of nginx configuration
+http {
+    # Load additional configurations if needed
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    # Other necessary configurations like logging can be added here
+
+    server {
+        listen 80;
+
+        # Route: /api/portal/* -> to notion_registration container
+        location ^~ /api/portal/ {
+            proxy_pass $NOTION_REGISTRATION_URL;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        # Route: /portal/callback -> to notion_registration container
+        location = /portal/callback {
+            rewrite ^/portal/callback /callback break;
+            proxy_pass $NOTION_REGISTRATION_URL;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+      # Route /portal and /portal/ to the notion_registration container
+      location ^~ /portal {
+         # If there's no trailing slash, redirect to the version with the trailing slash
+         if ($request_uri = /portal) {
+            return 301 $scheme://$host$uri/;
+         }
+
+         # Optionally, rewrite the URL to remove the /portal prefix before proxying
+         rewrite ^/portal/(.*)$ /$1 break;
+
+         # Proxy the request to the notion_registration container
+         proxy_pass $NOTION_REGISTRATION_URL;  # Or the hardcoded URL
+         proxy_set_header Host $host;
+         proxy_set_header X-Real-IP $remote_addr;
+         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+         proxy_set_header X-Forwarded-Proto $scheme;
+      }
+
+
+        # Default route for everything else -> to flashcard container
+        location / {
+            proxy_pass $FLASHCARD_URL;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+}

@@ -1,7 +1,7 @@
 export const DEFAULT_FAKE_VALUE = '<fake config>';
 
 export const loadSecretConfiguration = () => {
-  const port = process.env['PORT'] || 4201;
+  const port = process.env['PORT'] || 4012;
   const openAI_Key = process.env['OPENAI_API_KEY'] ?? DEFAULT_FAKE_VALUE;
   const openAI_OrganizationId =
     process.env['OPENAI_ORGANIZATION_ID'] ?? DEFAULT_FAKE_VALUE;
@@ -17,13 +17,10 @@ export const loadSecretConfiguration = () => {
     openAI_ModelName,
   ].every((x) => x !== DEFAULT_FAKE_VALUE);
 
-  const notion_Token = process.env['NOTION_TOKEN'] ?? DEFAULT_FAKE_VALUE;
+  const Storage_AlPortalBaseUrl = process.env['Storage_AlPortalBaseUrl'] ?? DEFAULT_FAKE_VALUE;
 
-  const notion_PageId = process.env['NOTION_ENGLISH_PAGE_ID'] ?? DEFAULT_FAKE_VALUE;
-
-  const notionEnabled = [
-   notion_Token,
-    notion_PageId,
+  const storageEnabled = [
+    Storage_AlPortalBaseUrl,
   ].every((x) => x !== DEFAULT_FAKE_VALUE);
 
   return {
@@ -34,8 +31,7 @@ export const loadSecretConfiguration = () => {
     openAI_ModelName,
     assistantEnabled,
     openAI_MaxToken,
-    notion_Token,
-    notion_PageId,
-    notionEnabled,
+    storageEnabled,
+    Storage_AlPortalBaseUrl
   };
 };

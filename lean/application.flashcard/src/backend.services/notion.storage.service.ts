@@ -1,170 +1,146 @@
-import { Client } from '@notionhq/client';
-import { loadSecretConfiguration } from "./configuration";
-import { EnglishWords } from "./words.entity";
+import { loadSecretConfiguration } from './configuration';
+import { EnglishWords } from './words.entity';
+import { Request } from 'express';
 
 // Loading configuration (Notion API keys, etc.)
-const { notion_Token, notion_PageId } = loadSecretConfiguration();
+const { Storage_AlPortalBaseUrl } = loadSecretConfiguration();
 
 export class EnglishWordStorageService {
-    private notionClient: Client;
-    private cache: { content: any; timestamp: number } | null = null;
-    private readonly cacheExpirationTime = 15 * 60 * 1000; // 15 minutes in milliseconds
+  private cache: { content: any; timestamp: number } | null = null;
+  // TODO: now one instance perquest so it cannot be cached
+  private readonly cacheExpirationTime = 15 * 60 * 1000; // 15 minutes in milliseconds
 
-    constructor() {
-        // Initialize the Notion client with the API key
-        this.notionClient = new Client({ auth: notion_Token });
+  constructor(private req: Request) {}
+
+  // Fetch the content from Notion and extract the required information
+  async fetchAsync(): Promise<EnglishWords> {
+    if (!(await this._isNotionServiceAvailable())) {
+        return this._createMockEnglishWords();
+    }
+    // If the cache exists and is still valid, return cached data
+    if (this.isCacheValid()) {
+      console.log('Returning cached data');
+      return this.cache!.content;
+    }
+    const fowardHeaders = this.buildFowardHeaders();
+    const pages = await (
+      await fetch(`${Storage_AlPortalBaseUrl}/api/portal/registered`, {
+        headers: fowardHeaders,
+      })
+    ).json();
+    const englishWords = new EnglishWords();
+
+    for (let p of pages) {
+      //notionClient = new Client({ auth: notion_Token });
+      try {
+        const pageId = p.id; // Notion page ID from your secrets
+        // Extract block content (you may need to use `blocks.children` API to get children)
+        const pageContent = (await (
+          await fetch(
+            `${Storage_AlPortalBaseUrl}/api/portal/page/${pageId}/englishwords`,
+            { headers: fowardHeaders }
+          )
+        ).json()) as EnglishWords;
+        englishWords.pureHtmlContent += pageContent.pureHtmlContent;
+        englishWords.primitiveItems.push(...pageContent.primitiveItems);
+
+        // Cache the result and store the current timestamp
+        this.cache = {
+          content: englishWords,
+          timestamp: Date.now(),
+        };
+      } catch (error) {
+        console.error('Error fetching Notion page content:', error);
+        throw error;
+      }
     }
 
-    // Fetch the content from Notion and extract the required information
-    async fetchAsync(): Promise<EnglishWords> {
-        try {
-            // If the cache exists and is still valid, return cached data
-            if (this.isCacheValid()) {
-                console.log('Returning cached data');
-                return this.cache!.content;
-            }
+    englishWords.primitiveItems = [...new Set(englishWords.primitiveItems)];
+    console.log(englishWords);
+    return englishWords;
+  }
 
-            const pageId = notion_PageId; // Notion page ID from your secrets
-            // Extract block content (you may need to use `blocks.children` API to get children)
-            const contentBlocks = await this.getPageContent(pageId);
-
-            const englishWords = new EnglishWords();
-            englishWords.pureHtmlContent = this.extractHtmlContent(contentBlocks); // Extract HTML content
-            englishWords.primitiveItems = this.extractBoldWords(englishWords.pureHtmlContent); // Extract bolded words
-
-            // Cache the result and store the current timestamp
-            this.cache = {
-                content: englishWords,
-                timestamp: Date.now()
-            };
-
-            return englishWords;
-        } catch (error) {
-            console.error("Error fetching Notion page content:", error);
-            throw error;
-        }
+  // Check if the cache is still valid (within the last 15 minutes)
+  private isCacheValid(): boolean {
+    if (!this.cache) {
+      return false;
     }
 
-    // Fetch content blocks from a Notion page
-    private async getPageContent(pageId: string): Promise<any[]> {
-        try {
-            // Retrieve all block content from a specific page
-            const blockResponse = await this.notionClient.blocks.children.list({
-                block_id: pageId
-            });
-            return blockResponse.results;
-        } catch (error) {
-            console.error("Error fetching page blocks:", error);
-            throw error;
-        }
-    }
+    const currentTime = Date.now();
+    return currentTime - this.cache.timestamp <= this.cacheExpirationTime;
+  }
 
-    // Check if the cache is still valid (within the last 15 minutes)
-    private isCacheValid(): boolean {
-        if (!this.cache) {
-            return false;
-        }
+  private buildFowardHeaders() {
+    const fowardHeaders = this._createHeaders();
 
-        const currentTime = Date.now();
-        return (currentTime - this.cache.timestamp) <= this.cacheExpirationTime;
-    }
+    // Optionally, if you want to ensure x-forwarded-for is forwarded correctly
+    // You can manually add or override the 'x-forwarded-for' header with the client's IP address
+    // assuming that you are handling this on a backend (e.g., the browser doesn't directly expose client's IP)
+    // TODO: ensure this is replicated with client-identity-service in notion-registration -> or build a common npm package.
+    const clientIp =
+      (this.req.headers['x-forwarded-for'] as string) ||
+      this.req.connection.remoteAddress ||
+      ''; // Replace this with a dynamic value if you have access to it
+    fowardHeaders.set('x-forwarded-for', clientIp); // If needed, set or overwrite the x-forwarded-for header
 
-    // Fisher-Yates shuffle to randomize the order of items in the array
-    private shuffleArray<T>(array: T[]): T[] {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]]; // Swap elements
-        }
-        return array;
-    }
+    return fowardHeaders;
+  }
 
-    // Extract bolded words from HTML content (using regex to match words inside <b> tags)
-    private extractBoldWords(htmlContent: string): string[] {
-        const boldWords: string[] = [];
-        
-        // Regex to match content between <b> and the first non-alphabet character
-        const regex = /<b>([a-zA-Z\s]+)\W/g;
-        let match;
+  private _createHeaders(): Headers {
+    const headers: Record<string, string> = Object.fromEntries(
+      Object.entries(this.req.headers).map(([key, value]) => [
+        key,
+        Array.isArray(value) ? value.join(', ') : value ?? '',
+      ])
+    );
 
-        // Loop through all matches
-        while ((match = regex.exec(htmlContent)) !== null) {
-            const boldText = match[1].trim(); // Extracted bold word
-            // Ensure the word is valid and alphabetic
-            if (boldText) {
-                boldWords.push(boldText);
-            }
-        }
+    return new Headers(headers);
+  }
 
-        return boldWords;
-    }
-
-    // Extract HTML content from the Notion blocks and shuffle bullet items
-    private extractHtmlContent(blocks: any[]): string {
-        let htmlContent = "";
-
-        blocks.forEach(block => {
-            // Handle different block types
-            if (block.type === "paragraph" && block.paragraph.rich_text) {
-                block.paragraph.rich_text.forEach((text: any) => {
-                    if (text.text?.content) {
-                        // Wrap bolded text with <b> tag
-                        if (text.annotations?.bold) {
-                            htmlContent += `<b>${text.text.content}</b>`;
-                        } else {
-                            htmlContent += text.text.content;
-                        }
-                    }
-                });
-                htmlContent += "<br>"; // Add line break after each paragraph
-            } else if (block.type === "bulleted_list_item" && block.bulleted_list_item.rich_text) {
-                block.bulleted_list_item.rich_text.forEach((text: any) => {
-                    if (text.text?.content) {
-                        if (text.annotations?.bold) {
-                            htmlContent += `<b>${text.text.content}</b>`;
-                        } else {
-                            htmlContent += text.text.content;
-                        }
-                    }
-                });
-                htmlContent += "<br>"; // Add line break after each bulleted item
-            } else if (block.type === "numbered_list_item" && block.numbered_list_item.rich_text) {
-                block.numbered_list_item.rich_text.forEach((text: any) => {
-                    if (text.text?.content) {
-                        if (text.annotations?.bold) {
-                            htmlContent += `<b>${text.text.content}</b>`;
-                        } else {
-                            htmlContent += text.text.content;
-                        }
-                    }
-                });
-                htmlContent += "<br>"; // Add line break after each numbered item
-            }
-
-            // If the block has children (e.g., nested lists or other components), recurse through them
-            if (block.has_children) {
-                // Recursively extract HTML content from child blocks
-                htmlContent += this.extractHtmlContent(block.children || []);
-            }
+    // Generate pure HTML content for the words data
+    private _generatePureHtmlContent(words: any[]): string {
+        let htmlContent = '<div>';
+        words.forEach(wordData => {
+            htmlContent += `
+                <div class="word-item">
+                    <h3>${wordData.word}</h3>
+                    <p><strong>Pronunciation:</strong> ${wordData.pronunciation}</p>
+                    <p><strong>Explanation:</strong> ${wordData.explanation}</p>
+                </div>
+            `;
         });
-
-        // Now shuffle the bullet items only after extracting the HTML content
-        const bulletBlocks = blocks.filter(block => block.type === "bulleted_list_item");
-        const shuffledBullets = this.shuffleArray(bulletBlocks);
-
-        // Re-add shuffled bullets back to the content
-        shuffledBullets.forEach(block => {
-            block.bulleted_list_item.rich_text.forEach((text: any) => {
-                if (text.text?.content) {
-                    if (text.annotations?.bold) {
-                        htmlContent += `<b>${text.text.content}</b>`;
-                    } else {
-                        htmlContent += text.text.content;
-                    }
-                }
-            });
-            htmlContent += "<br>"; // Add line break after each shuffled bulleted item
-        });
-
+        htmlContent += '</div>';
         return htmlContent;
     }
+
+    // Create and return the mock EnglishWords entity
+    private _createMockEnglishWords(): EnglishWords {
+        const wordsData: any[] = [
+            { word: 'abandon', pronunciation: '/əˈbandən/', explanation: 'To leave behind or give up something or someone.' },
+            { word: 'benevolent', pronunciation: '/bəˈnevələnt/', explanation: 'Showing kindness or goodwill.' },
+            { word: 'catalyst', pronunciation: '/ˈkatəˌlɪst/', explanation: 'A substance that increases the rate of a chemical reaction, or a person or thing that causes a change.' },
+            { word: 'diligent', pronunciation: '/ˈdɪlɪdʒənt/', explanation: 'Having or showing care and conscientiousness in one’s work or duties.' },
+            { word: 'eloquent', pronunciation: '/ˈɛləkwənt/', explanation: 'Fluent or persuasive in speaking or writing.' },
+            { word: 'facetious', pronunciation: '/fəˈsiːʃəs/', explanation: 'Treating serious issues with deliberately inappropriate humor.' },
+        ];
+        const englishWords = new EnglishWords();
+        englishWords.pureHtmlContent = this._generatePureHtmlContent(wordsData);
+        englishWords.primitiveItems = wordsData.map(word => word.word); // Extract just the words for important items
+        return englishWords;
+    }
+
+  private async _isNotionServiceAvailable() {
+    try {
+      const fowardHeaders = this.buildFowardHeaders();
+      const configuration = await (
+        await fetch(`${Storage_AlPortalBaseUrl}/api/portal/configuration`, {
+          headers: fowardHeaders,
+        })
+      ).json();
+      return configuration.enabled ?? false;
+    } catch (err) {
+      console.log('Error at _isNotionServiceAvailable: ', err);
+      return false;
+    }
+  }
 }

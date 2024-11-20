@@ -7,6 +7,8 @@ import session from 'express-session';
 import { mapNotionPages, searchPages } from './pages.helper';
 import { ClientIdentityService } from './client-identity.service';
 import { AccessService } from './access.service';
+import { EnglishWords } from '../replicated-models/words.entity';
+import { PageService } from './page.service';
 
 export function serve(server: express.Express) {
   const router = express.Router();
@@ -15,20 +17,46 @@ export function serve(server: express.Express) {
 
   router.get('/registered', async (req, res) => {
     const clientIdentityService = new ClientIdentityService(req);
-    const accessService = new AccessService(clientIdentityService.getUserIdentity());
-   const access_token = (await accessService.retrieveAccessToken())?.accessToken;
-
-   if (!access_token) {
+    const accessService = new AccessService(
+      clientIdentityService.getUserIdentity()
+    );
+    const access_token = (await accessService.retrieveAccessToken())
+      ?.accessToken;
+    console.log(clientIdentityService.getUserIdentity(), access_token);
+    if (!access_token) {
       res.json([]).status(HttpStatusCode.NoContent).end();
-   } else {
+    } else {
       try {
-         const pages = await searchPages(access_token);
-         res.json(mapNotionPages(pages)).status(HttpStatusCode.Ok).end();
-      } catch(err) {
-         console.log(err);
-         res.json([]).status(HttpStatusCode.NoContent).end();
+        const pages = await searchPages(access_token);
+        console.log(pages);
+        res.json(mapNotionPages(pages)).status(HttpStatusCode.Ok).end();
+      } catch (err) {
+        console.log(err);
+        res.json([]).status(HttpStatusCode.NoContent).end();
       }
-   }
+    }
+  });
+
+  router.get('/page/:pageId/englishwords', async (req, res) => {
+    const clientIdentityService = new ClientIdentityService(req);
+    const accessService = new AccessService(
+      clientIdentityService.getUserIdentity()
+    );
+    const access_token = (await accessService.retrieveAccessToken())
+      ?.accessToken;
+
+    if (!access_token) {
+      res.json(new EnglishWords()).status(HttpStatusCode.NoContent).end();
+    } else {
+      try {
+        const pageService = new PageService(access_token);
+        const pageId = req.params.pageId;
+        res.json(await pageService.fetchAsync(pageId)).status(HttpStatusCode.Ok).end();
+      } catch (err) {
+        console.log(err);
+        res.json(new EnglishWords()).status(HttpStatusCode.NoContent).end();
+      }
+    }
   });
 
   // Set up session middleware
@@ -42,12 +70,12 @@ export function serve(server: express.Express) {
   );
 
   router.get('*', (req, res, next) => {
-      // @ts-ignore
-      // const generatedCSRFState = req.session.state ?? generateState();
-      // @ts-ignore
-      // req.session.state = req.session.state ?? generateState(); // If using sessions
+    // @ts-ignore
+    // const generatedCSRFState = req.session.state ?? generateState();
+    // @ts-ignore
+    // req.session.state = req.session.state ?? generateState(); // If using sessions
 
-      next();
+    next();
   });
 
   router.get('/configuration', async (req, res) => {
@@ -55,11 +83,15 @@ export function serve(server: express.Express) {
     // const generatedCSRFState = req.session.state ?? generateState();
     // @ts-ignore
     // req.session.state = req.session.state ?? generateState(); // If using sessions
-    const authorizationUrl = `https://api.notion.com/v1/oauth/authorize?client_id=${secrets.NOTION_OAuthClient_ID}&response_type=code&owner=user&scope=read&redirect_uri=${encodeURIComponent(secrets.NOTION_OAuth_Reidrect_Uri)}`;
+    const authorizationUrl = `https://api.notion.com/v1/oauth/authorize?client_id=${
+      secrets.NOTION_OAuthClient_ID
+    }&response_type=code&owner=user&scope=read&redirect_uri=${encodeURIComponent(
+      secrets.NOTION_OAuth_Reidrect_Uri
+    )}`;
     res
       .json({
         enabled: secrets.notionEnabled,
-        authUrl: authorizationUrl,// + `&state=${generatedCSRFState}`,
+        authUrl: authorizationUrl, // + `&state=${generatedCSRFState}`,
       })
       .status(HttpStatusCode.Ok)
       .end();
@@ -69,11 +101,14 @@ export function serve(server: express.Express) {
     // Extract the `code` and `state` from the query string
     const { code, state } = req.query;
     const clientIdentityService = new ClientIdentityService(req);
-    const accessService = new AccessService(clientIdentityService.getUserIdentity());
+    const accessService = new AccessService(
+      clientIdentityService.getUserIdentity()
+    );
 
-    if (!code
+    if (
+      !code
       // || !state
-      ) {
+    ) {
       return res.status(400).send('Missing code or state');
     }
 
@@ -84,7 +119,7 @@ export function serve(server: express.Express) {
     // }
     // // @ts-ignore;
     // delete req.session.state;
-   
+
     try {
       // Step 3: Exchange the authorization code for an access token
       // Make the request to exchange the authorization code for an access token
@@ -107,11 +142,16 @@ export function serve(server: express.Express) {
         }
       );
 
-      const { access_token, workspace_id, bot_id, expires_in } = tokenResponse.data;
+      const { access_token, workspace_id, bot_id, expires_in } =
+        tokenResponse.data;
 
       // Now you can use the access token to make API calls to Notion on behalf of the user
       // Example: save the token to the session, database, or a secure store
-      await accessService.storeAccessToken({accessToken: access_token, workspaceId: workspace_id, expiresIn: expires_in});
+      await accessService.storeAccessToken({
+        accessToken: access_token,
+        workspaceId: workspace_id,
+        expiresIn: expires_in,
+      });
 
       return res.redirect('/');
     } catch (error) {

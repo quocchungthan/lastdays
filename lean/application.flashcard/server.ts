@@ -26,7 +26,6 @@ export function app(): express.Express {
   // Serve static files from /browser
   server.get('/api/configuration', (req, res) => {
     res.json({
-      notionEnabled: secret.notionEnabled,
       assistantEnabled: secret.assistantEnabled,
     })
     .end();
