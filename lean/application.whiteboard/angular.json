@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "board-only": {
+    "application.whiteboard": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/board-only",
+            "outputPath": "dist/application.whiteboard",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -34,12 +34,7 @@
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": [],
-            "server": "src/main.server.ts",
-            "prerender": true,
-            "ssr": {
-              "entry": "server.ts"
-            }
+            "scripts": []
           },
           "configurations": {
             "production": {
@@ -69,10 +64,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "board-only:build:production"
+              "buildTarget": "application.whiteboard:build:production"
             },
             "development": {
-              "buildTarget": "board-only:build:development"
+              "buildTarget": "application.whiteboard:build:development"
             }
           },
           "defaultConfiguration": "development"

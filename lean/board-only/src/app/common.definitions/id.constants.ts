@@ -1,1 +1,0 @@
-export const KONVA_CONTAINER = 'KONVA_CONTAINER';
