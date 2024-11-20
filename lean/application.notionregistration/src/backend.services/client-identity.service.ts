@@ -1,10 +1,10 @@
+import { Request } from 'express';
 export class ClientIdentityService {
-   constructor(private req: Express.Request) {
+  constructor(private req: Request) {}
 
-   }
-
-   getUserIdentity() {
-      // @ts-ignore
-      return this.req.headers['x-forwarded-for'] || this.req.connection.remoteAddress;
-   }
+  getUserIdentity() {
+    return (
+      this.req.headers['x-forwarded-for'] as string || this.req.connection.remoteAddress || ''
+    );
+  }
 }
