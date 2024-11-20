@@ -23,6 +23,8 @@ services:
       - NOTION_OAuthClient_ID=${NOTION_OAuthClient_ID}
       - NOTION_OAuth_Reidrect_Uri=http://localhost:4011/callback
       - SESSION_Secret_Key=${SESSION_Secret_Key}
+      - App_AlPortalBaseUrl=http://localhost:4011
+      - App_FlashcardBaseUrl=http://localhost:4012
     networks:
       - app-network
   flashcard:

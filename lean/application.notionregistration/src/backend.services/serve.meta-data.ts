@@ -7,7 +7,7 @@ export function serve(server: Router) {
       const apps: ALAppNavigation[] = [
          {
             name: 'AL Portal',
-            baseUrl: process.env['Storage_AlPortalBaseUrl'] ?? ''
+            baseUrl: process.env['App_AlPortalBaseUrl'] ?? ''
          },
          {
             name: 'Flash card',
