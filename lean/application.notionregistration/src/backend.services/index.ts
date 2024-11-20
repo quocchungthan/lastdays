@@ -5,10 +5,10 @@ import axios from 'axios';
 import crypto from 'crypto';
 import session from 'express-session';
 import { mapNotionPages, searchPages } from './pages.helper';
-import { ClientIdentityService } from './client-identity.service';
 import { AccessService } from './access.service';
-import { EnglishWords } from '../replicated-models/words.entity';
+import { EnglishWords } from '@cbto/nodepackages.utils/models/words.flashcard.model';
 import { PageService } from './page.service';
+import { ClientIdentityService } from '@cbto/nodepackages.utils/backend-functions/client-identity.service';
 
 export function serve(server: express.Express) {
   const router = express.Router();

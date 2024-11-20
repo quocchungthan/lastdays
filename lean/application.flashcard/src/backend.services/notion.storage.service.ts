@@ -1,6 +1,9 @@
 import { loadSecretConfiguration } from './configuration';
-import { EnglishWords } from './words.entity';
 import { Request } from 'express';
+import { EnglishWords } from '@cbto/nodepackages.utils/models/words.flashcard.model';
+import { ALPortalPage } from '@cbto/nodepackages.utils/models/page.alportal.model';
+import { ALPortalConfiguration } from '@cbto/nodepackages.utils/models/configuration.alportal.model';
+import { ClientIdentityService } from '@cbto/nodepackages.utils/backend-functions/client-identity.service';
 
 // Loading configuration (Notion API keys, etc.)
 const { Storage_AlPortalBaseUrl } = loadSecretConfiguration();
@@ -27,7 +30,7 @@ export class EnglishWordStorageService {
       await fetch(`${Storage_AlPortalBaseUrl}/api/portal/registered`, {
         headers: fowardHeaders,
       })
-    ).json();
+    ).json() as ALPortalPage[];
     const englishWords = new EnglishWords();
 
     for (let p of pages) {
@@ -76,11 +79,7 @@ export class EnglishWordStorageService {
     // Optionally, if you want to ensure x-forwarded-for is forwarded correctly
     // You can manually add or override the 'x-forwarded-for' header with the client's IP address
     // assuming that you are handling this on a backend (e.g., the browser doesn't directly expose client's IP)
-    // TODO: ensure this is replicated with client-identity-service in notion-registration -> or build a common npm package.
-    const clientIp =
-      (this.req.headers['x-forwarded-for'] as string) ||
-      this.req.connection.remoteAddress ||
-      ''; // Replace this with a dynamic value if you have access to it
+    const clientIp = new ClientIdentityService(this.req).getUserIdentity(); // Replace this with a dynamic value if you have access to it
     fowardHeaders.set('x-forwarded-for', clientIp); // If needed, set or overwrite the x-forwarded-for header
 
     return fowardHeaders;
@@ -136,7 +135,7 @@ export class EnglishWordStorageService {
         await fetch(`${Storage_AlPortalBaseUrl}/api/portal/configuration`, {
           headers: fowardHeaders,
         })
-      ).json();
+      ).json() as ALPortalConfiguration;
       return configuration.enabled ?? false;
     } catch (err) {
       console.log('Error at _isNotionServiceAvailable: ', err);

@@ -1,4 +1,4 @@
-import { EnglishWords } from '../replicated-models/words.entity';
+import { EnglishWords } from '@cbto/nodepackages.utils/models/words.flashcard.model';
 import { Client } from '@notionhq/client';
 
 export class PageService {
