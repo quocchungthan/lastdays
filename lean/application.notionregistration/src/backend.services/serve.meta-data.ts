@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { ALAppNavigation } from '../shared-entities/app-navigation.alportal.model';
+import { ALAppNavigation } from '@cbto/nodepackages.utils/models/app-navigation.alportal.model';
 import { HttpStatusCode } from '@angular/common/http';
 
 export function serve(server: Router) {

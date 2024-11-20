@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { AppNavigationComponent } from './app-navigation/app-navigation.component';
-import { ALAppNavigation } from '../shared-entities/app-navigation.alportal.model';
+import { AppNavigationComponent } from '@cbto/nodepackages.utils/frontend-components/app-navigation/app-navigation.component';
+import { ALAppNavigation } from '@cbto/nodepackages.utils/models/app-navigation.alportal.model';
 
 @Component({
   selector: 'app-root',
