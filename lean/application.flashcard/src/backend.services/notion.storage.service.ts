@@ -4,16 +4,13 @@ import { EnglishWords } from '@cbto/nodepackages.utils/models/words.flashcard.mo
 import { ALPortalPage } from '@cbto/nodepackages.utils/models/page.alportal.model';
 import { ALPortalConfiguration } from '@cbto/nodepackages.utils/models/configuration.alportal.model';
 import { ClientIdentityService } from '@cbto/nodepackages.utils/backend-functions/client-identity.service';
+import { CacheService } from './cache.service';
 
 // Loading configuration (Notion API keys, etc.)
 const { Storage_AlPortalBaseUrl } = loadSecretConfiguration();
 
 export class EnglishWordStorageService {
-  private cache: { content: any; timestamp: number } | null = null;
-  // TODO: now one instance perquest so it cannot be cached
-  private readonly cacheExpirationTime = 15 * 60 * 1000; // 15 minutes in milliseconds
-
-  constructor(private req: Request) {}
+  constructor(private req: Request, private cacheService: CacheService) {}
 
   // Fetch the content from Notion and extract the required information
   async fetchAsync(): Promise<EnglishWords> {
@@ -21,9 +18,9 @@ export class EnglishWordStorageService {
         return this._createMockEnglishWords();
     }
     // If the cache exists and is still valid, return cached data
-    if (this.isCacheValid()) {
+    if (this.cacheService.isCacheValid("EnglishWordStorageService")) {
       console.log('Returning cached data');
-      return this.cache!.content;
+      return this.cacheService.getCache("EnglishWordStorageService");
     }
     const fowardHeaders = this.buildFowardHeaders();
     const pages = await (
@@ -48,10 +45,7 @@ export class EnglishWordStorageService {
         englishWords.primitiveItems.push(...pageContent.primitiveItems);
 
         // Cache the result and store the current timestamp
-        this.cache = {
-          content: englishWords,
-          timestamp: Date.now(),
-        };
+        this.cacheService.setCache("EnglishWordStorageService", englishWords);
       } catch (error) {
         console.error('Error fetching Notion page content:', error);
         throw error;
@@ -61,16 +55,6 @@ export class EnglishWordStorageService {
     englishWords.primitiveItems = [...new Set(englishWords.primitiveItems)];
     console.log(englishWords);
     return englishWords;
-  }
-
-  // Check if the cache is still valid (within the last 15 minutes)
-  private isCacheValid(): boolean {
-    if (!this.cache) {
-      return false;
-    }
-
-    const currentTime = Date.now();
-    return currentTime - this.cache.timestamp <= this.cacheExpirationTime;
   }
 
   private buildFowardHeaders() {
