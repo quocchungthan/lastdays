@@ -8,12 +8,15 @@ import { mapNotionPages, searchPages } from './pages.helper';
 import { AccessService } from './access.service';
 import { EnglishWords } from '@cbto/nodepackages.utils/models/words.flashcard.model';
 import { PageService } from './page.service';
+import { serve as serveMetaData } from './serve.meta-data';
 import { ClientIdentityService } from '@cbto/nodepackages.utils/backend-functions/client-identity.service';
 
 export function serve(server: express.Express) {
   const router = express.Router();
   server.use(express.json());
   const secrets = loadSecretConfiguration();
+
+  serveMetaData(router);
 
   router.get('/registered', async (req, res) => {
     const clientIdentityService = new ClientIdentityService(req);
