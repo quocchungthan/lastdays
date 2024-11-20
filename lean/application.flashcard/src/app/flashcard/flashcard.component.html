@@ -1,31 +1,25 @@
-<!-- flashcard.component.html -->
 <div class="flashcard-container">
-   <div class="question">
-     <h2>{{ questionData?.question }}</h2>
-   </div>
- 
-   <div class="options">
-     <div
-       *ngFor="let option of questionData?.options; let i = index"
-       class="option"
-       [ngClass]="{'selected': selectedAnswerIndex === i, 'correct': isAnswerCorrect && i === questionData?.correctAnswerIndex, 'incorrect': isAnswerCorrect === false && selectedAnswerIndex === i}"
-       (click)="selectAnswer(i)"
-     >
-       {{ option.word }}
-     </div>
-   </div>
- 
-   <div *ngIf="isAnswerCorrect !== null">
-     <p *ngIf="isAnswerCorrect; else incorrectMessage" class="feedback correct">
-       Correct!
-     </p>
-     <ng-template #incorrectMessage>
-       <p class="feedback incorrect">Incorrect. Try again!</p>
-     </ng-template>
-   </div>
- 
-   <button *ngIf="isAnswerCorrect !== null" (click)="reset()" class="next-button">
-     Next Question
-   </button>
- </div>
- 
+  @if (questionData) {
+    <div class="flashcard">
+      <h2 class="question">{{ questionData.question }}</h2>
+      
+      <div class="options">
+        <button
+          *ngFor="let option of questionData.options; let i = index"
+          (click)="selectAnswer(i)"
+          [class.selected]="selectedAnswerIndex === i"
+          [class.correct]="isAnswerCorrect && selectedAnswerIndex === i"
+          [class.incorrect]="!isAnswerCorrect && selectedAnswerIndex === i">
+          {{ option.word }}
+        </button>
+      </div>
+  
+      <div class="feedback" *ngIf="selectedAnswerIndex !== -1">
+        <p *ngIf="isAnswerCorrect" class="correct-message">Correct! Loading next question...</p>
+        <p *ngIf="isAnswerCorrect === false" class="incorrect-message">Try again!</p>
+      </div>
+    </div>
+  } @else {
+    <div>Loading...</div>
+  }
+</div>

@@ -13,32 +13,26 @@ export class FlashcardComponent {
   @Input() questionData: Question | null = null;  // Input question data
   @Output() onReset: EventEmitter<void> = new EventEmitter<void>();  // EventEmitter for resetting
 
-  selectedAnswerIndex: number | null = null;  // Track selected answer index
+  selectedAnswerIndex: number | null = -1;  // Track selected answer index
   isAnswerCorrect: boolean | null = null;  // Track whether the answer is correct
 
-  ngOnInit(): void {
-    if (!this.questionData) {
-      console.error('No question data provided');
-    }
+  fetchNewQuestion(): void {
+    this.onReset.emit();
   }
 
-  // Method to check the selected answer
   checkAnswer(): void {
-    if (this.selectedAnswerIndex !== null) {
+    if (this.selectedAnswerIndex !== -1) {
       this.isAnswerCorrect = this.selectedAnswerIndex === this.questionData?.correctAnswerIndex;
     }
   }
 
-  // Method to handle the selection of an answer
   selectAnswer(index: number): void {
     this.selectedAnswerIndex = index;
     this.checkAnswer();
-  }
-
-  // Optional method to reset the selected answer for the next question
-  reset(): void {
-    this.selectedAnswerIndex = null;
-    this.isAnswerCorrect = null;
-    this.onReset.emit();  // Emit the reset event to notify the parent to reload
+    if (this.questionData && this.isAnswerCorrect) {
+      this.selectedAnswerIndex = -1;
+      this.isAnswerCorrect = null;
+      this.fetchNewQuestion();
+    }
   }
 }
