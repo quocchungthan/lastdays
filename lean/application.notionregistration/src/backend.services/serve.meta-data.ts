@@ -12,6 +12,10 @@ export function serve(server: Router) {
          {
             name: 'Flash card',
             baseUrl: process.env['App_FlashcardBaseUrl'] ?? ''
+         },
+         {
+            name: 'Whiteboard',
+            baseUrl: process.env['App_WhiteBoardBaseUrl'] ?? ''
          }
       ];
       

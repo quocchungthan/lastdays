@@ -25,6 +25,7 @@ services:
       - SESSION_Secret_Key=${SESSION_Secret_Key}
       - App_AlPortalBaseUrl=http://localhost:4011
       - App_FlashcardBaseUrl=http://localhost:4012
+      - App_WhiteBoardBaseUrl=http://localhost:4013
     networks:
       - app-network
   flashcard:
@@ -58,16 +59,16 @@ services:
   #     - FLASHCARD_URL=http://flashcard:4012
   #   networks:
   #     - app-network
-  # angular:
-  #   build:
-  #     context: ..
-  #     dockerfile: agilelink-ci/Dockerfile.angular
-  #   ports:
-  #     - "81:3000"  # Maps port 81 on the host to port 3000 in the container
-  #   environment:
-  #     - PORT=3000  # Sets the PORT environment variable inside the container
-  #   networks:
-  #     - app-network
+  whiteboard:
+    build:
+      context: ..
+      dockerfile: agilelink-ci/Dockerfile.application.whiteboard
+    ports:
+      - "4013:4013"
+    environment:
+      - PORT=4013  # Sets the PORT environment variable inside the container
+    networks:
+      - app-network
 
 networks:
   app-network:
