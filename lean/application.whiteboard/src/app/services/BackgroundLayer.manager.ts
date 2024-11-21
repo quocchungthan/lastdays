@@ -39,6 +39,7 @@ export class BackgroundLayerManager implements OnDestroy {
 
         this._backgroundLayer = new Konva.Layer();
         s.add(this._backgroundLayer);
+        this._backgroundLayer.setZIndex(0);
         this._viewPort = s;
         this._setupMomentum(this._viewPort);
       });
@@ -127,8 +128,8 @@ export class BackgroundLayerManager implements OnDestroy {
     });
     rulersGroup.add(verticalLine);
     rulersGroup.add(horizontalLine);
-
     this._backgroundLayer.add(rulersGroup);
+    rulersGroup.setZIndex(0);
 
     this._drawTheSteps();
   }
