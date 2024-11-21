@@ -16,6 +16,7 @@ export enum KonvaMouseButton {
 export class ViewPortEventsManager implements OnDestroy {
     private unsubscribe$ = new Subject<void>();
     private _dragStart: Subject<Point | null>;
+    private _dragMove: Subject<Point | null>;
     private _dragEnd: Subject<Point | null>;
     private _wheel: Subject<Wheel | null>;
     private _mouseEnter: Subject<void>;
@@ -32,6 +33,7 @@ export class ViewPortEventsManager implements OnDestroy {
             this._registerEventListener();
         })
         this._dragStart = new Subject<Point | null>();
+        this._dragMove = new Subject<Point | null>();
         this._dragEnd = new Subject<Point | null>();
         this._touchStart = new Subject<Point | null>();
         this._touchEnd = new Subject<Point | null>();
@@ -88,6 +90,10 @@ export class ViewPortEventsManager implements OnDestroy {
             this._dragEnd.next(this._currentRelativePosition());
         });
 
+        this._viewPort.on('dragmove', () => {
+            this._dragMove.next(this._currentRelativePosition());
+        });
+
         this._viewPort.on('mousemove', () => {
             this._cursorMove.next(this._currentRelativePosition());
         });
@@ -133,6 +139,10 @@ export class ViewPortEventsManager implements OnDestroy {
 
     public onDragStart() {
         return this._notNilPointsAndRemoveDuplicatedEvents(this._dragStart.asObservable());
+    }
+
+    public onDragMove() {
+        return this._notNilPointsAndRemoveDuplicatedEvents(this._dragMove.asObservable());
     }
 
     public onDragEnd() {

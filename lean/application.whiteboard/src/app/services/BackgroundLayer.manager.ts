@@ -5,6 +5,8 @@ import { Subject, takeUntil } from 'rxjs';
 import { Point } from '../../share-models/Point';
 import { PRIMARY_COLOR } from '../../shared-configuration/theme.constants';
 import { KonvaObjectService } from './konva-object.service';
+import { Stage } from 'konva/lib/Stage';
+import { MomentumService } from './BackgroundMomentum.service';
 
 @Injectable()
 export class BackgroundLayerManager implements OnDestroy {
@@ -16,11 +18,8 @@ export class BackgroundLayerManager implements OnDestroy {
   };
 
   private readonly _verticalLineName = 'verticalLine';
-
   private readonly _horizontalLineName = 'horizontalLine';
-
   private readonly _rulersGroupName = 'rulersGroup';
-
   private readonly _rulerSize = 1;
   private readonly _rulerStep = 50;
 
@@ -29,7 +28,7 @@ export class BackgroundLayerManager implements OnDestroy {
   _centerBottom: Point = { x: 0, y: 0 };
   _middleLeft: Point = { x: 0, y: 0 };
   _middleRight: Point = { x: 0, y: 0 };
-  constructor(_konvaObjects: KonvaObjectService) {
+  constructor(_konvaObjects: KonvaObjectService, private _momentumService: MomentumService) {
     _konvaObjects.viewPortChanges
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((s) => {
@@ -40,6 +39,7 @@ export class BackgroundLayerManager implements OnDestroy {
         this._backgroundLayer = new Konva.Layer();
         s.add(this._backgroundLayer);
         this._viewPort = s;
+        this._setupMomentum(this._viewPort);
       });
   }
 
@@ -134,6 +134,13 @@ export class BackgroundLayerManager implements OnDestroy {
 
   private _getScaledRulerDashSize() {
     return this._rulerDashSize * this._getScale();
+  }
+
+  private _setupMomentum(_viewPort: Stage) {
+    this._momentumService.setTarget(_viewPort)
+      .setupMomentum()
+      .onAnimated
+      .subscribe(() => { this.putTheRuler(); });
   }
 
   private _drawTheSteps() {

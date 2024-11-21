@@ -12,6 +12,7 @@ import { Subject } from 'rxjs';
 import { ViewPortEventsManager } from '../services/ViewPortEvents.manager';
 import Konva from 'konva';
 import { Wheel } from '../../share-models/Wheel';
+import { MomentumService } from '../services/BackgroundMomentum.service';
 
 @Component({
   selector: 'app-board-detail',
@@ -21,6 +22,7 @@ import { Wheel } from '../../share-models/Wheel';
     KonvaObjectService,
     BackgroundLayerManager,
     ViewPortEventsManager,
+    MomentumService
   ],
   templateUrl: './board-detail.component.html',
   styleUrl: './board-detail.component.scss',
