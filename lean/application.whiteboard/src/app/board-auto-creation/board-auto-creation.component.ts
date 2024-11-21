@@ -1,7 +1,7 @@
 import { AfterViewInit, Component } from '@angular/core';
 import { BoardsService } from '../business/boards.service';
 import { Router } from '@angular/router';
-import { retryCreatingNewBoard } from '../../utils/promises.helper';
+import { retryAPromise } from '../../utils/promises.helper';
 
 @Component({
   selector: 'app-board-auto-creation',
@@ -18,7 +18,7 @@ export class BoardAutoCreationComponent implements AfterViewInit {
     
   }
   ngAfterViewInit(): void {
-    retryCreatingNewBoard(() => this.boardsService.createNewBoardAsync())
+    retryAPromise(() => this.boardsService.createNewBoardAsync())
       .then((createdId) => {
           setTimeout(() => {
             this.router.navigate(['board', createdId]);

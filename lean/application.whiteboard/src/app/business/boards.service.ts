@@ -31,6 +31,6 @@ export class BoardsService {
             x.timestamp = new Date(x.timestamp);
             return x;
          })
-         .sort((a, b) => (a.timestamp as Date).getTime() - (a.timestamp as Date).getTime());
+         .sort((a, b) => (a.timestamp as Date).getTime() - (b.timestamp as Date).getTime());
    }
 }

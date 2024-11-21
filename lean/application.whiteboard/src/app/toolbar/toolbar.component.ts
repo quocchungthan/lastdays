@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { SUPPORTED_COLORS } from '../../shared-configuration/theme.constants';
 import { PencilToolIcon } from '../_area-pencil';
 import { DefaultToolIcon } from '../_area-default-tool';
+import { ToolSelectionService } from './tool-selection.service';
 
 @Component({
   selector: 'app-toolbar',
@@ -19,6 +20,8 @@ export class ToolbarComponent {
 
   colors = SUPPORTED_COLORS;
   shapes = ['circle', 'square', 'triangle'];
+
+  constructor(private _toolSelection: ToolSelectionService){}
 
   expand() {
     this.isExpanded = true;
@@ -49,6 +52,7 @@ export class ToolbarComponent {
   selectColor(color: string) {
     this.selectedColor = color;
     this.showColorPicker = false;
+    this._toolSelection.selectColor(color);
   }
 
   selectShape(shape: string) {

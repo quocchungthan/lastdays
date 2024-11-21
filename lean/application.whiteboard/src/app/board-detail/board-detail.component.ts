@@ -15,6 +15,11 @@ import { Wheel } from '../../share-models/Wheel';
 import { MomentumService } from '../services/BackgroundMomentum.service';
 import { ToolbarComponent } from '../toolbar/toolbar.component';
 import { AssistantBoxComponent } from "../assistant-box/assistant-box.component";
+import { PencilRendererService } from '../_area-pencil';
+import { IRendererService } from '../_area-base/renderer.service.interface';
+import { BoardsService } from '../business/boards.service';
+import { getBoardId } from '../../utils/url.helper';
+import { retryAPromise } from '../../utils/promises.helper';
 
 @Component({
   selector: 'app-board-detail',
@@ -24,13 +29,15 @@ import { AssistantBoxComponent } from "../assistant-box/assistant-box.component"
     KonvaObjectService,
     BackgroundLayerManager,
     ViewPortEventsManager,
-    MomentumService
+    MomentumService,
+    PencilRendererService,
   ],
   templateUrl: './board-detail.component.html',
   styleUrl: './board-detail.component.scss',
 })
 export class BoardDetailComponent implements AfterViewInit, OnDestroy {
   KONVA_CONTAINER = KONVA_CONTAINER;
+  private _rendererServices: IRendererService[] = [];
 
   private unsubscribe$ = new Subject<void>();
 
@@ -40,8 +47,12 @@ export class BoardDetailComponent implements AfterViewInit, OnDestroy {
   constructor(
     private _konvaObjectService: KonvaObjectService,
     private _backgroundLayerManager: BackgroundLayerManager,
-    private _interactiveEventManager: ViewPortEventsManager
-  ) {}
+    private _interactiveEventManager: ViewPortEventsManager,
+    private _boardsService: BoardsService,
+    pencilRendererService: PencilRendererService
+  ) {
+    this._rendererServices.push(pencilRendererService);
+  }
 
   @HostListener('window:resize')
   public onWindowResize(e: any) {
@@ -67,7 +78,18 @@ export class BoardDetailComponent implements AfterViewInit, OnDestroy {
       .subscribe((stage) => {
         this._backgroundLayerManager.drawBackground();
         this.initiateBasedOnBackgroundStage(stage);
+        this._recoverExistingEvents().then(() => {});
       });
+  }
+
+  private async _recoverExistingEvents() {
+    const events = await retryAPromise(() => this._boardsService.askForExistingBoardAsync(getBoardId(location.href)!));
+    console.log(events);
+    for (let e of events) {
+      for (let s of this._rendererServices) {
+        await s.recover(e);
+      }
+    }
   }
 
   private initiateBasedOnBackgroundStage(stage: Konva.Stage) {

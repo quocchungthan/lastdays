@@ -4,21 +4,24 @@ import { filter } from 'rxjs/internal/operators/filter';
 import { Point } from '../../share-models/Point';
 import Konva from 'konva';
 import { KonvaObjectService } from '../services/konva-object.service';
-import { STROKE_WIDTH } from '../../shared-configuration/size';
 import { ToolSelectionService } from '../toolbar/tool-selection.service';
+import { Init, Recover, ToRecoverableEvent } from './mappers/to-recoverable-event.mapper';
+import { IEventGeneral } from '../../syncing-models/EventGeneral.interface';
+import { PencilUpEvent } from '../../syncing-models/PencilUpEvent';
+import { SyncingService } from '../business/syncing-service';
+import { IRendererService } from '../_area-base/renderer.service.interface';
 
 @Injectable()
-export class RendererService {
+export class RendererService implements IRendererService {
   private _activated = false;
   private _currentObject?: Konva.Line;
   private _drawingLayer!: Konva.Layer;
-  private _size = STROKE_WIDTH;
 
   constructor(
     private _interactiveEventService: ViewPortEventsManager,
     private _toolSelection: ToolSelectionService,
-    konvaObjectService: KonvaObjectService
-  ) {
+    konvaObjectService: KonvaObjectService,
+    private _syncingService: SyncingService  ) {
     konvaObjectService.viewPortChanges.subscribe((stage) => {
       this._drawingLayer = stage.children.find(
         (x) => x instanceof Konva.Layer && x.hasName('DrawingLayer')
@@ -55,7 +58,6 @@ export class RendererService {
       .onMouseOut()
       .pipe(filter(() => this._activated))
       .subscribe((p) => {
-        const tobeSaved = this.penUp();
         this._pendEnd();
       });
   }
@@ -66,12 +68,7 @@ export class RendererService {
       return;
     }
 
-    this._currentObject = new Konva.Line({
-      fill: 'transparent',
-      stroke: this._toolSelection.onColorSelected,
-      strokeWidth: this._size,
-      points: [position.x, position.y, position.x, position.y],
-    });
+    this._currentObject = Init(position, this._toolSelection.onColorSelected);
     this._drawingLayer.add(this._currentObject);
   }
 
@@ -92,8 +89,21 @@ export class RendererService {
 
     return toBeSaved;
   }
+
+  public recover(event: IEventGeneral) {
+    if (event.code !== "PencilUpEvent") return Promise.resolve();
+    this._drawingLayer.add(Recover(event as PencilUpEvent));
+
+    return Promise.resolve();
+  }
+
   private _pendEnd() {
     const tobeSaved = this.penUp();
-    console.log(tobeSaved);
+    if (!tobeSaved || (tobeSaved.points().length ?? 0) < 5) return;
+    const newEvent = ToRecoverableEvent(tobeSaved);
+    this._syncingService.storeEventAsync(newEvent)
+      .then(() => {
+        this.recover(newEvent);
+      });
   }
 }

@@ -1,9 +1,9 @@
-export async function retryCreatingNewBoard<T>(promise: () => Promise<T>): Promise<T> {
+export async function retryAPromise<T>(promise: () => Promise<T>): Promise<T> {
    try {
      return await promise();
    } catch {
-     await sleepFor(2000);
-     return await retryCreatingNewBoard(promise);
+     await sleepFor(500);
+     return await retryAPromise(promise);
    }
 }
 
