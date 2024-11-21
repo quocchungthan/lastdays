@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { ToolSelectionService } from '../../toolbar/tool-selection.service';
+import { BaseToolIconComponent } from '../../_area-base/tool-icon/tool-icon.component';
 
 @Component({
   selector: 'pencil-tool-icon',
@@ -8,18 +9,9 @@ import { ToolSelectionService } from '../../toolbar/tool-selection.service';
   templateUrl: './tool-icon.component.html',
   styleUrl: './tool-icon.component.scss'
 })
-export class ToolIconComponent {
-    /**
-   *
-   */
-    constructor(private toolSelectionService: ToolSelectionService) {
-      this.toolSelectionService
-        .onToolSelected
-        .subscribe((selected) => this.active = selected === 'pencil');
-    }
-    select() {
-      this.active = true;
-      this.toolSelectionService.abortTheOthers('pencil');
-    }
-    active: boolean = true;
-} 
+export class ToolIconComponent extends BaseToolIconComponent {
+  constructor(toolSelectionService: ToolSelectionService) {
+    super(toolSelectionService, 'pencil');
+  }
+}
+
