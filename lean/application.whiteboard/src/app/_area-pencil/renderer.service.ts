@@ -92,6 +92,8 @@ export class RendererService implements IRendererService {
 
   public recover(event: IEventGeneral) {
     if (event.code !== "PencilUpEvent") return Promise.resolve();
+    if (this._drawingLayer.children.find(x => x.name() === (event as PencilUpEvent).name)) return Promise.resolve();
+
     this._drawingLayer.add(Recover(event as PencilUpEvent));
 
     return Promise.resolve();

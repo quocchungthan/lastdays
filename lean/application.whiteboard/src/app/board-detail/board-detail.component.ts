@@ -21,6 +21,7 @@ import { BoardsService } from '../business/boards.service';
 import { getBoardId } from '../../utils/url.helper';
 import { retryAPromise } from '../../utils/promises.helper';
 import { SyncingService } from '../business/syncing-service';
+import { IEventGeneral } from '../../syncing-models/EventGeneral.interface';
 
 @Component({
   selector: 'app-board-detail',
@@ -87,8 +88,22 @@ export class BoardDetailComponent implements AfterViewInit, OnDestroy {
   private async _recoverExistingEvents() {
     const boardId = getBoardId(location.href)!;
     this._syncingService.listen(boardId);
-    const events = await retryAPromise(() => this._boardsService.askForExistingBoardAsync(boardId));
-    console.log(events);
+    await this._loadFromDbAndRecover(boardId);
+    await this._boardsService.askForExistingBoardFromPeersAsync(boardId);
+    this._syncingService.onDataChange
+        .subscribe(async () => {
+          await this._loadFromDbAndRecover(boardId);
+        });
+  }
+
+  private async _loadFromDbAndRecover(boardId: string) {
+    console.log('_loadFromDbAndRecover');
+    const allEvents = await retryAPromise(() => this._boardsService.askForExistingBoardAsync(boardId));
+    await this.recoverAll(allEvents);
+  }
+
+  private async recoverAll(events: IEventGeneral[]) {
+    console.log('recoverAll');
     for (let e of events) {
       for (let s of this._rendererServices) {
         await s.recover(e);

@@ -8,7 +8,6 @@ import { EMPTY } from 'rxjs/internal/observable/empty';
 import { catchError } from 'rxjs/internal/operators/catchError';
 import { BehaviorSubject } from 'rxjs';
 
-
 // TODO: replicated from helper.assistant
 export enum WSEventType {
   DRAWING_EVENT = 'DRAWING_EVENT',
@@ -41,15 +40,34 @@ export interface WSEvent {
 export class SyncingService {
   private _ws?: WebSocketSubject<WSEvent>;
   private _onlineStatusChanged = new BehaviorSubject<number>(0);
+  private _dataChanged = new BehaviorSubject<IEventGeneral[]>([]);
+  private _boardId: string = '';
 
   constructor(private _browserService: BrowserService) {}
 
   storeEventAsync(event: IEventGeneral) {
+    this.trySendEvent(event);
     return this._browserService.storeEventAsync(event);
+  }
+
+  public trySendEvent(event: IEventGeneral) {
+    this._ws?.next({
+      data: event,
+      type: WSEventType.DRAWING_EVENT,
+    });
+  }
+
+  public tryAsking() {
+   console.log('tryAsking');
+   this._ws?.next({
+      data: null,
+      type: WSEventType.ASK_OTHER_CLIENTS,
+    });
   }
 
   public listen(boardId: string) {
     const self = this;
+    this._boardId = boardId;
     if (this._ws) {
       return this;
     }
@@ -71,31 +89,49 @@ export class SyncingService {
     return this;
   }
 
+  get onDataChange() {
+   return this._dataChanged.asObservable();
+  }
+
   get participantCount() {
-   return this._onlineStatusChanged.asObservable();
+    return this._onlineStatusChanged.asObservable();
+  }
+
+  get isOnline() {
+   return this._onlineStatusChanged.getValue() !== 0;
  }
 
   private _onMessageReceive(data: WSEvent) {
     switch (data.type) {
-      case WSEventType.CHAT:
-      case WSEventType.SAY_HELLO:
-      case WSEventType.PARTICIPANTS_COUNT_UPDATE:
-        break;
       case WSEventType.DRAWING_EVENT:
-        //  this._handleAdded(data.data as BaseEvent);
+        this._browserService.storeEventAsync(data.data)
+         .then(() => {})
+         .finally(() => this._dataChanged.next([data.data]));
         break;
       case WSEventType.ASK_OTHER_CLIENTS:
-        //  // console.log('responding that', this._allEventsBaseEvent);
-        //  this._ws?.next({
-        //    type: WSEventType.OTHER_CLIENT_RESPONDED,
-        //    // data:  this._allEventsBaseEvent
-        //  });
+        this._browserService
+          .loadAllEventRelatedToBoardAsync(this._boardId)
+          .then((existingData) => {
+            this._ws?.next({
+              type: WSEventType.OTHER_CLIENT_RESPONDED,
+              data: existingData,
+            });
+          });
         break;
       case WSEventType.OTHER_CLIENT_RESPONDED:
-        //  const comparison = this._eventsCompositionService
-        //    .compare((data.data as BaseEvent[]).map(x => ToDrawingEvent(x)!));
-        //  this._handleComparisionREsult(comparison, data);
-        break;
+         if (data.data.length) {
+            this._browserService
+               .loadAllEventRelatedToBoardAsync(this._boardId)
+               .then(async (existingData) => {
+                  for (let e of data.data as IEventGeneral[]) {
+                     if (existingData.some(ed => ed.eventId === e.eventId)) continue;
+                     await this._browserService.storeEventAsync(e);
+                  }
+               }).finally(() => {
+                  this._dataChanged.next(data.data);
+               });
+         }
+         break;
     }
   }
 
