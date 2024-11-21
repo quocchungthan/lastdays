@@ -1,0 +1,33 @@
+<div
+  class="toolbar"
+  [class.expanded]="isExpanded"
+  (mouseenter)="expand()"
+  (mouseleave)="collapse()"
+>
+  <div class="tool-item active">
+    <div
+      class="circle"
+      [style.background-color]="selectedColor"
+      (click)="toggleColorPicker()"
+    >
+      @if (showColorPicker) {
+      <div class="color-picker">
+        @for (color of colors; track $index) {
+        <div
+          class="color-option"
+          [style.background-color]="color"
+          (click)="selectColor(color)"
+        ></div>
+        }
+      </div>
+      }
+    </div>
+  </div>
+  @for (shape of shapes; track $index) {
+   <div class="tool-item" [class]="shape === selectedShape ? 'active': ''">
+      <div class="shape-picker">
+         <div class="shape" [class]="'shape-' + shape" (click)="selectShape(shape)"></div>
+      </div>
+   </div>
+  }
+</div>

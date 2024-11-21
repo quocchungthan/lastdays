@@ -3,7 +3,7 @@ import { LineConfig } from 'konva/lib/shapes/Line';
 import { Injectable, OnDestroy } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { Point } from '../../share-models/Point';
-import { PRIMARY_COLOR } from '../../shared-configuration/theme.constants';
+import { BG_HIGHTLIGHT_COLOR, PRIMARY_COLOR } from '../../shared-configuration/theme.constants';
 import { KonvaObjectService } from './konva-object.service';
 import { Stage } from 'konva/lib/Stage';
 import { MomentumService } from './BackgroundMomentum.service';
@@ -15,6 +15,7 @@ export class BackgroundLayerManager implements OnDestroy {
   private _viewPort!: Konva.Stage;
   private _theme = {
     primary: PRIMARY_COLOR,
+    bgHightLight: BG_HIGHTLIGHT_COLOR,
   };
 
   private readonly _verticalLineName = 'verticalLine';
@@ -23,7 +24,7 @@ export class BackgroundLayerManager implements OnDestroy {
   private readonly _rulerSize = 1;
   private readonly _rulerStep = 50;
 
-  private readonly _rulerDashSize = 3;
+  private readonly _rulerDashSize = 5;
   _centerTop: Point = { x: 0, y: 0 };
   _centerBottom: Point = { x: 0, y: 0 };
   _middleLeft: Point = { x: 0, y: 0 };
@@ -57,7 +58,7 @@ export class BackgroundLayerManager implements OnDestroy {
   get primaryLineDefaultConfig() {
     return {
       points: [],
-      stroke: this._theme.primary,
+      stroke: this._theme.bgHightLight,
       // Which never change
       strokeWidth: this._rulerSize * this._getScale(),
       fill: 'transparent',

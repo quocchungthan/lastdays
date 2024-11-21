@@ -13,11 +13,12 @@ import { ViewPortEventsManager } from '../services/ViewPortEvents.manager';
 import Konva from 'konva';
 import { Wheel } from '../../share-models/Wheel';
 import { MomentumService } from '../services/BackgroundMomentum.service';
+import { ToolbarComponent } from '../toolbar/toolbar.component';
 
 @Component({
   selector: 'app-board-detail',
   standalone: true,
-  imports: [],
+  imports: [ToolbarComponent],
   providers: [
     KonvaObjectService,
     BackgroundLayerManager,
