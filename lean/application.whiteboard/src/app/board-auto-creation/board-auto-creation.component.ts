@@ -1,4 +1,7 @@
 import { AfterViewInit, Component } from '@angular/core';
+import { BoardsService } from '../business/boards.service';
+import { Router } from '@angular/router';
+import { retryCreatingNewBoard } from '../../utils/promises.helper';
 
 @Component({
   selector: 'app-board-auto-creation',
@@ -8,10 +11,18 @@ import { AfterViewInit, Component } from '@angular/core';
   styleUrl: './board-auto-creation.component.scss'
 })
 export class BoardAutoCreationComponent implements AfterViewInit {
+  /**
+   *
+   */
+  constructor(private boardsService: BoardsService, private router: Router) {
+    
+  }
   ngAfterViewInit(): void {
-    // Simulate a loading delay (like waiting for an API or data to load)
-    setTimeout(() => {
-      // Here we can communicate with parent component to hide the loading screen
-    }, 5000); // Adjust time as needed
+    retryCreatingNewBoard(() => this.boardsService.createNewBoardAsync())
+      .then((createdId) => {
+          setTimeout(() => {
+            this.router.navigate(['board', createdId]);
+          }, 5000);
+      });
   }
 }
