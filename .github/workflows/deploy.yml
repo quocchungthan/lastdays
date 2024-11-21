@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - master
-      - enhancements/usability-fullscreen-ipad-compatition
-  workflow_run:
-    workflows: ["Cypress Tests", "Dotnet Tests"]
-    types:
-      - completed
+      - feature/moving-arrow
+  # workflow_run:
+  #   workflows: ["Cypress Tests", "Dotnet Tests"]
+  #   types:
+  #     - completed
 
 jobs:
   build:
@@ -27,11 +27,11 @@ jobs:
 
     - name: Install dependencies
       run: npm install
-      working-directory: ./reactive-UI  # Set the working directory
+      working-directory: ./lean/application.whiteboard  # Set the working directory
 
     - name: Build the app
       run: npm run build
-      working-directory: ./reactive-UI  # Set the working directory
+      working-directory: ./lean/application.whiteboard  # Set the working directory
 
     - name: Deploy to S3
       uses: jakejarvis/s3-sync-action@master
@@ -42,4 +42,4 @@ jobs:
         AWS_REGION: ${{ secrets.AWS_REGION }}
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        SOURCE_DIR: './reactive-UI/dist/reactive-ui/browser'  # Updated source directory
+        SOURCE_DIR: './lean/application.whiteboard/dist/application.whiteboard/browser'  # Updated source directory
