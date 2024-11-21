@@ -14,11 +14,12 @@ import Konva from 'konva';
 import { Wheel } from '../../share-models/Wheel';
 import { MomentumService } from '../services/BackgroundMomentum.service';
 import { ToolbarComponent } from '../toolbar/toolbar.component';
+import { AssistantBoxComponent } from "../assistant-box/assistant-box.component";
 
 @Component({
   selector: 'app-board-detail',
   standalone: true,
-  imports: [ToolbarComponent],
+  imports: [ToolbarComponent, AssistantBoxComponent],
   providers: [
     KonvaObjectService,
     BackgroundLayerManager,
