@@ -45,6 +45,16 @@ services:
       - Storage_AlPortalBaseUrl=http://notion_registration:4011
     networks:
       - app-network
+  peer2peer:
+    build:
+      context: ..
+      dockerfile: agilelink-ci/Dockerfile.peer2peer
+    ports:
+      - "4014:4014"
+    environment:
+      - PORT=4014
+    networks:
+      - app-network
   # nginx:
   #   build:
   #     context: ..
