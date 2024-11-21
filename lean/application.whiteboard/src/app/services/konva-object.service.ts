@@ -11,12 +11,17 @@ export class KonvaObjectService {
   }
 
   public initKonvaObject() {
-    this._viewPort.next(new Konva.Stage({
+    const newViewPort = new Konva.Stage({
       container: KONVA_CONTAINER,
       width: window.innerWidth - 10,
       height: window.innerHeight - 10,
       draggable: true,
-    }));
+    });
+    const drawingLayer = new Konva.Layer({
+      name: 'DrawingLayer'
+    });
+    newViewPort.add(drawingLayer);
+    this._viewPort.next(newViewPort);
   }
 
   public adaptViewPortSize() {
