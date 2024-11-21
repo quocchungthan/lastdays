@@ -1,6 +1,6 @@
 export const PRIMARY_COLOR = '#3498db';
 export const PREFERED_INK_COLOR = '#34495e';
-export const BG_HIGHTLIGHT_COLOR = '#dfe6e9';
+export const BG_HIGHTLIGHT_COLOR = '#b2bec3';
 
 export const SUPPORTED_COLORS = [
   '#1abc9c',
