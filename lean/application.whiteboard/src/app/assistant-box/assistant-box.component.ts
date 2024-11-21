@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { SyncingService } from '../business/syncing-service';
 
 @Component({
   selector: 'app-assistant-box',
@@ -12,7 +13,12 @@ import { FormsModule } from '@angular/forms';
 export class AssistantBoxComponent {
   message: string = ''; // Stores the typed message
   isOnline: boolean = false; // Represents the online status of the assistant
-
+  constructor(syncing: SyncingService) {
+    syncing.participantCount
+      .subscribe((num) => {
+        this.isOnline = !(num === 0);
+      });
+  }
   // Toggle the online/offline status
   toggleStatus() {
     this.isOnline = !this.isOnline;

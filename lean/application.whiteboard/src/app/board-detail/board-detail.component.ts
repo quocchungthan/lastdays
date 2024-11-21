@@ -20,6 +20,7 @@ import { IRendererService } from '../_area-base/renderer.service.interface';
 import { BoardsService } from '../business/boards.service';
 import { getBoardId } from '../../utils/url.helper';
 import { retryAPromise } from '../../utils/promises.helper';
+import { SyncingService } from '../business/syncing-service';
 
 @Component({
   selector: 'app-board-detail',
@@ -49,7 +50,8 @@ export class BoardDetailComponent implements AfterViewInit, OnDestroy {
     private _backgroundLayerManager: BackgroundLayerManager,
     private _interactiveEventManager: ViewPortEventsManager,
     private _boardsService: BoardsService,
-    pencilRendererService: PencilRendererService
+    pencilRendererService: PencilRendererService,
+    private _syncingService: SyncingService,
   ) {
     this._rendererServices.push(pencilRendererService);
   }
@@ -83,7 +85,9 @@ export class BoardDetailComponent implements AfterViewInit, OnDestroy {
   }
 
   private async _recoverExistingEvents() {
-    const events = await retryAPromise(() => this._boardsService.askForExistingBoardAsync(getBoardId(location.href)!));
+    const boardId = getBoardId(location.href)!;
+    this._syncingService.listen(boardId);
+    const events = await retryAPromise(() => this._boardsService.askForExistingBoardAsync(boardId));
     console.log(events);
     for (let e of events) {
       for (let s of this._rendererServices) {
