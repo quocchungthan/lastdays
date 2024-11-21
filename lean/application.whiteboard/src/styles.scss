@@ -14,3 +14,16 @@ body {
  * {
    box-sizing: border-box;
  }
+
+.tool-item {
+   .shape img {
+      width: 21px;
+      height: 21px;
+   }
+   .shape {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+   }
+}

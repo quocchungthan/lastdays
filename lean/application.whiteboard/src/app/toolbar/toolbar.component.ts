@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
 import { SUPPORTED_COLORS } from '../../shared-configuration/theme.constants';
+import { PencilToolIcon } from '../_area-pencil';
+import { DefaultToolIcon } from '../_area-default-tool';
 
 @Component({
   selector: 'app-toolbar',
   standalone: true,
-  imports: [],
+  imports: [PencilToolIcon, DefaultToolIcon],
   templateUrl: './toolbar.component.html',
   styleUrl: './toolbar.component.scss'
 })

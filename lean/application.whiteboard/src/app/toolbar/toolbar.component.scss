@@ -8,7 +8,6 @@
    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
    display: flex;
    flex-direction: column;
-   gap: 12px;
    transition: all 0.3s ease;
    z-index: 1000;
  }
@@ -110,17 +109,23 @@
    transition: transform 0.2s ease;
  }
 
- .toolbar .tool-item {
-   display: none;
-   transition: transform 0.2s ease;
- }
+ ::ng-deep {
+   .toolbar .tool-item {
+      display: none;
+      transition: transform 0.2s ease;
+    }
+   
+    .toolbar .tool-item.active {
+      display: block;
+    }
+   
+    .toolbar.expanded .tool-item {
+      display: block;
+    }
 
- .toolbar .tool-item.active {
-   display: block;
- }
-
- .toolbar.expanded .tool-item {
-   display: block;
+    .shape-picker {
+      margin-top: 12px;
+    }
  }
 
  .shape-option:hover {

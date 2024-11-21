@@ -23,11 +23,6 @@
       }
     </div>
   </div>
-  @for (shape of shapes; track $index) {
-   <div class="tool-item" [class]="shape === selectedShape ? 'active': ''">
-      <div class="shape-picker">
-         <div class="shape" [class]="'shape-' + shape" (click)="selectShape(shape)"></div>
-      </div>
-   </div>
-  }
+  <default-tool-icon></default-tool-icon>
+  <pencil-tool-icon></pencil-tool-icon>
 </div>
