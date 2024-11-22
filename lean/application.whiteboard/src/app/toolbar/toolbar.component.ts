@@ -3,11 +3,12 @@ import { SUPPORTED_COLORS } from '../../shared-configuration/theme.constants';
 import { PencilToolIcon } from '../_area-pencil';
 import { DefaultToolIcon } from '../_area-default-tool';
 import { ToolSelectionService } from './tool-selection.service';
+import { TextInputToolIcon } from '../_area-text-input';
 
 @Component({
   selector: 'app-toolbar',
   standalone: true,
-  imports: [PencilToolIcon, DefaultToolIcon],
+  imports: [PencilToolIcon, DefaultToolIcon, TextInputToolIcon],
   templateUrl: './toolbar.component.html',
   styleUrl: './toolbar.component.scss'
 })

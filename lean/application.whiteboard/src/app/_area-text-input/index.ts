@@ -1,0 +1,1 @@
+export { ToolIconComponent as TextInputToolIcon } from './tool-icon/tool-icon.component';
