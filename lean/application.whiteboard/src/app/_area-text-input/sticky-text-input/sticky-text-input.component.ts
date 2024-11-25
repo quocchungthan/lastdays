@@ -7,6 +7,7 @@ import { RendererService } from '../renderer.service';
   selector: 'app-sticky-text-input',
   standalone: true,
   imports: [],
+  providers: [],
   templateUrl: './sticky-text-input.component.html',
   styleUrl: './sticky-text-input.component.scss'
 })

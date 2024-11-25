@@ -22,17 +22,19 @@ import { getBoardId } from '../../utils/url.helper';
 import { retryAPromise } from '../../utils/promises.helper';
 import { SyncingService } from '../business/syncing-service';
 import { IEventGeneral } from '../../syncing-models/EventGeneral.interface';
+import { StickyTextInput, TextRendererService } from '../_area-text-input';
 
 @Component({
   selector: 'app-board-detail',
   standalone: true,
-  imports: [ToolbarComponent, AssistantBoxComponent],
+  imports: [ToolbarComponent, AssistantBoxComponent, StickyTextInput],
   providers: [
     KonvaObjectService,
     BackgroundLayerManager,
     ViewPortEventsManager,
     MomentumService,
     PencilRendererService,
+    TextRendererService
   ],
   templateUrl: './board-detail.component.html',
   styleUrl: './board-detail.component.scss',

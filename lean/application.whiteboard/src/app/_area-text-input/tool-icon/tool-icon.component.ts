@@ -7,8 +7,8 @@ import { StickyTextInputComponent } from '../sticky-text-input/sticky-text-input
 @Component({
   selector: 'text-input-tool-icon',
   standalone: true,
-  imports: [StickyTextInputComponent],
-  providers: [RendererService],
+  imports: [],
+  providers: [],
   templateUrl: './tool-icon.component.html',
   styleUrl: './tool-icon.component.scss'
 })
