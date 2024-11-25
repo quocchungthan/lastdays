@@ -39,6 +39,21 @@ export class RendererService implements IRendererService {
     return this._assignedDialogPosition.asObservable();
   }
 
+  submitText(userText: string) {
+    if (userText) {
+      const event: IEventGeneral = this._createTextPastedEvent(userText);
+      this._syncingService.storeEventAsync(event).then(() => {
+        const konvaText = this._createKonvaText(event);
+        this._drawingLayer.add(konvaText);
+        this._drawingLayer.add(new Konva.Transformer({
+         nodes: [konvaText]
+        }))
+        this._drawingLayer.draw();
+      });
+    }
+    this._textInputDialogVisible = false;
+  }
+
   public activateTool(value: boolean) {
     this._activated = value;
     if (!this._activated) {
@@ -79,7 +94,6 @@ export class RendererService implements IRendererService {
     //   });
     // }
 
-    this._textInputDialogVisible = false;
   }
 
   assignPosition(absolutePosition: Point) {

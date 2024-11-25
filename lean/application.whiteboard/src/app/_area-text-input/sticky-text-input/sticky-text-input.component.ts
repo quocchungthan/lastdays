@@ -14,8 +14,6 @@ import { RendererService } from '../renderer.service';
 export class StickyTextInputComponent implements OnInit {
   @ViewChild('positionalContainer') positionalContainer: ElementRef<HTMLElement> | undefined;
   assignedPosition?: Point;
-  @Output()
-  textSubmitted = new EventEmitter<string>();
 
   constructor(private rendererService: RendererService) {
     this.rendererService.dialogPositionAssigned
@@ -41,6 +39,15 @@ export class StickyTextInputComponent implements OnInit {
   hideTextInputContainer() {
     if (!this.positionalContainer?.nativeElement) return;
     this.positionalContainer.nativeElement.style.display = 'none';
+  }
+
+  // Function to handle keyup event (press Enter to send message)
+  onKeyUp(event: KeyboardEvent) {
+    if (event.key === 'Enter') { // Check if Enter key is pressed
+      this.rendererService.submitText((event.target as HTMLInputElement).value);
+      this.assignedPosition = undefined;
+      this.hideTextInputContainer();
+    }
   }
 
   showContainerAt(p: Point) {
