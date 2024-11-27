@@ -33,14 +33,17 @@ private momentumAnimationId: number | null = null;
     const rect = this._target;
     const maxVelocity = 10;  // Max velocity value
 
+    this._interactiveEventManager.onTouchStart()
+      .subscribe(() => {
+        // If there's an active momentum animation, cancel it
+        this._cancelSliding();
+      });
+
     this._interactiveEventManager.onDragMove().subscribe(() => {
       const dx = rect.x() - this._lastPos.x;
       const dy = rect.y() - this._lastPos.y;
       // If there's an active momentum animation, cancel it
-            if (this.momentumAnimationId) {
-               cancelAnimationFrame(this.momentumAnimationId);
-               this.momentumAnimationId = null;  // Reset animation ID
-             }
+      this._cancelSliding();
 
       // Calculate the velocity on drag move
       this._velocity.x = dx;
@@ -87,6 +90,13 @@ private momentumAnimationId: number | null = null;
     });
 
     return this;
+  }
+
+  private _cancelSliding() {
+    if (this.momentumAnimationId) {
+      cancelAnimationFrame(this.momentumAnimationId);
+      this.momentumAnimationId = null;
+    }
   }
 
   private _removePreviousSubscription() {
