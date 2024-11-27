@@ -19,17 +19,12 @@ import { TextPastedEvent } from "../../../syncing-models/TextPastedEvent";
 
 export function Recover(event: TextPastedEvent): Konva.Text {
    // Initialize a new Konva.Text object with properties from the event
-   const konvaText = new Konva.Text({
-      name: event.name,  // Set the name property
-      text: event.text,  // Set the text to the name (this could be adjusted based on your needs)
-      fill: event.color,  // Set the fill color (using the color from the event)
-      x: event.position.x,  // Set the x position
-      y: event.position.y,  // Set the y position
-      rotation: event.rotation,  // Set the rotation angle
-      fontFamily: 'Pacifico',  // Set the font family
-      fontSize: event.fontSize,  // Default font size (can be adjusted)
-      stroke: event.color,  // Set the stroke color (text outline)
-   });
+   
+   const konvaText = Init(event.text, event.position, event.color as string);
+   konvaText.name(event.name);
+   konvaText.fill(event.color);
+   konvaText.rotation(event.rotation);
+   konvaText.fontSize(event.fontSize);
    
    return konvaText;
 }

@@ -10,7 +10,7 @@ import { ViewPortEventsManager } from '../services/ViewPortEvents.manager';
 import { ToolSelectionService } from '../toolbar/tool-selection.service';
 import { TextPastedEvent } from '../../syncing-models/TextPastedEvent';
 import { BrowserService } from '../services/browser.service';
-import { Init, Recover } from './mappers/to-recoverable-event.mapper';
+import { Init, Recover, ToRecoverableEvent } from './mappers/to-recoverable-event.mapper';
 
 @Injectable()
 export class RendererService implements IRendererService {
@@ -73,7 +73,12 @@ export class RendererService implements IRendererService {
     )
       .forEach(x => x.draggable(false));
   
-    allSelection.forEach((x) => x.destroy());
+    allSelection.forEach((x) => {
+      const event = ToRecoverableEvent(x.nodes()[0] as Konva.Text);
+      this._syncingService.storeEventAsync(event).then(() => {
+        x.destroy();
+      });
+    });
   }
 
   public activateTool(value: boolean) {
