@@ -26,6 +26,8 @@ import { StickyTextInput, TextRendererService } from '../_area-text-input';
 import { BoardToolInstructionComponent } from "../board-tool-instruction/board-tool-instruction.component";
 import { DefaultRendererService } from '../_area-default-tool';
 import { InstructionsService } from '../toolbar/instructions.service';
+import { EraserRendererService } from '../_area-delete-whole';
+import { CursorService } from '../toolbar/cursor.service';
 
 @Component({
   selector: 'app-board-detail',
@@ -39,7 +41,9 @@ import { InstructionsService } from '../toolbar/instructions.service';
     PencilRendererService,
     TextRendererService,
     DefaultRendererService,
-    InstructionsService
+    InstructionsService,
+    EraserRendererService,
+    CursorService
   ],
   templateUrl: './board-detail.component.html',
   styleUrl: './board-detail.component.scss',

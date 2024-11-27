@@ -19,6 +19,22 @@ export class InstructionsService {
   ];
 
   
+  eraserDefaultInstruction: ShortcutInstruction[] = [
+    {
+      key: 'Hold and move',
+      explanation: 'To remove the whole object'
+    },
+    {
+      key: 'Wheel',
+      explanation: 'To zoom',
+    },
+    {
+      key: 'Ctrl + Wheel',
+      explanation: 'To zoom backward',
+    },
+  ]
+
+  
   baseDefaultToolInstruction: ShortcutInstruction[] = [
     {
       key: 'Drag',

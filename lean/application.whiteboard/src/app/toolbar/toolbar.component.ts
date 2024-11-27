@@ -4,11 +4,12 @@ import { PencilToolIcon } from '../_area-pencil';
 import { DefaultToolIcon } from '../_area-default-tool';
 import { ToolSelectionService } from './tool-selection.service';
 import { TextInputToolIcon } from '../_area-text-input';
+import { EraserToolIcon } from '../_area-delete-whole';
 
 @Component({
   selector: 'app-toolbar',
   standalone: true,
-  imports: [PencilToolIcon, DefaultToolIcon, TextInputToolIcon],
+  imports: [PencilToolIcon, DefaultToolIcon, TextInputToolIcon, EraserToolIcon],
   templateUrl: './toolbar.component.html',
   styleUrl: './toolbar.component.scss'
 })

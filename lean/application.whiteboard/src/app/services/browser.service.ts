@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { IEventGeneral } from '../../syncing-models/EventGeneral.interface';
 import { debounceTime, Subject } from 'rxjs';
+import { KONVA_CONTAINER } from '../../shared-configuration/html-ids.constants';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +22,7 @@ export class BrowserService {
 
   preventNativeMenuContext() {
     if (!document) return;
-    
+
     document.addEventListener('contextmenu', e => e.preventDefault());
   }
 
@@ -35,6 +36,15 @@ export class BrowserService {
 
   onEscape() {
     return this._escape.pipe(debounceTime(50));
+  }
+  
+
+  setCursorByStringValue(value: string) {
+    this._getCssBearer().style.cursor = value;
+  }
+
+  private _getCssBearer() {
+    return document.getElementById(KONVA_CONTAINER)!;
   }
 
   private _registerKeyEvents() {
