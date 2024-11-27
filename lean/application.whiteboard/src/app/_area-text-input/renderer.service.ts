@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import Konva from 'konva';
-import { filter, Subject } from 'rxjs';
+import { filter, Observable, of, Subject } from 'rxjs';
 import { Point } from '../../share-models/Point';
 import { IEventGeneral } from '../../syncing-models/EventGeneral.interface';
 import { IRendererService } from '../_area-base/renderer.service.interface';
@@ -15,6 +15,7 @@ import {
   Recover,
   ToRecoverableEvent,
 } from './mappers/to-recoverable-event.mapper';
+import { ShortcutInstruction } from '../_area-base/shortkeys-instruction.model';
 
 @Injectable()
 export class RendererService implements IRendererService {
@@ -40,6 +41,9 @@ export class RendererService implements IRendererService {
       this._viewport = stage;
     });
     this._listenToEvents();
+  }
+  getInstructions(): Observable<ShortcutInstruction[]> {
+    return of([]);
   }
 
   get dialogPositionAssigned() {

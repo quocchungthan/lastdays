@@ -10,6 +10,8 @@ import { IEventGeneral } from '../../syncing-models/EventGeneral.interface';
 import { PencilUpEvent } from '../../syncing-models/PencilUpEvent';
 import { SyncingService } from '../business/syncing-service';
 import { IRendererService } from '../_area-base/renderer.service.interface';
+import { Observable, of } from 'rxjs';
+import { ShortcutInstruction } from '../_area-base/shortkeys-instruction.model';
 
 @Injectable()
 export class RendererService implements IRendererService {
@@ -60,6 +62,10 @@ export class RendererService implements IRendererService {
       .subscribe((p) => {
         this._pendEnd();
       });
+  }
+
+  getInstructions(): Observable<ShortcutInstruction[]> {
+    return of([]);
   }
 
   // Inteface common between the commands that matches the Events manager so that's make code much more simple, less switch case.
