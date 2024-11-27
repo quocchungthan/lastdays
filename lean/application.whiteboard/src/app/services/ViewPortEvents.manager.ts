@@ -1,5 +1,5 @@
 import Konva from 'konva';
-import { Observable, Subject, debounceTime, filter, map, takeUntil } from 'rxjs';
+import { Observable, Subject, debounceTime, filter, finalize, map, takeUntil } from 'rxjs';
 import { Injectable, OnDestroy } from '@angular/core';
 import { Point } from '../../share-models/Point';
 import { Wheel } from '../../share-models/Wheel';
@@ -16,6 +16,7 @@ export enum KonvaMouseButton {
 export class ViewPortEventsManager implements OnDestroy {
     private unsubscribe$ = new Subject<void>();
     private _dragStart: Subject<Point | null>;
+    private _rightClicked = new Subject<Point | null>();
     private _dragMove: Subject<Point | null>;
     private _dragEnd: Subject<Point | null>;
     private _wheel: Subject<Wheel | null>;
@@ -64,6 +65,23 @@ export class ViewPortEventsManager implements OnDestroy {
         return this._wheel.asObservable().pipe((filter(x => !isNil(x) && !isNil(x.cursor))), map(x => x as Wheel), debounceTime(1));
     }
 
+    public onRightClicked(target?: Konva.Shape) {
+        if (!target) return this._rightClicked.asObservable();
+
+        const observable = new Subject<Point | null>();
+
+        target.on('mousedown touchstart', (e) => {
+            // TODO: right test to cover right click cuz we use it later for menu context
+            if (e.evt?.button === KonvaMouseButton.RIGHT) {
+                observable.next(this._currentRelativePosition());
+                e.evt.preventDefault();
+                return;
+            }
+        });
+
+        return observable.pipe(finalize(() => target.removeEventListener('mousedown touchstart')));
+    }
+
     private _registerEventListener() {
         this._viewPort.on('dragstart', () => {
             this._dragStart.next(this._currentRelativePosition());
@@ -109,6 +127,8 @@ export class ViewPortEventsManager implements OnDestroy {
         this._viewPort.on('mousedown touchstart', (e) => {
             // TODO: right test to cover right click cuz we use it later for menu context
             if (e.evt?.button === KonvaMouseButton.RIGHT) {
+                this._rightClicked.next(this._currentRelativePosition());
+                e.evt.preventDefault();
                 return;
             }
             this._touchStart.next(this._currentRelativePosition());

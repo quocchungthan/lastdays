@@ -16,6 +16,13 @@ export class BrowserService {
   constructor() {
     this.openDatabase();
     this._registerKeyEvents();
+    this.preventNativeMenuContext();
+  }
+
+  preventNativeMenuContext() {
+    if (!document) return;
+    
+    document.addEventListener('contextmenu', e => e.preventDefault());
   }
 
   onUndo() {

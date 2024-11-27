@@ -47,16 +47,20 @@ export class RendererService implements IRendererService {
       const event: IEventGeneral = this._createTextPastedEvent(userText);
       // this._syncingService.storeEventAsync(event).then(() => {
       const konvaText = this._createKonvaText(event);
-      this._drawingLayer.add(konvaText);
-      this._drawingLayer.add(
-        new Konva.Transformer({
-          nodes: [konvaText],
-        })
-      );
-      this._drawingLayer.draw();
+      this.addTransformer(konvaText);
+      this.addKonvaTextToDrawingLayer(konvaText);
       // });
     }
     this._closeInputDialog();
+  }
+
+  private addTransformer(konvaText: Konva.Text) {
+    konvaText.draggable(true);
+    this._drawingLayer.add(
+      new Konva.Transformer({
+        nodes: [konvaText],
+      })
+    );
   }
 
   private _closeInputDialog() {
@@ -149,23 +153,8 @@ export class RendererService implements IRendererService {
   }
 
   private _showTextInputDialog(position: Point) {
-    // Show dialog at the touch position (position.x, position.y)
-    // Once the user submits the text, this would trigger the text submission logic
     const absolutePosition = this.calculateAbsolutePosition(position);
     this.assignPosition(absolutePosition);
-    // const userText = prompt('Enter your text:'); // Using prompt for simplicity
-
-    // if (userText) {
-    //   const event: IEventGeneral = this._createTextPastedEvent(userText);
-    //   this._syncingService.storeEventAsync(event).then(() => {
-    //     const konvaText = this._createKonvaText(event);
-    //     this._drawingLayer.add(konvaText);
-    //     this._drawingLayer.add(new Konva.Transformer({
-    //      nodes: [konvaText]
-    //     }))
-    //     this._drawingLayer.draw();
-    //   });
-    // }
   }
 
   assignPosition(absolutePosition: Point) {
@@ -206,9 +195,29 @@ export class RendererService implements IRendererService {
     if (event.code !== 'TextPastedEvent') return Promise.resolve();
     const eventPasted = event as TextPastedEvent;
     const konvaText = Recover(eventPasted);
+    this.addKonvaTextToDrawingLayer(konvaText);
+    this._interactiveEventService.onRightClicked(konvaText)
+      .pipe(filter(() => !this._textInputDialogVisible))
+      .subscribe((point) => {
+        this.focusingOnCurrentKonvaText(konvaText);
+      });
+    return Promise.resolve();
+  }
+
+  private addKonvaTextToDrawingLayer(konvaText: Konva.Text) {
+    // Prevent duplicated textes on Unselect
+    // const pastedBefore = this._drawingLayer.children.filter(pastedText => konvaText.name().split('').every(n => pastedText.hasName(n)));
+    // pastedBefore.forEach(p => {
+    //   p.destroy();
+    // });
     this._drawingLayer.add(konvaText);
     this._drawingLayer.draw();
-    return Promise.resolve();
+  }
+
+  private focusingOnCurrentKonvaText(konvaText: Konva.Text) {
+    this.eliminateAllSelection();
+    this._toolSelection.abortTheOthers('text-input');
+    this.addTransformer(konvaText);
   }
 
   public penDown(position: Point) {
