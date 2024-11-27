@@ -10,6 +10,7 @@ export class TextPastedEvent implements IEventGeneral {
    code: string = 'TextPastedEvent';
    color: string | CanvasGradient = SUPPORTED_COLORS[0];
    name: string = '';
+   text: string = '';
    rotation: number = 0;
    position: Point = { x: 0, y: 0 };
    fontSize: number = 18;

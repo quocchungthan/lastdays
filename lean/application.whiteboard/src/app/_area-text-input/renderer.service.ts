@@ -27,7 +27,7 @@ export class RendererService implements IRendererService {
     private _toolSelection: ToolSelectionService,
     konvaObjectService: KonvaObjectService,
     private _syncingService: SyncingService,
-    private _browserService: BrowserService,
+    private _browserService: BrowserService
   ) {
     konvaObjectService.viewPortChanges.subscribe((stage) => {
       this._drawingLayer = stage.children.find(
@@ -48,9 +48,11 @@ export class RendererService implements IRendererService {
       // this._syncingService.storeEventAsync(event).then(() => {
       const konvaText = this._createKonvaText(event);
       this._drawingLayer.add(konvaText);
-      this._drawingLayer.add(new Konva.Transformer({
-        nodes: [konvaText]
-      }))
+      this._drawingLayer.add(
+        new Konva.Transformer({
+          nodes: [konvaText],
+        })
+      );
       this._drawingLayer.draw();
       // });
     }
@@ -63,7 +65,14 @@ export class RendererService implements IRendererService {
   }
 
   eliminateAllSelection() {
-    const allSelection = this._drawingLayer.children.filter(x => x instanceof Konva.Transformer);
+    const allSelection = this._drawingLayer.children.filter(
+      (x) => x instanceof Konva.Transformer
+    );
+    this._drawingLayer.children.filter(
+      (x) => x instanceof Konva.Text && x.hasName('text_input_tool')
+    )
+      .forEach(x => x.draggable(false));
+  
     allSelection.forEach((x) => x.destroy());
   }
 
@@ -78,19 +87,60 @@ export class RendererService implements IRendererService {
     this._interactiveEventService
       .onTouchStart()
       .pipe(filter(() => this._activated))
-      .pipe(filter(() => this._drawingLayer.children.every(x => !(x instanceof Konva.Transformer))))
       .subscribe((position) => {
-        if (!this._textInputDialogVisible) {
-          this._currentTextPosition = position;
-          this._textInputDialogVisible = true;
-          this._showTextInputDialog(position);
+        const isOutsideTransformer =
+          this.reasoningIsTheTouchOutsideOfAll(position);
+
+        if (isOutsideTransformer === true) {
+          // Call eliminateAllSelection if the touch is outside any transformer
+          this.eliminateAllSelection();
+        } else if (isOutsideTransformer === null) {
+          // If inside a transformer, handle text input dialog logic
+          if (!this._textInputDialogVisible) {
+            this._currentTextPosition = position;
+            this._textInputDialogVisible = true;
+            this._showTextInputDialog(position);
+          }
         }
       });
-    this._browserService.onEscape()
-      .subscribe(() => {
-        this._closeInputDialog();
-        this.eliminateAllSelection();
+
+    this._browserService.onEscape().subscribe(() => {
+      this._closeInputDialog();
+      this.eliminateAllSelection();
+    });
+  }
+
+  private reasoningIsTheTouchOutsideOfAll(position: Point) {
+    // Check if there are no transformers in the layer
+    const transformers = this._drawingLayer.children.filter(
+      (child) => child instanceof Konva.Transformer
+    );
+    if (transformers.length === 0) {
+      // If no transformers, return false (no need to check further)
+      return null;
+    }
+
+    const touchPos = {...position};
+    
+    touchPos.x *= this._viewport.scaleX();
+    touchPos.y *= this._viewport.scaleY();
+    // Check if the touch is outside all transformers
+    const isOutsideTransformer = this._drawingLayer.children
+      .filter((child) => child instanceof Konva.Transformer)
+      .every((transformer) => {
+        // Get the bounding box of the transformer
+        const transformerBounds = transformer.getClientRect();
+        // Check if the touch position is outside the bounding box
+        transformerBounds.x -= this._viewport.x();
+        transformerBounds.y -= this._viewport.y();
+        return (
+          touchPos.x < transformerBounds.x ||
+          touchPos.x > transformerBounds.x + transformerBounds.width ||
+          touchPos.y < transformerBounds.y ||
+          touchPos.y > transformerBounds.y + transformerBounds.height
+        );
       });
+    return isOutsideTransformer;
   }
 
   private _showTextInputDialog(position: Point) {
@@ -111,7 +161,6 @@ export class RendererService implements IRendererService {
     //     this._drawingLayer.draw();
     //   });
     // }
-
   }
 
   assignPosition(absolutePosition: Point) {
@@ -119,8 +168,12 @@ export class RendererService implements IRendererService {
   }
 
   calculateAbsolutePosition(position: Point): Point {
-    const absoluteX = ((position.x / (this._viewport.x() / this._viewport.scaleX())) * (window.innerWidth / 2));
-    const absoluteY = ((position.y / (this._viewport.y() / this._viewport.scaleY())) * (window.innerHeight / 2));
+    const absoluteX =
+      (position.x / (this._viewport.x() / this._viewport.scaleX())) *
+      (window.innerWidth / 2);
+    const absoluteY =
+      (position.y / (this._viewport.y() / this._viewport.scaleY())) *
+      (window.innerHeight / 2);
 
     return { x: absoluteX, y: absoluteY };
   }
@@ -136,7 +189,11 @@ export class RendererService implements IRendererService {
   private _createKonvaText(eventRaw: IEventGeneral): Konva.Text {
     if (eventRaw.code !== 'TextPastedEvent') return new Konva.Text();
     const event = eventRaw as TextPastedEvent;
-    return Init(event.name, event.position, this._toolSelection.onColorSelected);
+    return Init(
+      event.name,
+      event.position,
+      this._toolSelection.onColorSelected
+    );
   }
 
   // Recovery function for events to convert back to Konva objects
