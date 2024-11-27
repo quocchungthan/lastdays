@@ -25,6 +25,7 @@ export function Recover(event: TextPastedEvent): Konva.Text {
    konvaText.fill(event.color);
    konvaText.rotation(event.rotation);
    konvaText.fontSize(event.fontSize);
+   konvaText.draggable(false);
    
    return konvaText;
 }
