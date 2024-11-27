@@ -9,6 +9,7 @@ import { KonvaObjectService } from '../services/konva-object.service';
 import { ViewPortEventsManager } from '../services/ViewPortEvents.manager';
 import { ToolSelectionService } from '../toolbar/tool-selection.service';
 import { TextPastedEvent } from '../../syncing-models/TextPastedEvent';
+import { BrowserService } from '../services/browser.service';
 
 @Injectable()
 export class RendererService implements IRendererService {
@@ -24,7 +25,8 @@ export class RendererService implements IRendererService {
     private _interactiveEventService: ViewPortEventsManager,
     private _toolSelection: ToolSelectionService,
     konvaObjectService: KonvaObjectService,
-    private _syncingService: SyncingService
+    private _syncingService: SyncingService,
+    private _browserService: BrowserService,
   ) {
     konvaObjectService.viewPortChanges.subscribe((stage) => {
       this._drawingLayer = stage.children.find(
@@ -51,7 +53,17 @@ export class RendererService implements IRendererService {
         this._drawingLayer.draw();
       });
     }
+    this._closeInputDialog();
+  }
+
+  private _closeInputDialog() {
     this._textInputDialogVisible = false;
+    this._assignedDialogPosition.next(undefined);
+  }
+
+  eliminateAllSelection() {
+    const allSelection = this._drawingLayer.children.filter(x => x instanceof Konva.Transformer);
+    allSelection.forEach((x) => x.destroy());
   }
 
   public activateTool(value: boolean) {
@@ -72,6 +84,11 @@ export class RendererService implements IRendererService {
           this._textInputDialogVisible = true;
           this._showTextInputDialog(position);
         }
+      });
+    this._browserService.onEscape()
+      .subscribe(() => {
+        this._closeInputDialog();
+        this.eliminateAllSelection();
       });
   }
 

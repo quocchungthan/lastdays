@@ -52,8 +52,8 @@ export class ToolbarComponent {
 
   selectColor(color: string) {
     this.selectedColor = color;
-    this.showColorPicker = false;
     this._toolSelection.selectColor(color);
+    this.showColorPicker = true;
   }
 
   selectShape(shape: string) {

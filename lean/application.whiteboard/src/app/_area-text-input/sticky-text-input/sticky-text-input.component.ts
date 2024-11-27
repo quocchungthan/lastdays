@@ -18,7 +18,6 @@ export class StickyTextInputComponent implements OnInit {
   constructor(private rendererService: RendererService) {
     this.rendererService.dialogPositionAssigned
       .subscribe((p) => {
-        console.log(p);
         this.assignedPosition = p;
         this.handlePositionChanged();
       });
@@ -30,10 +29,26 @@ export class StickyTextInputComponent implements OnInit {
 
   handlePositionChanged() {
     if (isNil(this.assignedPosition)) {
+      this.clearInput();
       this.hideTextInputContainer();
     } else {
       this.showContainerAt(this.assignedPosition);
+      this.focusToTheInput();
     }
+  }
+
+  clearInput() {
+    if (!this.positionalContainer?.nativeElement) return;
+
+    this.positionalContainer.nativeElement.getElementsByTagName('input')
+      [0].value = '';
+  }
+
+  focusToTheInput() {
+    if (!this.positionalContainer?.nativeElement) return;
+
+    this.positionalContainer.nativeElement.getElementsByTagName('input')
+      [0].focus();
   }
 
   hideTextInputContainer() {

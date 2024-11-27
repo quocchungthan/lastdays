@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { IEventGeneral } from '../../syncing-models/EventGeneral.interface';
+import { debounceTime, Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -8,9 +9,54 @@ export class BrowserService {
   private dbName = 'eventsDB';
   private storeName = 'eventsStore';
   private db: IDBDatabase | undefined;
+  private _undo = new Subject<void>();
+  private _enter = new Subject<void>();
+  private _escape = new Subject<void>();
 
   constructor() {
     this.openDatabase();
+    this._registerKeyEvents();
+  }
+
+  onUndo() {
+    return this._undo.pipe(debounceTime(50));
+  }
+
+  onEnter() {
+    return this._enter.pipe(debounceTime(50));
+  }
+
+  onEscape() {
+    return this._escape.pipe(debounceTime(50));
+  }
+
+  private _registerKeyEvents() {
+    if (!document) return;
+
+    document.addEventListener('keydown', (event) => {
+      // Check if Ctrl+Z (Cmd+Z for Mac) is pressed
+      if (event.ctrlKey && (event.key === 'z' || event.key === 'Z')) {
+        // Prevent the default behavior (undo)
+        event.preventDefault();
+        this._undo.next();
+      }
+
+      // Check if Enter key is pressed
+      if (event.key === 'Enter') {
+        // Prevent the default behavior if needed
+        event.preventDefault();
+        // Handle Enter key action here
+        this._enter.next();
+      }
+
+      // Check if Escape key is pressed
+      if (event.key === 'Escape') {
+        // Prevent the default behavior if needed
+        event.preventDefault();
+        // Handle Escape key action here
+        this._escape.next();
+      }
+    });
   }
 
   private openDatabase() {
