@@ -5,7 +5,14 @@ import { TextPastedEvent } from "../../../syncing-models/TextPastedEvent";
 
  export function ToRecoverableEvent(object: Konva.Text): TextPastedEvent {
    const event = new TextPastedEvent();
-   event.name = object.name() + ' ' + event.eventId;  // The name of the text element
+   const identifiers = object.name().split(' ').filter((x) => x);
+   if (identifiers[0] === 'text_input_tool' && identifiers[1]) {
+      event.name = object.name();
+      event.eventId = identifiers[1];
+   } else {
+      // New added
+      event.name = object.name() + ' ' + event.eventId;
+   }
    event.color = object.stroke();  // Stroke color of the text (text outline color)
    event.boardId = getBoardId(location.href) ?? '';  // Board ID extracted from the URL
    event.position = { x: object.x(), y: object.y() };  // Position of the text element

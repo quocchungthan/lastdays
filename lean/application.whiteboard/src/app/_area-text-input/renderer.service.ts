@@ -10,7 +10,11 @@ import { ViewPortEventsManager } from '../services/ViewPortEvents.manager';
 import { ToolSelectionService } from '../toolbar/tool-selection.service';
 import { TextPastedEvent } from '../../syncing-models/TextPastedEvent';
 import { BrowserService } from '../services/browser.service';
-import { Init, Recover, ToRecoverableEvent } from './mappers/to-recoverable-event.mapper';
+import {
+  Init,
+  Recover,
+  ToRecoverableEvent,
+} from './mappers/to-recoverable-event.mapper';
 
 @Injectable()
 export class RendererService implements IRendererService {
@@ -72,11 +76,10 @@ export class RendererService implements IRendererService {
     const allSelection = this._drawingLayer.children.filter(
       (x) => x instanceof Konva.Transformer
     );
-    this._drawingLayer.children.filter(
-      (x) => x instanceof Konva.Text && x.hasName('text_input_tool')
-    )
-      .forEach(x => x.draggable(false));
-  
+    this._drawingLayer.children
+      .filter((x) => x instanceof Konva.Text && x.hasName('text_input_tool'))
+      .forEach((x) => x.draggable(false));
+
     allSelection.forEach((x) => {
       const event = ToRecoverableEvent(x.nodes()[0] as Konva.Text);
       this._syncingService.storeEventAsync(event).then(() => {
@@ -129,8 +132,8 @@ export class RendererService implements IRendererService {
       return null;
     }
 
-    const touchPos = {...position};
-    
+    const touchPos = { ...position };
+
     touchPos.x *= this._viewport.scaleX();
     touchPos.y *= this._viewport.scaleY();
     // Check if the touch is outside all transformers
@@ -175,7 +178,7 @@ export class RendererService implements IRendererService {
   private _createTextPastedEvent(text: string): IEventGeneral {
     const event = new TextPastedEvent();
     event.position = this._currentTextPosition || { x: 0, y: 0 };
-    event.name = text;
+    event.text = text;
     event.color = this._toolSelection.onColorSelected; // Assume color is set via tool selection
     return event;
   }
@@ -183,11 +186,15 @@ export class RendererService implements IRendererService {
   private _createKonvaText(eventRaw: IEventGeneral): Konva.Text {
     if (eventRaw.code !== 'TextPastedEvent') return new Konva.Text();
     const event = eventRaw as TextPastedEvent;
-    return Init(
-      event.name,
+    const initiated = Init(
+      event.text,
       event.position,
       this._toolSelection.onColorSelected
     );
+
+    initiated.addName(event.eventId);
+
+    return initiated;
   }
 
   // Recovery function for events to convert back to Konva objects
@@ -196,22 +203,39 @@ export class RendererService implements IRendererService {
     const eventPasted = event as TextPastedEvent;
     const konvaText = Recover(eventPasted);
     this.addKonvaTextToDrawingLayer(konvaText);
-    this._interactiveEventService.onRightClicked(konvaText)
+    return Promise.resolve();
+  }
+
+  private allowToSelectByRightClick(konvaText: Konva.Text) {
+    this._interactiveEventService
+      .onRightClicked(konvaText)
       .pipe(filter(() => !this._textInputDialogVisible))
       .subscribe((point) => {
         this.focusingOnCurrentKonvaText(konvaText);
       });
-    return Promise.resolve();
   }
 
   private addKonvaTextToDrawingLayer(konvaText: Konva.Text) {
     // Prevent duplicated textes on Unselect
-    // const pastedBefore = this._drawingLayer.children.filter(pastedText => konvaText.name().split('').every(n => pastedText.hasName(n)));
-    // pastedBefore.forEach(p => {
-    //   p.destroy();
-    // });
+    this.allowToSelectByRightClick(konvaText);
+    const pastedBefore = this._drawingLayer.children.filter(
+      (pastedText) =>
+        pastedText instanceof Konva.Text &&
+        this.identicalInNames(konvaText, pastedText)
+        && this.identicalInNames(pastedText, konvaText)
+    );
+    pastedBefore.forEach((p) => {
+      p.destroy();
+    });
     this._drawingLayer.add(konvaText);
     this._drawingLayer.draw();
+  }
+
+  private identicalInNames(t1: Konva.Text, t2: Konva.Text): unknown {
+    return t1
+      .name()
+      .split(' ')
+      .every((n) => t2.hasName(n));
   }
 
   private focusingOnCurrentKonvaText(konvaText: Konva.Text) {
