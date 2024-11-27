@@ -34,6 +34,20 @@ export class BrowserService {
     if (!document) return;
 
     document.addEventListener('keydown', (event) => {
+      // Check if Escape key is pressed
+      if (event.key === 'Escape') {
+        // Prevent the default behavior if needed
+        event.preventDefault();
+        // Handle Escape key action here
+        this._escape.next();
+      }
+
+      // Check if the focus is on a text area or text input element
+      const focusedElement = document.activeElement;
+      const isInputElement = focusedElement instanceof HTMLTextAreaElement || focusedElement instanceof HTMLInputElement;
+
+      // If the focus is on a text input or textarea, don't prevent default behavior
+      if (isInputElement) return;
       // Check if Ctrl+Z (Cmd+Z for Mac) is pressed
       if (event.ctrlKey && (event.key === 'z' || event.key === 'Z')) {
         // Prevent the default behavior (undo)
@@ -47,14 +61,6 @@ export class BrowserService {
         event.preventDefault();
         // Handle Enter key action here
         this._enter.next();
-      }
-
-      // Check if Escape key is pressed
-      if (event.key === 'Escape') {
-        // Prevent the default behavior if needed
-        event.preventDefault();
-        // Handle Escape key action here
-        this._escape.next();
       }
     });
   }

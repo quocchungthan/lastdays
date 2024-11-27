@@ -13,23 +13,23 @@
    left: 50%;
    width: 80%;
    max-width: 500px; /* Max width for larger screens */
-   border-radius: 10px;
+   border-radius: 4px;
    transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 /* Input field styling */
-.sticky-input input {
+.sticky-input textarea {
    width: 100%;
    padding: 12px 20px;
    font-size: 16px;
    border: 1px solid #ccc;
-   border-radius: 30px; /* Rounded corners for a modern look */
+   border-radius: 4px; /* Rounded corners for a modern look */
    box-sizing: border-box;
    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 /* Input field focus state */
-.sticky-input input:focus {
+.sticky-input textarea:focus {
    border-color: #5e9bff; /* Light blue border when focused */
    outline: none;
    box-shadow: 0 0 5px rgba(94, 155, 255, 0.5); /* Add a soft glow effect */
@@ -43,7 +43,7 @@
 }
 
 /* Add hover effect on input field */
-.sticky-input input:hover {
+.sticky-input textarea:hover {
    border-color: #5e9bff;
 }
 

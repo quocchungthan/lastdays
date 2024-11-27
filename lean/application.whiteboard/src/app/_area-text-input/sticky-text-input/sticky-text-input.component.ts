@@ -40,14 +40,14 @@ export class StickyTextInputComponent implements OnInit {
   clearInput() {
     if (!this.positionalContainer?.nativeElement) return;
 
-    this.positionalContainer.nativeElement.getElementsByTagName('input')
+    this.positionalContainer.nativeElement.getElementsByTagName('textarea')
       [0].value = '';
   }
 
   focusToTheInput() {
     if (!this.positionalContainer?.nativeElement) return;
 
-    this.positionalContainer.nativeElement.getElementsByTagName('input')
+    this.positionalContainer.nativeElement.getElementsByTagName('textarea')
       [0].focus();
   }
 
@@ -58,7 +58,7 @@ export class StickyTextInputComponent implements OnInit {
 
   // Function to handle keyup event (press Enter to send message)
   onKeyUp(event: KeyboardEvent) {
-    if (event.key === 'Enter') { // Check if Enter key is pressed
+    if (event.key === 'Enter' && event.ctrlKey) { // Check if Enter key is pressed
       this.rendererService.submitText((event.target as HTMLInputElement).value);
       this.assignedPosition = undefined;
       this.hideTextInputContainer();
