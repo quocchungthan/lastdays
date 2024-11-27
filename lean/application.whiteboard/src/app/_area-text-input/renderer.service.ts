@@ -10,6 +10,7 @@ import { ViewPortEventsManager } from '../services/ViewPortEvents.manager';
 import { ToolSelectionService } from '../toolbar/tool-selection.service';
 import { TextPastedEvent } from '../../syncing-models/TextPastedEvent';
 import { BrowserService } from '../services/browser.service';
+import { Init, Recover } from './mappers/to-recoverable-event.mapper';
 
 @Injectable()
 export class RendererService implements IRendererService {
@@ -44,14 +45,14 @@ export class RendererService implements IRendererService {
   submitText(userText: string) {
     if (userText) {
       const event: IEventGeneral = this._createTextPastedEvent(userText);
-      this._syncingService.storeEventAsync(event).then(() => {
-        const konvaText = this._createKonvaText(event);
-        this._drawingLayer.add(konvaText);
-        this._drawingLayer.add(new Konva.Transformer({
-         nodes: [konvaText]
-        }))
-        this._drawingLayer.draw();
-      });
+      // this._syncingService.storeEventAsync(event).then(() => {
+      const konvaText = this._createKonvaText(event);
+      this._drawingLayer.add(konvaText);
+      this._drawingLayer.add(new Konva.Transformer({
+        nodes: [konvaText]
+      }))
+      this._drawingLayer.draw();
+      // });
     }
     this._closeInputDialog();
   }
@@ -135,24 +136,16 @@ export class RendererService implements IRendererService {
   private _createKonvaText(eventRaw: IEventGeneral): Konva.Text {
     if (eventRaw.code !== 'TextPastedEvent') return new Konva.Text();
     const event = eventRaw as TextPastedEvent;
-    return new Konva.Text({
-      x: event.position.x,
-      y: event.position.y,
-      text: event.name,
-      fontSize: 18,
-      fontFamily: 'Calibri',
-      fill: event.color,
-      draggable: true,
-    });
+    return Init(event.name, event.position, this._toolSelection.onColorSelected);
   }
 
   // Recovery function for events to convert back to Konva objects
   public recover(event: IEventGeneral) {
-    if (event.code === 'TextPastedEvent') {
-      const konvaText = this._createKonvaText(event);
-      this._drawingLayer.add(konvaText);
-      this._drawingLayer.draw();
-    }
+    if (event.code !== 'TextPastedEvent') return Promise.resolve();
+    const eventPasted = event as TextPastedEvent;
+    const konvaText = Recover(eventPasted);
+    this._drawingLayer.add(konvaText);
+    this._drawingLayer.draw();
     return Promise.resolve();
   }
 

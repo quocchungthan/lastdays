@@ -12,5 +12,6 @@ export class TextPastedEvent implements IEventGeneral {
    name: string = '';
    rotation: number = 0;
    position: Point = { x: 0, y: 0 };
+   fontSize: number = 18;
  }
  
