@@ -1,19 +1,60 @@
-/* Sticky input style */
+/* Sticky input container style */
 .sticky-input {
    background-color: #fff;
-   box-shadow: 0px -4px 10px rgba(0, 0, 0, 0.1);
-   padding: 10px;
+   box-shadow: 0px -4px 12px rgba(0, 0, 0, 0.1);
+   padding: 12px;
    box-sizing: border-box;
    display: flex;
    justify-content: center;
+   height: fit-content;
    align-items: center;
+   position: fixed;
+   bottom: 20px;  /* Adjust the position */
+   left: 50%;
+   width: 80%;
+   max-width: 500px; /* Max width for larger screens */
+   border-radius: 10px;
+   transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
+/* Input field styling */
 .sticky-input input {
-   width: 80%;
-   padding: 10px;
+   width: 100%;
+   padding: 12px 20px;
    font-size: 16px;
    border: 1px solid #ccc;
-   border-radius: 4px;
+   border-radius: 30px; /* Rounded corners for a modern look */
    box-sizing: border-box;
+   transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Input field focus state */
+.sticky-input input:focus {
+   border-color: #5e9bff; /* Light blue border when focused */
+   outline: none;
+   box-shadow: 0 0 5px rgba(94, 155, 255, 0.5); /* Add a soft glow effect */
+}
+
+/* Placeholder text style */
+.sticky-input input::placeholder {
+   color: #888; /* Lighter color for placeholder */
+   font-style: italic; /* Make the placeholder slightly different */
+   opacity: 1; /* Ensure full visibility */
+}
+
+/* Add hover effect on input field */
+.sticky-input input:hover {
+   border-color: #5e9bff;
+}
+
+/* Sticky input animation */
+.sticky-input.show {
+   transform: translateY(0);
+   opacity: 1;
+}
+
+/* Animation when hiding the input */
+.sticky-input.hide {
+   transform: translateY(50px);
+   opacity: 0;
 }
