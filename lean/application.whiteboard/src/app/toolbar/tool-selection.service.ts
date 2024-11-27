@@ -14,6 +14,7 @@ export class ToolSelectionService {
    }
 
    public abortTheOthers(selected: string) {
+      if (this._toolSelection.getValue() === selected) return;
       this._toolSelection.next(selected);
    }
 

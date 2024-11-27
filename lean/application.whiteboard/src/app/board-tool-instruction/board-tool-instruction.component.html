@@ -1,0 +1,13 @@
+<div class="click-through sticky top-right">
+   <table>
+     <tbody>
+      @for (item of instruction; track $index) {
+       <tr>
+         <td>{{ item.key }}</td>
+         <td>{{ item.explanation }}</td>
+       </tr>
+      }
+     </tbody>
+   </table>
+ </div>
+ 

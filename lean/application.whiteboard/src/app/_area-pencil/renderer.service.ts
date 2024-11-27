@@ -10,20 +10,23 @@ import { IEventGeneral } from '../../syncing-models/EventGeneral.interface';
 import { PencilUpEvent } from '../../syncing-models/PencilUpEvent';
 import { SyncingService } from '../business/syncing-service';
 import { IRendererService } from '../_area-base/renderer.service.interface';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 import { ShortcutInstruction } from '../_area-base/shortkeys-instruction.model';
+import { InstructionsService } from '../toolbar/instructions.service';
 
 @Injectable()
 export class RendererService implements IRendererService {
   private _activated = false;
   private _currentObject?: Konva.Line;
   private _drawingLayer!: Konva.Layer;
+  private _instruction = new Subject<ShortcutInstruction[]>();
 
   constructor(
     private _interactiveEventService: ViewPortEventsManager,
     private _toolSelection: ToolSelectionService,
     konvaObjectService: KonvaObjectService,
-    private _syncingService: SyncingService  ) {
+    private _syncingService: SyncingService,
+    private _instructionsService: InstructionsService) {
     konvaObjectService.viewPortChanges.subscribe((stage) => {
       this._drawingLayer = stage.children.find(
         (x) => x instanceof Konva.Layer && x.hasName('DrawingLayer')
@@ -34,6 +37,9 @@ export class RendererService implements IRendererService {
 
   public activateTool(value: boolean) {
     this._activated = value;
+    if (this._activated) {
+      this._instruction.next(this._instructionsService.pencilDefaultInstruction);
+    }
   }
 
   private _listenToEvents() {
@@ -65,7 +71,7 @@ export class RendererService implements IRendererService {
   }
 
   getInstructions(): Observable<ShortcutInstruction[]> {
-    return of([]);
+    return this._instruction.asObservable().pipe(filter(() => this._activated));
   }
 
   // Inteface common between the commands that matches the Events manager so that's make code much more simple, less switch case.

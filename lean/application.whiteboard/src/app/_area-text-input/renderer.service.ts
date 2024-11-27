@@ -16,6 +16,7 @@ import {
   ToRecoverableEvent,
 } from './mappers/to-recoverable-event.mapper';
 import { ShortcutInstruction } from '../_area-base/shortkeys-instruction.model';
+import { InstructionsService } from '../toolbar/instructions.service';
 
 @Injectable()
 export class RendererService implements IRendererService {
@@ -26,13 +27,15 @@ export class RendererService implements IRendererService {
   private _currentTextPosition: Point | undefined;
   private _viewport!: Konva.Stage;
   private _assignedDialogPosition = new Subject<Point | undefined>();
+  private _instruction = new Subject<ShortcutInstruction[]>();
 
   constructor(
     private _interactiveEventService: ViewPortEventsManager,
     private _toolSelection: ToolSelectionService,
     konvaObjectService: KonvaObjectService,
     private _syncingService: SyncingService,
-    private _browserService: BrowserService
+    private _browserService: BrowserService,
+    private _instructionService: InstructionsService,
   ) {
     konvaObjectService.viewPortChanges.subscribe((stage) => {
       this._drawingLayer = stage.children.find(
@@ -42,8 +45,9 @@ export class RendererService implements IRendererService {
     });
     this._listenToEvents();
   }
+
   getInstructions(): Observable<ShortcutInstruction[]> {
-    return of([]);
+    return this._instruction.asObservable().pipe(filter(() => this._activated));
   }
 
   get dialogPositionAssigned() {
@@ -69,9 +73,11 @@ export class RendererService implements IRendererService {
         nodes: [konvaText],
       })
     );
+    this._instruction.next(this._instructionService.textSelectedInstrution);
   }
 
   private _closeInputDialog() {
+    this._instruction.next(this._instructionService.textDefaultInstrution);
     this._textInputDialogVisible = false;
     this._assignedDialogPosition.next(undefined);
   }
@@ -83,7 +89,7 @@ export class RendererService implements IRendererService {
     this._drawingLayer.children
       .filter((x) => x instanceof Konva.Text && x.hasName('text_input_tool'))
       .forEach((x) => x.draggable(false));
-
+    this._instruction.next(this._instructionService.textDefaultInstrution);
     allSelection.forEach((x) => {
       const event = ToRecoverableEvent(x.nodes()[0] as Konva.Text);
       this._syncingService.storeEventAsync(event).then(() => {
@@ -95,7 +101,10 @@ export class RendererService implements IRendererService {
   public activateTool(value: boolean) {
     this._activated = value;
     if (!this._activated) {
-      this._assignedDialogPosition.next(undefined);
+      this.eliminateAllSelection();
+      this._closeInputDialog();
+    } else {
+      this._instruction.next(this._instructionService.textDefaultInstrution);
     }
   }
 
@@ -162,6 +171,7 @@ export class RendererService implements IRendererService {
   private _showTextInputDialog(position: Point) {
     const absolutePosition = this.calculateAbsolutePosition(position);
     this.assignPosition(absolutePosition);
+    this._instruction.next(this._instructionService.textInputPopupShownInstruction);
   }
 
   assignPosition(absolutePosition: Point) {

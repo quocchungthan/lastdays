@@ -7,7 +7,7 @@ import { RendererService } from '../renderer.service';
   selector: 'default-tool-icon',
   standalone: true,
   imports: [],
-  providers: [RendererService],
+  providers: [],
   templateUrl: './tool-icon.component.html',
   styleUrl: './tool-icon.component.scss'
 })
@@ -17,6 +17,7 @@ export class ToolIconComponent extends BaseToolIconComponent {
   }
 
   override afterActiveValueChange() {
+    this.rendererService.activateTool(this.active);
     this.rendererService.activateDragging(this.active);
   }
 }

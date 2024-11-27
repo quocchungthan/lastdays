@@ -8,7 +8,7 @@ import { ViewPortEventsManager } from '../../services/ViewPortEvents.manager';
   selector: 'pencil-tool-icon',
   standalone: true,
   imports: [],
-  providers: [RendererService],
+  providers: [],
   templateUrl: './tool-icon.component.html',
   styleUrl: './tool-icon.component.scss'
 })

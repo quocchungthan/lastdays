@@ -23,18 +23,23 @@ import { retryAPromise } from '../../utils/promises.helper';
 import { SyncingService } from '../business/syncing-service';
 import { IEventGeneral } from '../../syncing-models/EventGeneral.interface';
 import { StickyTextInput, TextRendererService } from '../_area-text-input';
+import { BoardToolInstructionComponent } from "../board-tool-instruction/board-tool-instruction.component";
+import { DefaultRendererService } from '../_area-default-tool';
+import { InstructionsService } from '../toolbar/instructions.service';
 
 @Component({
   selector: 'app-board-detail',
   standalone: true,
-  imports: [ToolbarComponent, AssistantBoxComponent, StickyTextInput],
+  imports: [ToolbarComponent, AssistantBoxComponent, StickyTextInput, BoardToolInstructionComponent],
   providers: [
     KonvaObjectService,
     BackgroundLayerManager,
     ViewPortEventsManager,
     MomentumService,
     PencilRendererService,
-    TextRendererService
+    TextRendererService,
+    DefaultRendererService,
+    InstructionsService
   ],
   templateUrl: './board-detail.component.html',
   styleUrl: './board-detail.component.scss',
@@ -55,7 +60,7 @@ export class BoardDetailComponent implements AfterViewInit, OnDestroy {
     private _boardsService: BoardsService,
     pencilRendererService: PencilRendererService,
     private _syncingService: SyncingService,
-    private _textRenderer: TextRendererService,
+    private _textRenderer: TextRendererService
   ) {
     this._rendererServices.push(...[pencilRendererService, _textRenderer]);
   }
@@ -100,13 +105,11 @@ export class BoardDetailComponent implements AfterViewInit, OnDestroy {
   }
 
   private async _loadFromDbAndRecover(boardId: string) {
-    console.log('_loadFromDbAndRecover');
     const allEvents = await retryAPromise(() => this._boardsService.askForExistingBoardAsync(boardId));
     await this.recoverAll(allEvents);
   }
 
   private async recoverAll(events: IEventGeneral[]) {
-    console.log('recoverAll');
     for (let e of events) {
       for (let s of this._rendererServices) {
         await s.recover(e);
