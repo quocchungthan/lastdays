@@ -14,7 +14,7 @@ import { Observable, of, Subject } from 'rxjs';
 import { ShortcutInstruction } from '../_area-base/shortkeys-instruction.model';
 import { InstructionsService } from '../toolbar/instructions.service';
 import { CursorService } from '../toolbar/cursor.service';
-import { pointsToCoordinations } from '../../utils/array.helper';
+import { calculateDistance, pointsToCoordinations } from '../../utils/array.helper';
 
 @Injectable()
 export class RendererService implements IRendererService {
@@ -92,12 +92,8 @@ export class RendererService implements IRendererService {
 
   
   closedToTouchPoint(p1: Point, p2: Point) {
-    const distance = this.calculateDistance(p1, p2);
+    const distance = calculateDistance(p1, p2);
     return distance <= RendererService.threshold;
-  }
-
-  private calculateDistance(p1: Point, p2: Point): number {
-    return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
   }
 
   getInstructions(): Observable<ShortcutInstruction[]> {

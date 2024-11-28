@@ -5,3 +5,7 @@ export function pointsToCoordinations(points: number[]) {
       index % 2 === 0 ? [...previous, { x: current, y: points[index + 1] } as Point] : previous
     ), [] as Point[])
 }
+
+export function calculateDistance(p1: Point, p2: Point): number {
+   return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+ }
