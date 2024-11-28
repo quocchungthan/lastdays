@@ -106,9 +106,6 @@ private _instruction = new Subject<ShortcutInstruction[]>();
     if (this._activated) {
       this._instruction.next(this.instructionSErvice.eraserDefaultInstruction);
       this.cursors.eraser();
-    } else {
-      // TODO: handle in every tool.
-      this.cursors.reset();
     }
   }
 

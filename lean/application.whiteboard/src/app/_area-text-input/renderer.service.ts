@@ -18,6 +18,7 @@ import {
 import { ShortcutInstruction } from '../_area-base/shortkeys-instruction.model';
 import { InstructionsService } from '../toolbar/instructions.service';
 import { IRect } from 'konva/lib/types';
+import { CursorService } from '../toolbar/cursor.service';
 
 @Injectable()
 export class RendererService implements IRendererService {
@@ -32,6 +33,7 @@ export class RendererService implements IRendererService {
   private _instruction = new Subject<ShortcutInstruction[]>();
 
   constructor(
+    private _curors: CursorService,
     private _interactiveEventService: ViewPortEventsManager,
     private _toolSelection: ToolSelectionService,
     konvaObjectService: KonvaObjectService,
@@ -130,6 +132,7 @@ export class RendererService implements IRendererService {
       this._closeInputDialog();
     } else {
       this._instruction.next(this._instructionService.textDefaultInstrution);
+      this._curors.textInput();
     }
   }
 

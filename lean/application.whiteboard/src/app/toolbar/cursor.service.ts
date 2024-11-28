@@ -15,9 +15,8 @@ export class CursorService {
   }
 
   pencil(): void {
-    // TODO: do not wait for mouse down, just show it.
     this.browserService.setCursorByStringValue(
-      "url('/assets/marker.png') 16 16, auto"
+      "url('tools/pencil.gif') 1 32, auto"
     );
   }
 

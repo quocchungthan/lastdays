@@ -45,7 +45,7 @@ export class RendererService implements IRendererService {
     this._activated = value;
     if (this._activated) {
       this._instruction.next(this._instructionsService.pencilDefaultInstruction);
-      // this._cursors.eraser();
+      this._cursors.pencil();
     }
   }
 
