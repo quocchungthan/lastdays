@@ -5,11 +5,12 @@ import { DefaultToolIcon } from '../_area-default-tool';
 import { ToolSelectionService } from './tool-selection.service';
 import { TextInputToolIcon } from '../_area-text-input';
 import { EraserToolIcon } from '../_area-delete-whole';
+import { ToolIconComponent } from "../_area-moving-arrow/tool-icon/tool-icon.component";
 
 @Component({
   selector: 'app-toolbar',
   standalone: true,
-  imports: [PencilToolIcon, DefaultToolIcon, TextInputToolIcon, EraserToolIcon],
+  imports: [PencilToolIcon, DefaultToolIcon, TextInputToolIcon, EraserToolIcon, ToolIconComponent],
   templateUrl: './toolbar.component.html',
   styleUrl: './toolbar.component.scss'
 })

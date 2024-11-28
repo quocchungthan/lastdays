@@ -18,6 +18,20 @@ export class InstructionsService {
     },
   ];
 
+  arrowDefaultInstruction: ShortcutInstruction[] = [
+    {
+      key: 'Hold and move',
+      explanation: 'To add the arrow'
+    },
+    {
+      key: 'Wheel',
+      explanation: 'To zoom',
+    },
+    {
+      key: 'Ctrl + Wheel',
+      explanation: 'To zoom backward',
+    },
+  ]
   
   eraserDefaultInstruction: ShortcutInstruction[] = [
     {

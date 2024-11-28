@@ -14,6 +14,13 @@ export class CursorService {
       );
   }
 
+  arrow() {
+   // this.browserService.setCursorByStringValue(
+   //    "url('/tools/arrow.gif') 4 32, auto"
+   // );
+   this.pencil();
+}
+
   pencil(): void {
     this.browserService.setCursorByStringValue(
       "url('tools/pencil.gif') 1 32, auto"

@@ -6,6 +6,7 @@ import { IRendererService } from '../_area-base/renderer.service.interface';
 import { Subject, takeUntil } from 'rxjs';
 import { ShortcutInstruction } from '../_area-base/shortkeys-instruction.model';
 import { EraserRendererService } from '../_area-delete-whole';
+import { MovingArrowRendererService } from '../_area-moving-arrow';
 
 @Component({
   selector: 'app-board-tool-instruction',
@@ -20,8 +21,8 @@ export class BoardToolInstructionComponent implements OnDestroy {
   instruction: ShortcutInstruction[] = [];
   
 
-  constructor(tool1: PencilRendererService, tool2: TextRendererService, tool3: DefaultRendererService, tool4: EraserRendererService) {
-    this._rendererServices.push(...[tool1, tool2, tool3, tool4]);
+  constructor(tool1: PencilRendererService, tool2: TextRendererService, tool3: DefaultRendererService, tool4: EraserRendererService, tool5: MovingArrowRendererService) {
+    this._rendererServices.push(...[tool1, tool2, tool3, tool4, tool5]);
     this.onInstructionChanges();
   }
 

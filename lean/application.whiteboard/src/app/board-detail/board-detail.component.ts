@@ -28,6 +28,7 @@ import { DefaultRendererService } from '../_area-default-tool';
 import { InstructionsService } from '../toolbar/instructions.service';
 import { EraserRendererService } from '../_area-delete-whole';
 import { CursorService } from '../toolbar/cursor.service';
+import { MovingArrowRendererService } from '../_area-moving-arrow';
 
 @Component({
   selector: 'app-board-detail',
@@ -43,7 +44,8 @@ import { CursorService } from '../toolbar/cursor.service';
     DefaultRendererService,
     InstructionsService,
     EraserRendererService,
-    CursorService
+    CursorService,
+    MovingArrowRendererService,
   ],
   templateUrl: './board-detail.component.html',
   styleUrl: './board-detail.component.scss',
@@ -66,8 +68,9 @@ export class BoardDetailComponent implements AfterViewInit, OnDestroy {
     private _syncingService: SyncingService,
     private _textRenderer: TextRendererService,
     private eraserRenderer: EraserRendererService,
+    arrows: MovingArrowRendererService
   ) {
-    this._rendererServices.push(...[pencilRendererService, _textRenderer, eraserRenderer]);
+    this._rendererServices.push(...[pencilRendererService, _textRenderer, eraserRenderer, arrows]);
   }
 
   @HostListener('window:resize')
