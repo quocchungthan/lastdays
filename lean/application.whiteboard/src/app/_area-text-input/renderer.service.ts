@@ -17,9 +17,11 @@ import {
 } from './mappers/to-recoverable-event.mapper';
 import { ShortcutInstruction } from '../_area-base/shortkeys-instruction.model';
 import { InstructionsService } from '../toolbar/instructions.service';
+import { IRect } from 'konva/lib/types';
 
 @Injectable()
 export class RendererService implements IRendererService {
+  private static threshold = 1;
   private _activated = false;
   private _currentObject?: Konva.Group;
   private _drawingLayer!: Konva.Layer;
@@ -44,6 +46,29 @@ export class RendererService implements IRendererService {
       this._viewport = stage;
     });
     this._listenToEvents();
+  }
+
+  
+  collision(obj: Konva.Group | Konva.Shape, touchPos: Point): Konva.Group | Konva.Shape | null {
+    if (!(obj instanceof Konva.Text)) return null;
+    const rect = obj.getClientRect();
+    touchPos.x *= this._viewport.scaleX();
+    touchPos.y *= this._viewport.scaleY();
+    if (obj.hasName('text_input_tool') && !this.isTouchPointOutsideOfClientrect(rect, touchPos)) {
+      return obj;
+    }
+
+    return null;
+  }
+
+  
+  closedToTouchPoint(p1: Point, p2: Point) {
+    const distance = this.calculateDistance(p1, p2);
+    return distance <= RendererService.threshold;
+  }
+
+  private calculateDistance(p1: Point, p2: Point): number {
+    return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
   }
 
   getInstructions(): Observable<ShortcutInstruction[]> {
@@ -155,17 +180,21 @@ export class RendererService implements IRendererService {
       .every((transformer) => {
         // Get the bounding box of the transformer
         const transformerBounds = transformer.getClientRect();
-        // Check if the touch position is outside the bounding box
-        transformerBounds.x -= this._viewport.x();
-        transformerBounds.y -= this._viewport.y();
-        return (
-          touchPos.x < transformerBounds.x ||
-          touchPos.x > transformerBounds.x + transformerBounds.width ||
-          touchPos.y < transformerBounds.y ||
-          touchPos.y > transformerBounds.y + transformerBounds.height
-        );
+        return this.isTouchPointOutsideOfClientrect(transformerBounds, touchPos);
       });
     return isOutsideTransformer;
+  }
+
+  private isTouchPointOutsideOfClientrect(bounds: IRect, touchPos: { x: number; y: number; }) {
+    // Check if the touch position is outside the bounding box
+    bounds.x -= this._viewport.x();
+    bounds.y -= this._viewport.y();
+    return (
+      touchPos.x < bounds.x ||
+      touchPos.x > bounds.x + bounds.width ||
+      touchPos.y < bounds.y ||
+      touchPos.y > bounds.y + bounds.height
+    );
   }
 
   private _showTextInputDialog(position: Point) {

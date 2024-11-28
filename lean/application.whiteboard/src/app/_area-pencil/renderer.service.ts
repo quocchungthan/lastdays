@@ -13,21 +13,27 @@ import { IRendererService } from '../_area-base/renderer.service.interface';
 import { Observable, of, Subject } from 'rxjs';
 import { ShortcutInstruction } from '../_area-base/shortkeys-instruction.model';
 import { InstructionsService } from '../toolbar/instructions.service';
+import { CursorService } from '../toolbar/cursor.service';
+import { pointsToCoordinations } from '../../utils/array.helper';
 
 @Injectable()
 export class RendererService implements IRendererService {
+  private static threshold = 4;
   private _activated = false;
   private _currentObject?: Konva.Line;
   private _drawingLayer!: Konva.Layer;
   private _instruction = new Subject<ShortcutInstruction[]>();
+  private _viewport!: Konva.Stage;
 
   constructor(
     private _interactiveEventService: ViewPortEventsManager,
     private _toolSelection: ToolSelectionService,
     konvaObjectService: KonvaObjectService,
     private _syncingService: SyncingService,
-    private _instructionsService: InstructionsService) {
+    private _instructionsService: InstructionsService,
+    private _cursors: CursorService) {
     konvaObjectService.viewPortChanges.subscribe((stage) => {
+      this._viewport = stage;
       this._drawingLayer = stage.children.find(
         (x) => x instanceof Konva.Layer && x.hasName('DrawingLayer')
       ) as Konva.Layer;
@@ -39,6 +45,7 @@ export class RendererService implements IRendererService {
     this._activated = value;
     if (this._activated) {
       this._instruction.next(this._instructionsService.pencilDefaultInstruction);
+      // this._cursors.eraser();
     }
   }
 
@@ -68,6 +75,29 @@ export class RendererService implements IRendererService {
       .subscribe((p) => {
         this._pendEnd();
       });
+  }
+  
+  collision(obj: Konva.Group | Konva.Shape, touchPos: Point): Konva.Group | Konva.Shape | null {
+    if (!(obj instanceof Konva.Line)) return null;
+    const points = obj.points();
+    touchPos.x *= this._viewport.scaleX();
+    touchPos.y *= this._viewport.scaleY();
+    if (obj.hasName('pencil') && pointsToCoordinations(points)
+        .some(this.closedToTouchPoint.bind(this, touchPos))) {
+          return obj;
+    }
+
+    return null;
+  }
+
+  
+  closedToTouchPoint(p1: Point, p2: Point) {
+    const distance = this.calculateDistance(p1, p2);
+    return distance <= RendererService.threshold;
+  }
+
+  private calculateDistance(p1: Point, p2: Point): number {
+    return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
   }
 
   getInstructions(): Observable<ShortcutInstruction[]> {

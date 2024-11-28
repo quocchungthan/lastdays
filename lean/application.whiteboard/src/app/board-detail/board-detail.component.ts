@@ -64,9 +64,10 @@ export class BoardDetailComponent implements AfterViewInit, OnDestroy {
     private _boardsService: BoardsService,
     pencilRendererService: PencilRendererService,
     private _syncingService: SyncingService,
-    private _textRenderer: TextRendererService
+    private _textRenderer: TextRendererService,
+    private eraserRenderer: EraserRendererService,
   ) {
-    this._rendererServices.push(...[pencilRendererService, _textRenderer]);
+    this._rendererServices.push(...[pencilRendererService, _textRenderer, eraserRenderer]);
   }
 
   @HostListener('window:resize')

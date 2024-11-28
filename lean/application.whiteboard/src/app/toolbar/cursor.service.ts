@@ -10,7 +10,7 @@ export class CursorService {
 
   eraser() {
       this.browserService.setCursorByStringValue(
-         "url('/tools/eraser.png') 16 16, auto"
+         "url('/tools/eraser.gif') 4 32, auto"
       );
   }
 
