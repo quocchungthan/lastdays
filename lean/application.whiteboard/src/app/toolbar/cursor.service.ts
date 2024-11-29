@@ -8,6 +8,10 @@ export class CursorService {
     this.browserService.setCursorByStringValue('text');
   }
 
+  areaSelection() {
+    this.browserService.setCursorByStringValue('crosshair');
+  }
+
   eraser() {
       this.browserService.setCursorByStringValue(
          "url('/tools/eraser.gif') 4 32, auto"

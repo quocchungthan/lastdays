@@ -30,6 +30,7 @@ import { EraserRendererService } from '../_area-delete-whole';
 import { CursorService } from '../toolbar/cursor.service';
 import { MovingArrowRendererService } from '../_area-moving-arrow';
 import { MenuContextComponent } from "../_area-text-input/menu-context/menu-context.component";
+import { WorkflowBoardRendererService } from '../_area-workflow-board';
 
 @Component({
   selector: 'app-board-detail',
@@ -47,6 +48,7 @@ import { MenuContextComponent } from "../_area-text-input/menu-context/menu-cont
     EraserRendererService,
     CursorService,
     MovingArrowRendererService,
+    WorkflowBoardRendererService
   ],
   templateUrl: './board-detail.component.html',
   styleUrl: './board-detail.component.scss',

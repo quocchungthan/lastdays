@@ -18,6 +18,21 @@ export class InstructionsService {
     },
   ];
 
+  workflowBoardDefaultInstruction: ShortcutInstruction[] = [
+    {
+      key: 'Hold and move',
+      explanation: 'To select and area then type in the prompt'
+    },
+    {
+      key: 'Wheel',
+      explanation: 'To zoom',
+    },
+    {
+      key: 'Ctrl + Wheel',
+      explanation: 'To zoom backward',
+    },
+  ];
+
   arrowDefaultInstruction: ShortcutInstruction[] = [
     {
       key: 'Hold and move',
