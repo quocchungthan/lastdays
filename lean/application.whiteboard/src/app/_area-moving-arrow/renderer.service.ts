@@ -111,7 +111,7 @@ export class RendererService implements IRendererService {
     }
 
     // Initialize a new Konva.Arrow object instead of Konva.Line
-    this._currentObject = Init(position, this._toolSelection.onColorSelected);
+    this._currentObject = Init(position, this._toolSelection.selectedColor);
 
     this._drawingLayer.add(this._currentObject);
   }

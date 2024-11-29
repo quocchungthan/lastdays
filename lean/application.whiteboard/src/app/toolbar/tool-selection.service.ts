@@ -18,7 +18,7 @@ export class ToolSelectionService {
       this._toolSelection.next(selected);
    }
 
-   get onColorSelected() {
+   get selectedColor() {
       return this._colorSelection.getValue();
    }
 

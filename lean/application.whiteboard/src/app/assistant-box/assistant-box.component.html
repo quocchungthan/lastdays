@@ -1,11 +1,11 @@
-<div class="chatbox">
+<div class="chatbox" [ngClass]="additionalCssClassForContainer">
    <!-- Status Dot -->
    <div class="status-dot" [ngClass]="{'online': isOnline, 'offline': !isOnline}"></div>
    
    <!-- Textbox and Button Container -->
    <div class="chatbox-container">
      <!-- Text input for prompt -->
-     <input type="text" class="chat-input" (keyup)="onKeyUp($event)" [(ngModel)]="message" placeholder="Type your message..." />
+     <input (focus)="handleFocus($event)" (blur)="outFocus($event)" id="assistant-input" type="text" class="chat-input" (keyup)="onKeyUp($event)" [(ngModel)]="message" placeholder="Type your message..." />
      <!-- Send button -->
      <button class="send-btn" (click)="sendMessage()">
        <b class="send-icon">📤</b>

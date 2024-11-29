@@ -272,7 +272,7 @@ export class RendererService implements IRendererService {
     const event = new TextPastedEvent();
     event.position = this._currentTextPosition || { x: 0, y: 0 };
     event.text = text;
-    event.color = this._toolSelection.onColorSelected; // Assume color is set via tool selection
+    event.color = this._toolSelection.selectedColor; // Assume color is set via tool selection
     return event;
   }
 
@@ -282,7 +282,7 @@ export class RendererService implements IRendererService {
     const initiated = Init(
       event.text,
       event.position,
-      this._toolSelection.onColorSelected
+      this._toolSelection.selectedColor
     );
 
     initiated.addName(event.eventId);

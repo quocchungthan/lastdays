@@ -106,7 +106,7 @@ export class RendererService implements IRendererService {
       return;
     }
 
-    this._currentObject = Init(position, this._toolSelection.onColorSelected);
+    this._currentObject = Init(position, this._toolSelection.selectedColor);
     this._drawingLayer.add(this._currentObject);
   }
 

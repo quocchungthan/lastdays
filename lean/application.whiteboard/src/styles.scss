@@ -1,10 +1,18 @@
 /* You can add global styles to this file, and also import other style files */
 @font-face {
    font-family: 'Pacifico';
-   src: url('/fonts/Pacifico-Regular.ttf') format('truetype');
+   src: url('/fonts/PlaywriteHRLijeva-VariableFont_wght.ttf') format('truetype');
    font-weight: normal;
    font-style: normal;
- }
+}
+
+@font-face {
+   font-family: "Playwrite HR Lijeva", cursive;
+   src: url('/fonts/PlaywriteHRLijeva-VariableFont_wght.ttf') format('truetype');
+   font-weight: normal;
+   font-style: normal;
+}
+
 
 body {
    overflow: hidden;

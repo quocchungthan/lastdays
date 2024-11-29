@@ -43,7 +43,7 @@ export function Init(text: string, position: Point, color: string) {
       x: position.x,
       y: position.y,
       fill: color,  // Set the text color
-      fontFamily: 'Pacifico',  // Set the font family
+      fontFamily: '"Playwrite HR Lijeva", cursive',  // Set the font family
       draggable: true,
       text,
       name: 'text_input_tool',
