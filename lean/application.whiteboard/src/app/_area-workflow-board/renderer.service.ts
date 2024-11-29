@@ -140,16 +140,32 @@ export class RendererService implements IRendererService {
          this._startPosition = undefined;
       this._assistantService.requireUserPrompt()
          .then((userPrompt) => {
+            // This is optional since the responding from AI might be slow
+            const rect = this._selectionRect!.getClientRect();
+            this.destroyTheSelectionArea();
 
+            console.log('the prompt', userPrompt);
+            if (userPrompt) {
+               return this._assistantService.askForSuggestion(userPrompt, rect)
+            } else {
+               return Promise.resolve<IEventGeneral[]>([]);
+            }
+         })
+         .then((receivedEvents) => {
+            console.log('received ', receivedEvents);
          })
          .finally(() => {
             // Optionally clear the selection area after use
-            this._selectionRect?.destroy();
-            this._drawingLayer.batchDraw();
-            this._selectionRect = undefined;
+            this.destroyTheSelectionArea();
          });
     }
   }
+
+   private destroyTheSelectionArea() {
+      this._selectionRect?.destroy();
+      this._drawingLayer.batchDraw();
+      this._selectionRect = undefined;
+   }
 
   // Helper function to convert hex color to RGB
   private hexToRgb(hex: string) {

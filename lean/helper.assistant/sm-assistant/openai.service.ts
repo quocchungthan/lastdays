@@ -96,6 +96,7 @@ async function createAssistant(openai: OpenAI) {
 
       Your task is to generate events that can be placed in a Scrum board and mapped to the provided area dimensions (width, height). Each event should have a position and any necessary visual attributes.
       Suggest and display scrum tasks (e.g., sprint backlog, tasks, user stories) within the given area on the whiteboard. Each event should have a position based on the area dimensions.
+      ONLY USE the Event type and Event code predefined in this instruction.
       `,
       name: "Scrum Master Assistant",
       tools: [{ type: "code_interpreter" }] // You can add more tools if needed
@@ -116,7 +117,7 @@ export class OpenAIService {
    /**
     * Suggests events and places them on a visual whiteboard grid.
     */
-   async suggestsEventAsync(userPrompt: string, area: Point & Dimension, threadId?: string) {
+   async suggestsEventAsync(userPrompt: string, area: Point & Dimension, previousEvents: IEventGeneral[], threadId?: string) {
       const openAiClient = newOpenAiClient();
       const assistant = await createAssistant(openAiClient);
       const thread = await createReuseThread(openAiClient, threadId);
@@ -136,7 +137,12 @@ export class OpenAIService {
          thread.id,
          {
             assistant_id: assistant.id,
-            instructions: "Return json text accurately because after this user just need to parse the text reponse to typescript object with JSON.parse.",
+            instructions: `
+            You provide the Events that help my Engine to render objects to my canvas that fits provided area: ${JSON.stringify(area)}
+            Return json text accurately because after this user just need to parse the text reponse to typescript object with JSON.parse.
+            you DO NOT return the json of structure of the configuration, you MUST provide the json match the type provided in the instructions, structure of Events.
+            Reference to previous events: ${JSON.stringify(previousEvents)}
+            `,
          }
       );
       console.log("Assistant run started: ", myRun);
@@ -189,6 +195,17 @@ export class OpenAIService {
    private toArray(jsonString: string): Array<IEventGeneral> {
       console.log(jsonString);
 
-      return JSON.parse(jsonString);
+      console.log('removing wrapper');
+      jsonString = jsonString.replace(/^```json|```$/g, '').trim();
+      console.log('after replacement: ');
+      console.log(jsonString);
+
+      try {
+         return JSON.parse(jsonString);
+      } catch(e) {
+         console.error(e);
+
+         return [];
+      }
    }
 }

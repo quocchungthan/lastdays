@@ -15,7 +15,7 @@ export function serveSMAssistant(server: express.Express) {
    router.post(SM_ASSISTANT_SUGGESTION_ROUTE, async (req, res) => {
       const payload = req.body as SuggestionRequestBody;
       const service = new OpenAIService();
-      const eventsGenerated = await service.suggestsEventAsync(payload.userPrompt, payload.area, payload.threadId);
+      const eventsGenerated = await service.suggestsEventAsync(payload.userPrompt, payload.area, payload.existingEvents, payload.threadId);
 
       res.json(eventsGenerated)
          .status(200)
