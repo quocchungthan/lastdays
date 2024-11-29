@@ -6,4 +6,5 @@ export interface SuggestionRequestBody {
    userPrompt: string;
    area: Point & Dimension;
    existingEvents: IEventGeneral[];
+   threadId?: string;
 }
