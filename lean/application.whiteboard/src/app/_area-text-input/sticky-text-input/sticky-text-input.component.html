@@ -1,3 +1,10 @@
 <div #positionalContainer style="display: none;" class="sticky-input">
    <textarea type="text" placeholder="Type here..."  (keyup)="onKeyUp($event)"></textarea>
+   <div class="adjusted-right">
+      <button class="icon-button" (click)="onSubmit($event)">
+         <span class="material-symbols-outlined">
+            check
+         </span>
+      </button>
+   </div>
 </div>
