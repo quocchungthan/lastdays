@@ -135,6 +135,7 @@ export class RendererService implements IRendererService {
   private _onTouchEnd() {
     if (this._selectionRect) {
       // Optionally, finalize the selection area (log, clear, or trigger an action)
+      this._instruction.next(this._instructionsService.workflowBoardAskingForPromptInstruction);
       console.log('Selection area:', this._selectionRect.getClientRect());
          // Reset state
          this._startPosition = undefined;
@@ -157,6 +158,7 @@ export class RendererService implements IRendererService {
          .finally(() => {
             // Optionally clear the selection area after use
             this.destroyTheSelectionArea();
+            this._instruction.next(this._instructionsService.workflowBoardDefaultInstruction);
          });
     }
   }

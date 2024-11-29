@@ -33,6 +33,21 @@ export class InstructionsService {
     },
   ];
 
+  workflowBoardAskingForPromptInstruction: ShortcutInstruction[] = [
+    {
+      key: 'Esc',
+      explanation: 'To Cancel'
+    },
+    {
+      key: 'Wheel',
+      explanation: 'To zoom',
+    },
+    {
+      key: 'Ctrl + Wheel',
+      explanation: 'To zoom backward',
+    },
+  ];
+
   arrowDefaultInstruction: ShortcutInstruction[] = [
     {
       key: 'Hold and move',
