@@ -19,6 +19,7 @@ async function createAssistant(openai: OpenAI) {
   // Step 1: Create an Assistant with detailed instructions about event types
   const myAssistant = await openai.beta.assistants.create({
       model: secrets.openAI_ModelName,
+      // TODO: this should be adjusted, this assisstant is not a SM, it's a code generator.
       instructions: `
       You are a personal Scrum Master assistant. Given the area and the user prompt, you will suggest relevant scrum events and place them within the whiteboard area.
       The following event types are available:
