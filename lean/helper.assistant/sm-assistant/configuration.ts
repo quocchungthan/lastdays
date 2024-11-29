@@ -12,6 +12,8 @@ export const loadSecretConfiguration = () => {
      process.env[Environments.OPENAI_PROJECT_ID] ?? DEFAULT_FAKE_VALUE;
    const openAI_ModelName =
      process.env[Environments.OPENAI_MODEL_NAME] ?? DEFAULT_FAKE_VALUE;
+   const cors =
+     process.env['CORS'] ?? DEFAULT_FAKE_VALUE;
    const openAI_MaxToken = 1000;
    const assistantEnabled = [
      openAI_Key,
@@ -28,5 +30,6 @@ export const loadSecretConfiguration = () => {
      openAI_ModelName,
      assistantEnabled,
      openAI_MaxToken,
+     cors
    };
 }
