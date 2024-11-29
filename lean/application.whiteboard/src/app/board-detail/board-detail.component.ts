@@ -29,11 +29,12 @@ import { InstructionsService } from '../toolbar/instructions.service';
 import { EraserRendererService } from '../_area-delete-whole';
 import { CursorService } from '../toolbar/cursor.service';
 import { MovingArrowRendererService } from '../_area-moving-arrow';
+import { MenuContextComponent } from "../_area-text-input/menu-context/menu-context.component";
 
 @Component({
   selector: 'app-board-detail',
   standalone: true,
-  imports: [ToolbarComponent, AssistantBoxComponent, StickyTextInput, BoardToolInstructionComponent],
+  imports: [ToolbarComponent, AssistantBoxComponent, StickyTextInput, BoardToolInstructionComponent, MenuContextComponent],
   providers: [
     KonvaObjectService,
     BackgroundLayerManager,

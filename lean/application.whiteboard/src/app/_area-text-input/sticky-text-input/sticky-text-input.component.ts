@@ -16,7 +16,7 @@ export class StickyTextInputComponent implements OnInit {
   assignedPosition?: Point;
 
   constructor(private rendererService: RendererService) {
-    this.rendererService.dialogPositionAssigned
+    this.rendererService.inputPositionAssigned
       .subscribe((p) => {
         this.assignedPosition = p;
         this.handlePositionChanged();
@@ -38,15 +38,20 @@ export class StickyTextInputComponent implements OnInit {
   }
 
   clearInput() {
-    if (!this.positionalContainer?.nativeElement) return;
+    this.setInputInitValue('');
+  }
 
-    this.positionalContainer.nativeElement.getElementsByTagName('textarea')
-      [0].value = '';
+  private setInputInitValue(v: string) {
+    if (!this.positionalContainer?.nativeElement) return;
+    this.positionalContainer.nativeElement.getElementsByTagName('textarea')[0].value = v;
   }
 
   focusToTheInput() {
     if (!this.positionalContainer?.nativeElement) return;
-
+    var existingTextToEdit = this.rendererService.getOriginalTextForEdit();
+    if (existingTextToEdit) {
+      this.setInputInitValue(existingTextToEdit);
+    }
     this.positionalContainer.nativeElement.getElementsByTagName('textarea')
       [0].focus();
   }

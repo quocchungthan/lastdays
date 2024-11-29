@@ -1,0 +1,10 @@
+<div #positionalContainer class="menu-container">
+   <ul>
+      @for (option of options; track $index) {
+         <li (click)="option.callback()">
+            {{ option.label }}
+         </li>
+      }
+   </ul>
+ </div>
+ 

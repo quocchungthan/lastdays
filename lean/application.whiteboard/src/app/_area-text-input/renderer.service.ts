@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import Konva from 'konva';
-import { filter, Observable, of, Subject } from 'rxjs';
+import { filter, map, Observable, of, Subject } from 'rxjs';
 import { Point } from '../../share-models/Point';
 import { IEventGeneral } from '../../syncing-models/EventGeneral.interface';
 import { IRendererService } from '../_area-base/renderer.service.interface';
@@ -19,6 +19,13 @@ import { ShortcutInstruction } from '../_area-base/shortkeys-instruction.model';
 import { InstructionsService } from '../toolbar/instructions.service';
 import { IRect } from 'konva/lib/types';
 import { CursorService } from '../toolbar/cursor.service';
+import { isNil } from 'lodash';
+
+enum ToolState {
+  None,
+  TextInputVisible,
+  MenuContextVisible
+}
 
 @Injectable()
 export class RendererService implements IRendererService {
@@ -26,7 +33,7 @@ export class RendererService implements IRendererService {
   private _activated = false;
   private _currentObject?: Konva.Group;
   private _drawingLayer!: Konva.Layer;
-  private _textInputDialogVisible = false;
+  private _textInputDialogVisible: ToolState = ToolState.None;
   private _currentTextPosition: Point | undefined;
   private _viewport!: Konva.Stage;
   private _assignedDialogPosition = new Subject<Point | undefined>();
@@ -49,8 +56,23 @@ export class RendererService implements IRendererService {
     });
     this._listenToEvents();
   }
-
   
+  startEditExistingText() {
+    const heldObject = this.getHeldObject();
+    this._textInputDialogVisible = ToolState.TextInputVisible;
+    this._showTextInputDialog(heldObject.position());
+  }
+
+  getOriginalTextForEdit() {
+    return this.getHeldObject()?.text() ?? null;
+  }
+  
+  private getHeldObject() {
+    const holdingTransformer = this._drawingLayer.children.filter(x => x instanceof Konva.Transformer) as Konva.Transformer[];
+    const heldObject = holdingTransformer[0]?.nodes()?.[0] as Konva.Text;
+    return heldObject;
+  }
+
   collision(obj: Konva.Group | Konva.Shape, touchPos: Point): Konva.Group | Konva.Shape | null {
     if (!(obj instanceof Konva.Text)) return null;
     const rect = obj.getClientRect();
@@ -77,18 +99,36 @@ export class RendererService implements IRendererService {
     return this._instruction.asObservable().pipe(filter(() => this._activated));
   }
 
-  get dialogPositionAssigned() {
-    return this._assignedDialogPosition.asObservable();
+  get inputPositionAssigned() {
+    return this._assignedDialogPosition.asObservable()
+      .pipe(map((value) => 
+          this._textInputDialogVisible === ToolState.TextInputVisible 
+      ? value : undefined));
+  }
+
+  get menuContextPositionAssigned() {
+    return this._assignedDialogPosition.asObservable()
+      .pipe(map((value) => 
+        this._textInputDialogVisible === ToolState.MenuContextVisible 
+      ? value : undefined));
   }
 
   submitText(userText: string) {
     if (userText) {
-      const event: IEventGeneral = this._createTextPastedEvent(userText);
-      // this._syncingService.storeEventAsync(event).then(() => {
-      const konvaText = this._createKonvaText(event);
-      this.addTransformer(konvaText);
-      this.addKonvaTextToDrawingLayer(konvaText);
-      // });
+      const heldObject = this.getHeldObject();
+      if (!heldObject) {
+        // Case Create new
+        const event: IEventGeneral = this._createTextPastedEvent(userText);
+        // this._syncingService.storeEventAsync(event).then(() => {
+        const konvaText = this._createKonvaText(event);
+        this.addTransformer(konvaText);
+        this.addKonvaTextToDrawingLayer(konvaText);
+        // });
+      } else {
+        // Case edit
+        heldObject.text(userText);
+        heldObject.draw();
+      }
     }
     this._closeInputDialog();
   }
@@ -105,7 +145,7 @@ export class RendererService implements IRendererService {
 
   private _closeInputDialog() {
     this._instruction.next(this._instructionService.textDefaultInstrution);
-    this._textInputDialogVisible = false;
+    this._textInputDialogVisible = ToolState.None;
     this._assignedDialogPosition.next(undefined);
   }
 
@@ -147,12 +187,19 @@ export class RendererService implements IRendererService {
         if (isOutsideTransformer === true) {
           // Call eliminateAllSelection if the touch is outside any transformer
           this.eliminateAllSelection();
+          this._textInputDialogVisible = ToolState.None;
+          this._assignedDialogPosition.next(undefined);
         } else if (isOutsideTransformer === null) {
           // If inside a transformer, handle text input dialog logic
-          if (!this._textInputDialogVisible) {
+          if (this._textInputDialogVisible !== ToolState.TextInputVisible) {
             this._currentTextPosition = position;
-            this._textInputDialogVisible = true;
+            this._textInputDialogVisible = ToolState.TextInputVisible;
             this._showTextInputDialog(position);
+          }
+        } else {
+          if (this._textInputDialogVisible !== ToolState.TextInputVisible) {
+            this._textInputDialogVisible = ToolState.None;
+            this._assignedDialogPosition.next(undefined);
           }
         }
       });
@@ -255,10 +302,16 @@ export class RendererService implements IRendererService {
   private allowToSelectByRightClick(konvaText: Konva.Text) {
     this._interactiveEventService
       .onRightClicked(konvaText)
-      .pipe(filter(() => !this._textInputDialogVisible))
+      .pipe(filter(() => this._textInputDialogVisible !== ToolState.TextInputVisible))
       .subscribe((point) => {
+        if (point) this.openMenuContext(point);
         this.focusingOnCurrentKonvaText(konvaText);
       });
+  }
+
+  openMenuContext(p: Point) {
+    this._textInputDialogVisible = ToolState.MenuContextVisible;
+    this._assignedDialogPosition.next(p);
   }
 
   private addKonvaTextToDrawingLayer(konvaText: Konva.Text) {
