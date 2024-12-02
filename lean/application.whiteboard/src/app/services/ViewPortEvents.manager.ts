@@ -177,6 +177,8 @@ export class ViewPortEventsManager implements OnDestroy {
         });
         let oldRotation = 0;
         let startScale = 0;
+
+        // TODO: this is supposed to fire the event only
         this._viewPort.on('rotatestart', (ev) => {
             oldRotation = ev.evt.gesture.rotation;
             startScale = this._viewPort.scaleX();
