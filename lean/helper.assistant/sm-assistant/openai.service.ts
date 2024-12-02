@@ -103,14 +103,14 @@ async function createAssistant(openai: OpenAI) {
       tools: [{ type: "code_interpreter" }] // You can add more tools if needed
    });
 
-   console.log("Assistant created: ", myAssistant);
+   // console.log("Assistant created: ", myAssistant);
    return myAssistant;
 }
 
 async function createReuseThread(openai: OpenAI, threadId?: string) {
    // Step 2: Create or reuse a Thread
   const myThread: Thread = threadId ? await openai.beta.threads.retrieve(threadId) : await openai.beta.threads.create();
-  console.log("Thread created or retrieved: ", myThread);
+//   console.log("Thread created or retrieved: ", myThread);
   return myThread;
 }
 
@@ -131,7 +131,7 @@ export class OpenAIService {
             content: userPrompt, // The user defines what kind of Scrum events they need
          }
       );
-      console.log("User request sent: ", userRequest);
+      // console.log("User request sent: ", userRequest);
 
       // Step 4: Execute the Assistant's Run
       const myRun = await openAiClient.beta.threads.runs.create(
@@ -146,7 +146,7 @@ export class OpenAIService {
             `,
          }
       );
-      console.log("Assistant run started: ", myRun);
+      // console.log("Assistant run started: ", myRun);
 
       // Step 5: Periodically retrieve the Run to check on its status to see if it has moved to completed
       const retrieveRun = async () => {
@@ -157,19 +157,19 @@ export class OpenAIService {
                thread.id,
                myRun.id
             );
-            console.log(`Run status: ${keepRetrievingRun.status}`);
+            // console.log(`Run status: ${keepRetrievingRun.status}`);
 
             if (keepRetrievingRun.status === "completed") {
-               console.log("\n");
+               // console.log("\n");
 
                // Step 6: Retrieve the Messages added by the Assistant to the Thread
                const allMessages = await openAiClient.beta.threads.messages.list(
                   thread.id
                );
 
-               console.log(
-                  "------------------------------------------------------------ \n"
-               );
+               // console.log(
+               //    "------------------------------------------------------------ \n"
+               // );
 
                return allMessages.data[0].content[0].type === 'text' ? allMessages.data[0].content[0].text.value : 'Not a Text';
 
@@ -194,12 +194,12 @@ export class OpenAIService {
    }
 
    private toArray(jsonString: string): Array<IEventGeneral> {
-      console.log(jsonString);
+      // console.log(jsonString);
 
-      console.log('removing wrapper');
+      // console.log('removing wrapper');
       jsonString = jsonString.replace(/^```json|```$/g, '').trim();
-      console.log('after replacement: ');
-      console.log(jsonString);
+      // console.log('after replacement: ');
+      // console.log(jsonString);
 
       try {
          return JSON.parse(jsonString);
