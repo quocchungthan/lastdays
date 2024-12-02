@@ -19,7 +19,6 @@ import { ShortcutInstruction } from '../_area-base/shortkeys-instruction.model';
 import { InstructionsService } from '../toolbar/instructions.service';
 import { IRect } from 'konva/lib/types';
 import { CursorService } from '../toolbar/cursor.service';
-import { isNil } from 'lodash';
 
 enum ToolState {
   None,

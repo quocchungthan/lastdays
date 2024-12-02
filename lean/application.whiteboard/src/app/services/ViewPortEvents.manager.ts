@@ -89,6 +89,12 @@ export class ViewPortEventsManager implements OnDestroy {
             }
         });
 
+        target.on('press', (e) => {
+            observable.next(this._currentRelativePosition());
+            e.evt.preventDefault();
+            return;
+        });
+
         return observable.pipe(finalize(() => target.removeEventListener('mousedown touchstart')));
     }
 
@@ -168,6 +174,21 @@ export class ViewPortEventsManager implements OnDestroy {
             if (e.evt.touches.length === 2) {
                 this._pinchMove.next([e.evt.touches[0], e.evt.touches[1]].map(this.clientPositionToCanvasRelativePosition.bind(this)));
             }
+        });
+        let oldRotation = 0;
+        let startScale = 0;
+        this._viewPort.on('rotatestart', (ev) => {
+            oldRotation = ev.evt.gesture.rotation;
+            startScale = this._viewPort.scaleX();
+            this._viewPort.stopDrag();
+        });
+    
+        this._viewPort.on('rotate', (ev) => {
+            var delta = oldRotation - ev.evt.gesture.rotation;
+            this._viewPort.rotate(-delta);
+            oldRotation = ev.evt.gesture.rotation;
+            this._viewPort.scaleX(startScale * ev.evt.gesture.scale);
+            this._viewPort.scaleY(startScale * ev.evt.gesture.scale);
         });
     }
 
