@@ -4,6 +4,8 @@ import { Dimension } from "@cbto/nodepackages.utils/dimention-models/Dimension";
 import { Point } from "@cbto/nodepackages.utils/dimention-models/Point";
 import OpenAI from "openai";
 import { Thread } from "openai/resources/beta/threads/threads";
+import fs from 'fs';
+import path from 'path';
 
 const secrets = loadSecretConfiguration();
 
@@ -16,90 +18,14 @@ const newOpenAiClient = () => {
 };
 
 async function createAssistant(openai: OpenAI) {
+   // Step 1: Read the instructions from the instructions.md file
+   const instructionsFilePath = path.resolve(__dirname, 'instructions.md');
+   const instructions = fs.readFileSync(instructionsFilePath, 'utf-8');
   // Step 1: Create an Assistant with detailed instructions about event types
   const myAssistant = await openai.beta.assistants.create({
       model: secrets.openAI_ModelName,
-      // TODO: this should be adjusted, this assisstant is not a SM, it's a code generator.
-      instructions: `
-      You are a personal Scrum Master assistant. Given the area and the user prompt, you will suggest relevant scrum events and place them within the whiteboard area.
-      The following event types are available:
-
-      1. **ArrowPastedEvent**:
-         Represents an arrow drawn on the board. It has a start and end point, a color, and a name.
-         \`\`\`
-         class ArrowPastedEvent implements IEventGeneral {
-            timestamp: string | Date = new Date().toUTCString();
-            eventId: string = uuidv4();
-            boardId: string = uuidv4();
-            code: string = 'ArrowPastedEvent';
-            start: Point = { x: 0, y: 0 };
-            end: Point = { x: 0, y: 0 };
-            color: string | CanvasGradient = '';
-            name: string = '';
-         }
-         \`\`\`
-
-      2. **BoardCreationEvent**:
-         Represents a board creation event. It includes a timestamp and event ID.
-         \`\`\`
-         class BoardCreationEvent implements IEventGeneral {
-            timestamp: string | Date = new Date().toUTCString();
-            eventId: string = uuidv4();
-            boardId: string = uuidv4();
-            code: string = 'BoardCreationEvent';
-         }
-         \`\`\`
-
-      3. **ObjectDeletionEvent**:
-         Represents an object deletion event. It includes a target object ID.
-         \`\`\`
-         class ObjectDeletionEvent implements IEventGeneral {
-            timestamp: string | Date = new Date().toUTCString();
-            eventId: string = uuidv4();
-            boardId: string = uuidv4();
-            code: string = 'ObjectDeletionEvent';
-            target: string = '';
-         }
-         \`\`\`
-
-      4. **PencilUpEvent**:
-         Represents a pencil-up event where the user stops drawing. It includes the color used and an array of points (positions).
-         \`\`\`
-         class PencilUpEvent implements IEventGeneral {
-            timestamp: string | Date = new Date().toUTCString();
-            eventId: string = uuidv4();
-            boardId: string = uuidv4();
-            code: string = 'PencilUpEvent';
-            color: string | CanvasGradient = SUPPORTED_COLORS[0];
-            points: Point[] = [];
-            name: string = '';
-         }
-         \`\`\`
-
-      5. **TextPastedEvent**:
-         Represents a text event. It includes text content, font size, rotation, and color.
-         \`\`\`
-         class TextPastedEvent implements IEventGeneral {
-            timestamp: string | Date = new Date().toUTCString();
-            eventId: string = uuidv4();
-            boardId: string = uuidv4();
-            code: string = 'TextPastedEvent';
-            color: string | CanvasGradient = SUPPORTED_COLORS[0];
-            name: string = '';
-            text: string = '';
-            rotation: number = 0;
-            position: Point = { x: 0, y: 0 };
-            fontSize: number = 18;
-         }
-         \`\`\`
-
-      When given a prompt, suggest the relevant events based on the Scrum process (backlog, tasks, sprint events, etc.), and display them within the provided area on the whiteboard. For each event, ensure to place it within the defined boundaries, using the appropriate coordinates and attributes based on the event type.
-
-      Your task is to generate events that can be placed in a Scrum board and mapped to the provided area dimensions (width, height). Each event should have a position and any necessary visual attributes.
-      Suggest and display scrum tasks (e.g., sprint backlog, tasks, user stories) within the given area on the whiteboard. Each event should have a position based on the area dimensions.
-      ONLY USE the Event type and Event code predefined in this instruction.
-      `,
-      name: "Scrum Master Assistant",
+      instructions: instructions,
+      name: "JSON Event Generator",
       tools: [{ type: "code_interpreter" }] // You can add more tools if needed
    });
 
@@ -119,6 +45,9 @@ export class OpenAIService {
     * Suggests events and places them on a visual whiteboard grid.
     */
    async suggestsEventAsync(userPrompt: string, area: Point & Dimension, previousEvents: IEventGeneral[], threadId?: string) {
+         // Step 1: Read the instructions from the instructions.md file
+      const systemPromptFilePath = path.resolve(__dirname, 'system-prompt.md');
+      const systemPrompt = fs.readFileSync(systemPromptFilePath, 'utf-8');
       const openAiClient = newOpenAiClient();
       const assistant = await createAssistant(openAiClient);
       const thread = await createReuseThread(openAiClient, threadId);
@@ -132,18 +61,12 @@ export class OpenAIService {
          }
       );
       // console.log("User request sent: ", userRequest);
-
       // Step 4: Execute the Assistant's Run
       const myRun = await openAiClient.beta.threads.runs.create(
          thread.id,
          {
             assistant_id: assistant.id,
-            instructions: `
-            You provide the Events that help my Engine to render objects to my canvas that fits provided area: ${JSON.stringify(area)}
-            Return json text accurately because after this user just need to parse the text reponse to typescript object with JSON.parse.
-            you DO NOT return the json of structure of the configuration, you MUST provide the json match the type provided in the instructions, structure of Events.
-            Reference to previous events: ${JSON.stringify(previousEvents)}
-            `,
+            instructions: systemPrompt.replace('{area}', JSON.stringify(area)).replace('{events}', JSON.stringify(previousEvents)),
          }
       );
       // console.log("Assistant run started: ", myRun);
@@ -204,6 +127,7 @@ export class OpenAIService {
       try {
          return JSON.parse(jsonString);
       } catch(e) {
+         console.log(jsonString);
          console.error(e);
 
          return [];
