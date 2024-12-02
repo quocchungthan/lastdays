@@ -26,6 +26,8 @@ export class ViewPortEventsManager implements OnDestroy {
     private _touchStart: Subject<Point | null>;
     private _touchEnd: Subject<Point | null>;
     private _touchMove: Subject<Point | null>;
+    private _pinchStart = new Subject<Point[]>;
+    private _pinchMove = new Subject<Point[]>;
     private _viewPort!: Konva.Stage;
     
     constructor(_konvaObjects: KonvaObjectService) {
@@ -63,6 +65,14 @@ export class ViewPortEventsManager implements OnDestroy {
 
     public onWheel() {
         return this._wheel.asObservable().pipe((filter(x => !isNil(x) && !isNil(x.cursor))), map(x => x as Wheel), debounceTime(1));
+    }
+
+    public onPinchStart() {
+        return this._pinchStart.asObservable();
+    }
+
+    public onPinchMove() {
+        return this._pinchMove.asObservable();
     }
 
     public onRightClicked(target?: Konva.Shape) {
@@ -147,6 +157,26 @@ export class ViewPortEventsManager implements OnDestroy {
             }
             this._touchEnd.next(this._currentRelativePosition());
         });
+
+        this._viewPort.on('touchstart', (e) => {
+            if (e.evt.touches.length === 2) {
+                this._pinchStart.next([e.evt.touches[0], e.evt.touches[1]].map(this.clientPositionToCanvasRelativePosition.bind(this)));
+            }
+        });
+
+        this._viewPort.on('touchmove', (e) => {
+            if (e.evt.touches.length === 2) {
+                this._pinchMove.next([e.evt.touches[0], e.evt.touches[1]].map(this.clientPositionToCanvasRelativePosition.bind(this)));
+            }
+        });
+    }
+
+    private clientPositionToCanvasRelativePosition(t: { clientX: number; clientY: number }) {
+        const result = { x: 0, y: 0 };
+        result.x = t.clientX / document.documentElement.clientWidth * this._viewPort.width() - this._viewPort.x() * this._viewPort.scaleX();
+        result.y = t.clientY / document.documentElement.clientHeight * this._viewPort.height() - this._viewPort.y() * this._viewPort.scaleY();
+
+        return result;
     }
 
     private _currentRelativePosition(): Point | null {

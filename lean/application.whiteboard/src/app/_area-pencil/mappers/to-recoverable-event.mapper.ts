@@ -25,13 +25,10 @@ export function ToRecoverableEvent(object: Konva.Line): PencilUpEvent {
 export function Recover(event: PencilUpEvent): Konva.Line {
    event.color ??= SUPPORTED_COLORS[0];
    event.name ??= 'pencil ' + event.eventId;
-   return new Konva.Line({
-      name: event.name,
-      stroke: event.color,
-      strokeWidth: STROKE_WIDTH,
-      points: (event.points ?? []).flatMap(x => [x.x, x.y]),
-      fill: 'transparent'
-   });
+   const result = Init(event.points[0], event.color as string);
+   result.name(event.name);
+   result.points((event.points ?? []).flatMap(x => [x.x, x.y]));
+   return result;
 }
 
 export function Init(position: Point, color: string) {
@@ -39,6 +36,8 @@ export function Init(position: Point, color: string) {
       fill: 'transparent',
       stroke: color,
       strokeWidth: STROKE_WIDTH,
+      lineJoin: 'round',  // This gives the smooth corners
+      lineCap: 'round',   // This makes the line ends smooth
       points: [position.x, position.y, position.x, position.y],
       name: 'pencil ' + uuidv4()
     })

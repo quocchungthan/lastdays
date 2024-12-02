@@ -32,6 +32,7 @@ import { MovingArrowRendererService } from '../_area-moving-arrow';
 import { MenuContextComponent } from "../_area-text-input/menu-context/menu-context.component";
 import { WorkflowBoardRendererService } from '../_area-workflow-board';
 import { AssistantService } from '../business/assistant.service';
+import { Point } from '../../share-models/Point';
 
 @Component({
   selector: 'app-board-detail',
@@ -59,6 +60,8 @@ export class BoardDetailComponent implements AfterViewInit, OnDestroy {
   private _rendererServices: IRendererService[] = [];
 
   private unsubscribe$ = new Subject<void>();
+  private _lastDistance: number = 0;
+  private _lastScale: number = 1;
 
   /**
    *
@@ -165,6 +168,61 @@ export class BoardDetailComponent implements AfterViewInit, OnDestroy {
         this._backgroundLayerManager.putTheRuler();
         this._onRequestZooming(stage, wheelEventData);
       });
+    this._interactiveEventManager
+      .onPinchStart()
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((pinchData) => {
+        this._backgroundLayerManager.putTheRuler();
+        this._lastDistance = this._getDistance(pinchData);
+        this._lastScale = stage.scaleX();
+      });
+    this._interactiveEventManager
+      .onPinchMove()
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((pinchData) => {
+        this._backgroundLayerManager.putTheRuler();
+        var newDistance = this._getDistance(pinchData);
+        var scaleFactor = newDistance / this._lastDistance;
+        
+        // Zoom in or out based on the pinch distance change
+        var newScale = this._lastScale * scaleFactor;
+
+        // Set the zoom scale limit
+        if (newScale < 0.1) newScale = 0.1;
+        if (newScale > 10) newScale = 10;
+
+        stage.scale({ x: newScale, y: newScale });
+
+        // Adjust the stage position to zoom centered on the midpoint of the pinch
+        var pointer = this._getMidpoint(pinchData);
+        var dx = pointer.x - stage.x();
+        var dy = pointer.y - stage.y();
+
+        stage.position({
+          x: pointer.x - dx * newScale / this._lastScale,
+          y: pointer.y - dy * newScale / this._lastScale
+        });
+
+        stage.batchDraw();
+
+        // Update last distance and scale for the next touchmove
+        this._lastDistance = newDistance;
+        this._lastScale = newScale;
+      });
+  }
+
+  // Function to calculate the distance between two touch points
+  private _getDistance(touches: Point[]) {
+    var dx = touches[0].x - touches[1].x;
+    var dy = touches[0].y - touches[1].y;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  // Function to get the midpoint between two touch points
+  private _getMidpoint(touches: Point[]) {
+    var x = (touches[0].x + touches[1].x) / 2;
+    var y = (touches[0].y + touches[1].y) / 2;
+    return { x: x, y: y };
   }
 
   private _onRequestZooming(stage: Konva.Stage, wheelData: Wheel) {
