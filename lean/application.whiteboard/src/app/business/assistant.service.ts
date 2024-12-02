@@ -14,6 +14,7 @@ declare type fn = (userPrompt: string) => void;
 })
 export class AssistantService {
    private _promptRequest = new Subject<fn>();
+   private _eventGenerated = new Subject<IEventGeneral>();
    private _threadId?: string;
 
    constructor(private http: HttpClient, private browserService: BrowserService) {
@@ -44,11 +45,22 @@ export class AssistantService {
             userPrompt,
             area,
             existingEvents: events
-         }).subscribe((data) => {
-            console.log(data);
+         }).subscribe((d) => {
+            const data = d as { events: IEventGeneral[], threadId: string };
+            data.events.forEach(e => {
+               e.timestamp = new Date();
+               this.browserService.storeEventAsync(e)
+                  .then((insterted) => {
+                     this._eventGenerated.next(e);
+                  });
+            });
             res([]);
          });
       });
+   }
+
+   onEventGenerated() {
+      return this._eventGenerated.asObservable();
    }
 
    requireUserPrompt(): Promise<string> {

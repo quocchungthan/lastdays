@@ -42,7 +42,7 @@ async function getAssistant(openai: OpenAI, assistantName: string) {
 }
 
 async function createAssistant(openai: OpenAI) {
-   const AssistantName = "JSON Event Generator 1.1";
+   const AssistantName = "JSON Event Generator 1.2";
    // Step 1: Read the instructions from the instructions.md file
    const instructionsFilePath = path.resolve(__dirname, 'instructions.md');
    const instructions = fs.readFileSync(instructionsFilePath, 'utf-8');
@@ -92,6 +92,24 @@ export class OpenAIService {
             content: userPrompt, // The user defines what kind of Scrum events they need
          }
       );
+      await openAiClient.beta.threads.messages.create(thread.id,
+         {
+            role: "user",
+            content: "please strictly follow the codes of events in the instructions, no \'additionalData\' or \'data\' in the json path",
+         }
+      );
+      await openAiClient.beta.threads.messages.create(thread.id,
+         {
+            role: "user",
+            content: "if the shape is complex then use PencilUpEvent and ArrowPastedEvent combinations, sometime with TextPastedEvent",
+         }
+      )
+      await openAiClient.beta.threads.messages.create(thread.id,
+         {
+            role: "user",
+            content: "PencilUpEvent uses points, not only a start and an end. because the line can be curved, there's could be infinite points in one PencilUpEvent",
+         }
+      )
       // console.log("User request sent: ", userRequest);
       // Step 4: Execute the Assistant's Run
       const myRun = await openAiClient.beta.threads.runs.create(

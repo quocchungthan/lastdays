@@ -31,6 +31,7 @@ import { CursorService } from '../toolbar/cursor.service';
 import { MovingArrowRendererService } from '../_area-moving-arrow';
 import { MenuContextComponent } from "../_area-text-input/menu-context/menu-context.component";
 import { WorkflowBoardRendererService } from '../_area-workflow-board';
+import { AssistantService } from '../business/assistant.service';
 
 @Component({
   selector: 'app-board-detail',
@@ -71,9 +72,13 @@ export class BoardDetailComponent implements AfterViewInit, OnDestroy {
     private _syncingService: SyncingService,
     private _textRenderer: TextRendererService,
     private eraserRenderer: EraserRendererService,
+    private _assistantService: AssistantService,
     arrows: MovingArrowRendererService
   ) {
     this._rendererServices.push(...[pencilRendererService, _textRenderer, eraserRenderer, arrows]);
+    this._assistantService.onEventGenerated()
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe((events) => this.recoverAll([events]));
   }
 
   @HostListener('window:resize')
@@ -121,6 +126,7 @@ export class BoardDetailComponent implements AfterViewInit, OnDestroy {
   }
 
   private async recoverAll(events: IEventGeneral[]) {
+    console.log(events);
     for (let e of events) {
       for (let s of this._rendererServices) {
         await s.recover(e);

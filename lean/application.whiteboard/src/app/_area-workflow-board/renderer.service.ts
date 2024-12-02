@@ -143,6 +143,8 @@ export class RendererService implements IRendererService {
          .then((userPrompt) => {
             // This is optional since the responding from AI might be slow
             const rect = this._selectionRect!.getClientRect();
+            rect.x -= this._viewport.x();
+            rect.y -= this._viewport.y();
             this.destroyTheSelectionArea();
 
             console.log('the prompt', userPrompt);

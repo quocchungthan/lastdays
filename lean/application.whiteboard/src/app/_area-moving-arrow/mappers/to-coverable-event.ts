@@ -2,6 +2,7 @@ import Konva from 'konva';
 import { Point } from '../../../share-models/Point';
 import { ArrowPastedEvent } from '../../../syncing-models/ArrowPastedEvent';
 import { getBoardId } from '../../../utils/url.helper';
+import { SUPPORTED_COLORS } from '../../../shared-configuration/theme.constants';
 
 export function ToRecoverableEvent(object: Konva.Arrow): ArrowPastedEvent {
   const event = new ArrowPastedEvent();
@@ -27,6 +28,8 @@ export function ToRecoverableEvent(object: Konva.Arrow): ArrowPastedEvent {
 }
 
 export function Recover(event: ArrowPastedEvent) {
+  event.color ??= SUPPORTED_COLORS[0];
+  event.name ??= 'moving-arrow ' + event.eventId;
   const konvaObject = Init(event.start, event.color as string);
   konvaObject.points([event.start.x, event.start.y, event.end.x, event.end.y]);
   konvaObject.name(event.name);

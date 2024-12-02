@@ -4,6 +4,7 @@ import { getBoardId } from "../../../utils/url.helper";
 import { STROKE_WIDTH } from "../../../shared-configuration/size";
 import { Point } from "../../../share-models/Point";
 import { v4 as uuidv4 } from 'uuid';
+import { SUPPORTED_COLORS } from "../../../shared-configuration/theme.constants";
 
 export function ToRecoverableEvent(object: Konva.Line): PencilUpEvent {
    const event = new PencilUpEvent();
@@ -22,11 +23,13 @@ export function ToRecoverableEvent(object: Konva.Line): PencilUpEvent {
 }
 
 export function Recover(event: PencilUpEvent): Konva.Line {
+   event.color ??= SUPPORTED_COLORS[0];
+   event.name ??= 'pencil ' + event.eventId;
    return new Konva.Line({
       name: event.name,
       stroke: event.color,
       strokeWidth: STROKE_WIDTH,
-      points: event.points.flatMap(x => [x.x, x.y]),
+      points: (event.points ?? []).flatMap(x => [x.x, x.y]),
       fill: 'transparent'
    });
 }

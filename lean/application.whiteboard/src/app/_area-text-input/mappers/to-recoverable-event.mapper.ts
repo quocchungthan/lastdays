@@ -2,6 +2,7 @@ import Konva from "konva";
 import { getBoardId } from "../../../utils/url.helper";
 import { Point } from "../../../share-models/Point";
 import { TextPastedEvent } from "../../../syncing-models/TextPastedEvent";
+import { SUPPORTED_COLORS } from "../../../shared-configuration/theme.constants";
 
  export function ToRecoverableEvent(object: Konva.Text): TextPastedEvent {
    const event = new TextPastedEvent();
@@ -26,7 +27,8 @@ import { TextPastedEvent } from "../../../syncing-models/TextPastedEvent";
 
 export function Recover(event: TextPastedEvent): Konva.Text {
    // Initialize a new Konva.Text object with properties from the event
-   
+   event.color ??= SUPPORTED_COLORS[0];
+   event.name ??= 'text_input_tool ' + event.eventId;
    const konvaText = Init(event.text, event.position, event.color as string);
    konvaText.name(event.name);
    konvaText.fill(event.color);

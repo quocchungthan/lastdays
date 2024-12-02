@@ -5,7 +5,11 @@ import { Point } from '../../share-models/Point';
 import Konva from 'konva';
 import { KonvaObjectService } from '../services/konva-object.service';
 import { ToolSelectionService } from '../toolbar/tool-selection.service';
-import { Init, Recover, ToRecoverableEvent } from './mappers/to-recoverable-event.mapper';
+import {
+  Init,
+  Recover,
+  ToRecoverableEvent,
+} from './mappers/to-recoverable-event.mapper';
 import { IEventGeneral } from '../../syncing-models/EventGeneral.interface';
 import { PencilUpEvent } from '../../syncing-models/PencilUpEvent';
 import { SyncingService } from '../business/syncing-service';
@@ -14,7 +18,10 @@ import { Observable, of, Subject } from 'rxjs';
 import { ShortcutInstruction } from '../_area-base/shortkeys-instruction.model';
 import { InstructionsService } from '../toolbar/instructions.service';
 import { CursorService } from '../toolbar/cursor.service';
-import { calculateDistance, pointsToCoordinations } from '../../utils/array.helper';
+import {
+  calculateDistance,
+  pointsToCoordinations,
+} from '../../utils/array.helper';
 
 @Injectable()
 export class RendererService implements IRendererService {
@@ -31,7 +38,8 @@ export class RendererService implements IRendererService {
     konvaObjectService: KonvaObjectService,
     private _syncingService: SyncingService,
     private _instructionsService: InstructionsService,
-    private _cursors: CursorService) {
+    private _cursors: CursorService
+  ) {
     konvaObjectService.viewPortChanges.subscribe((stage) => {
       this._viewport = stage;
       this._drawingLayer = stage.children.find(
@@ -44,7 +52,9 @@ export class RendererService implements IRendererService {
   public activateTool(value: boolean) {
     this._activated = value;
     if (this._activated) {
-      this._instruction.next(this._instructionsService.pencilDefaultInstruction);
+      this._instruction.next(
+        this._instructionsService.pencilDefaultInstruction
+      );
       this._cursors.pencil();
     }
   }
@@ -76,24 +86,38 @@ export class RendererService implements IRendererService {
         this._pendEnd();
       });
   }
-  
-  collision(obj: Konva.Group | Konva.Shape, touchPos: Point): Konva.Group | Konva.Shape | null {
+
+  collision(
+    obj: Konva.Group | Konva.Shape,
+    touchPos: Point
+  ): Konva.Group | Konva.Shape | null {
     if (!(obj instanceof Konva.Line)) return null;
     const points = obj.points();
     touchPos.x *= this._viewport.scaleX();
     touchPos.y *= this._viewport.scaleY();
-    if (obj.hasName('pencil') && pointsToCoordinations(points)
-        .some(this.closedToTouchPoint.bind(this, touchPos))) {
-          return obj;
+    const converted = pointsToCoordinations(points);
+    if (
+      obj.hasName('pencil') &&
+      converted.some(
+        (e, i) =>
+          i < converted.length - 1 &&
+          this.lineCutTheTouchPos([e, converted[i + 1]], touchPos)
+      )
+    ) {
+      return obj;
     }
 
     return null;
   }
 
-  
-  closedToTouchPoint(p1: Point, p2: Point) {
-    const distance = calculateDistance(p1, p2);
-    return distance <= RendererService.threshold;
+  lineCutTheTouchPos(startAndEnd: Point[], p2: Point) {
+    const [p1, p3] = startAndEnd;
+    return (
+      calculateDistance(p1, p2) +
+        calculateDistance(p3, p2) -
+        calculateDistance(p1, p3) <=
+      RendererService.threshold / this._viewport.scaleX()
+    );
   }
 
   getInstructions(): Observable<ShortcutInstruction[]> {
@@ -129,8 +153,13 @@ export class RendererService implements IRendererService {
   }
 
   public recover(event: IEventGeneral) {
-    if (event.code !== "PencilUpEvent") return Promise.resolve();
-    if (this._drawingLayer.children.find(x => x.name() === (event as PencilUpEvent).name)) return Promise.resolve();
+    if (event.code !== 'PencilUpEvent') return Promise.resolve();
+    if (
+      this._drawingLayer.children.find(
+        (x) => x.name() === (event as PencilUpEvent).name
+      )
+    )
+      return Promise.resolve();
 
     this._drawingLayer.add(Recover(event as PencilUpEvent));
 
@@ -141,9 +170,8 @@ export class RendererService implements IRendererService {
     const tobeSaved = this.penUp();
     if (!tobeSaved || (tobeSaved.points().length ?? 0) < 5) return;
     const newEvent = ToRecoverableEvent(tobeSaved);
-    this._syncingService.storeEventAsync(newEvent)
-      .then(() => {
-        this.recover(newEvent);
-      });
+    this._syncingService.storeEventAsync(newEvent).then(() => {
+      this.recover(newEvent);
+    });
   }
 }
