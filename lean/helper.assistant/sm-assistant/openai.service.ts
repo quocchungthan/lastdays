@@ -17,15 +17,47 @@ const newOpenAiClient = () => {
    });
 };
 
+async function getAssistant(openai: OpenAI, assistantName: string) {
+   
+   try {
+       // Step 1: List all existing assistants
+       const assistants = await openai.beta.assistants.list();
+       
+       // Step 2: Find the assistant by name
+       const existingAssistant = assistants.data.find(assistant => assistant.name === assistantName);
+       
+       // Step 3: Return the existing assistant if found
+       if (existingAssistant) {
+         //   console.log("Existing assistant found: ", existingAssistant);
+           return existingAssistant;
+       } else {
+           // If no assistant found, return null or handle as needed
+           console.log("Assistant not found");
+           return null;
+       }
+   } catch (error) {
+       console.error("Error fetching assistants: ", error);
+       throw error;
+   }
+}
+
 async function createAssistant(openai: OpenAI) {
+   const AssistantName = "JSON Event Generator";
    // Step 1: Read the instructions from the instructions.md file
    const instructionsFilePath = path.resolve(__dirname, 'instructions.md');
    const instructions = fs.readFileSync(instructionsFilePath, 'utf-8');
   // Step 1: Create an Assistant with detailed instructions about event types
-  const myAssistant = await openai.beta.assistants.create({
+  let myAssistant;
+   try {
+      myAssistant = await getAssistant(openai, AssistantName);
+   } catch(e) {
+      
+   }
+   if (myAssistant) return myAssistant;
+   myAssistant = await openai.beta.assistants.create({
       model: secrets.openAI_ModelName,
       instructions: instructions,
-      name: "JSON Event Generator",
+      name: AssistantName,
       tools: [{ type: "code_interpreter" }] // You can add more tools if needed
    });
 
@@ -120,7 +152,7 @@ export class OpenAIService {
       // console.log(jsonString);
 
       // console.log('removing wrapper');
-      jsonString = jsonString.replace(/^```json|```$/g, '').trim();
+      jsonString = jsonString.split('```json').reverse()[0].split('```')[0].replace(/^```json|```$/g, '').trim();
       // console.log('after replacement: ');
       // console.log(jsonString);
 
