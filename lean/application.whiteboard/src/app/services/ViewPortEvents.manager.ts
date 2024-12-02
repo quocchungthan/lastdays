@@ -175,6 +175,9 @@ export class ViewPortEventsManager implements OnDestroy {
                 this._pinchMove.next([e.evt.touches[0], e.evt.touches[1]].map(this.clientPositionToCanvasRelativePosition.bind(this)));
             }
         });
+
+        ///// Pinching does not work with the whole canvas. since it depends on the Rotate events??
+
         let oldRotation = 0;
         let startScale = 0;
 
