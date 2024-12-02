@@ -42,7 +42,7 @@ async function getAssistant(openai: OpenAI, assistantName: string) {
 }
 
 async function createAssistant(openai: OpenAI) {
-   const AssistantName = "JSON Event Generator";
+   const AssistantName = "JSON Event Generator 1.1";
    // Step 1: Read the instructions from the instructions.md file
    const instructionsFilePath = path.resolve(__dirname, 'instructions.md');
    const instructions = fs.readFileSync(instructionsFilePath, 'utf-8');
