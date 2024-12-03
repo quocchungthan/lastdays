@@ -46,6 +46,13 @@ export function Init(position: Point, color: string) {
     name: 'background',
     stroke: 'transparent',
     draggable: false,
+    rotation: Math.random() * 8 - 4,
+    cornerRadius: [0, 0, 1, 1],  // Curved corners at the bottom
+    shadowColor: 'rgba(0,0,0,0.5)',  // Shadow color
+    shadowBlur: 10,                  // Shadow blur for softness
+    shadowOffsetX: 0,                // Horizontal offset of the shadow
+    shadowOffsetY: 5,                // Vertical offset of the shadow (this is what creates the "curved" feel)
+    shadowOpacity: 0.6               // Shadow opacity
   });
 
   stickyNoteContainer.add(stickyNoteBackground);
