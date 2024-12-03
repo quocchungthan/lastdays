@@ -83,9 +83,8 @@ export class RendererService implements IRendererService {
    collision(obj: Konva.Group | Konva.Shape, touchPos: Point): Konva.Group | Konva.Shape | null {
      if (!(obj instanceof Konva.Group && obj.hasName('sticky-note'))) return null;
      const rect = obj.getClientRect();
-     touchPos.x *= this._viewport.scaleX();
-     touchPos.y *= this._viewport.scaleY();
-     if (obj.hasName('sticky-note') && !this.isTouchPointOutsideOfClientrect(rect, touchPos)) {
+     const touchPointTocompare = { x: touchPos.x * this._viewport.scaleX(), y: touchPos.y * this._viewport.scaleY() };
+     if (obj.hasName('sticky-note') && !this.isTouchPointOutsideOfClientrect(rect, touchPointTocompare)) {
        return obj;
      }
  

@@ -93,15 +93,14 @@ export class RendererService implements IRendererService {
   ): Konva.Group | Konva.Shape | null {
     if (!(obj instanceof Konva.Line)) return null;
     const points = obj.points();
-    touchPos.x *= this._viewport.scaleX();
-    touchPos.y *= this._viewport.scaleY();
+    const touchPointTocompare = { x: touchPos.x, y: touchPos.y };
     const converted = pointsToCoordinations(points);
     if (
       obj.hasName('pencil') &&
       converted.some(
         (e, i) =>
           i < converted.length - 1 &&
-          this.lineCutTheTouchPos([e, converted[i + 1]], touchPos)
+          this.lineCutTheTouchPos([e, converted[i + 1]], touchPointTocompare)
       )
     ) {
       return obj;

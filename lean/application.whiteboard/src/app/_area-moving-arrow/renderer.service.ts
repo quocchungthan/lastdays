@@ -83,12 +83,10 @@ export class RendererService implements IRendererService {
   ): Konva.Group | Konva.Shape | null {
     if (!(obj instanceof Konva.Arrow)) return null; // Changed to check for Arrow instead of Line
     const points = obj.points();
-    touchPos.x /= this._viewport.scaleX();
-    touchPos.y /= this._viewport.scaleY();
-    console.log(touchPos,pointsToCoordinations(points))
+    const touchPointTocompare = { x: touchPos.x, y: touchPos.y };
     if (
       obj.hasName('moving-arrow') &&
-      this.lineCutTheTouchPos(pointsToCoordinations(points), touchPos)
+      this.lineCutTheTouchPos(pointsToCoordinations(points), touchPointTocompare)
     ) {
       return obj;
     }
