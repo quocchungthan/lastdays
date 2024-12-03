@@ -32,6 +32,7 @@ import { MovingArrowRendererService } from '../_area-moving-arrow';
 import { MenuContextComponent } from "../_area-text-input/menu-context/menu-context.component";
 import { WorkflowBoardRendererService } from '../_area-workflow-board';
 import { AssistantService } from '../business/assistant.service';
+import { StickyNoteRendererService } from '../_area-sticky-note';
 
 @Component({
   selector: 'app-board-detail',
@@ -49,7 +50,8 @@ import { AssistantService } from '../business/assistant.service';
     EraserRendererService,
     CursorService,
     MovingArrowRendererService,
-    WorkflowBoardRendererService
+    WorkflowBoardRendererService,
+    StickyNoteRendererService
   ],
   templateUrl: './board-detail.component.html',
   styleUrl: './board-detail.component.scss',
@@ -75,9 +77,10 @@ export class BoardDetailComponent implements AfterViewInit, OnDestroy {
     private _textRenderer: TextRendererService,
     private eraserRenderer: EraserRendererService,
     private _assistantService: AssistantService,
-    arrows: MovingArrowRendererService
+    arrows: MovingArrowRendererService,
+    private stickyNoteRendererService: StickyNoteRendererService
   ) {
-    this._rendererServices.push(...[pencilRendererService, _textRenderer, eraserRenderer, arrows]);
+    this._rendererServices.push(...[pencilRendererService, _textRenderer, eraserRenderer, arrows, stickyNoteRendererService]);
     this._assistantService.onEventGenerated()
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe((events) => this.recoverAll([events]));
@@ -128,7 +131,6 @@ export class BoardDetailComponent implements AfterViewInit, OnDestroy {
   }
 
   private async recoverAll(events: IEventGeneral[]) {
-    console.log(events);
     for (let e of events) {
       for (let s of this._rendererServices) {
         await s.recover(e);

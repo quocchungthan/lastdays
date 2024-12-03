@@ -7,11 +7,12 @@ import { TextInputToolIcon } from '../_area-text-input';
 import { EraserToolIcon } from '../_area-delete-whole';
 import { ToolIconComponent } from "../_area-moving-arrow/tool-icon/tool-icon.component";
 import { WorkflowBoardToolIcon } from '../_area-workflow-board';
+import { StickyNoteToolIcon } from '../_area-sticky-note';
 
 @Component({
   selector: 'app-toolbar',
   standalone: true,
-  imports: [PencilToolIcon, DefaultToolIcon, TextInputToolIcon, EraserToolIcon, ToolIconComponent, WorkflowBoardToolIcon],
+  imports: [PencilToolIcon, DefaultToolIcon, TextInputToolIcon, EraserToolIcon, ToolIconComponent, WorkflowBoardToolIcon, StickyNoteToolIcon],
   templateUrl: './toolbar.component.html',
   styleUrl: './toolbar.component.scss'
 })

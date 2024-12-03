@@ -8,6 +8,7 @@ import { ShortcutInstruction } from '../_area-base/shortkeys-instruction.model';
 import { EraserRendererService } from '../_area-delete-whole';
 import { MovingArrowRendererService } from '../_area-moving-arrow';
 import { WorkflowBoardRendererService } from '../_area-workflow-board';
+import { StickyNoteRendererService } from '../_area-sticky-note';
 
 @Component({
   selector: 'app-board-tool-instruction',
@@ -28,8 +29,9 @@ export class BoardToolInstructionComponent implements OnDestroy {
     tool3: DefaultRendererService,
     tool4: EraserRendererService,
     tool5: MovingArrowRendererService,
-    tool6: WorkflowBoardRendererService) {
-    this._rendererServices.push(...[tool1, tool2, tool3, tool4, tool5, tool6]);
+    tool6: WorkflowBoardRendererService,
+    tool7: StickyNoteRendererService) {
+    this._rendererServices.push(...[tool1, tool2, tool3, tool4, tool5, tool6, tool7]);
     this.onInstructionChanges();
   }
 

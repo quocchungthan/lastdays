@@ -98,7 +98,25 @@ export class InstructionsService {
     },
   ];
 
-  
+
+  stickNoteDefaultInstrution = [
+    {
+      key: 'Click',
+      explanation: 'To paste new sticky note',
+    },
+    {
+      key: 'Right-Click',
+      explanation: 'Select existing text',
+    },
+    {
+      key: 'Wheel',
+      explanation: 'To zoom',
+    },
+    {
+      key: 'Ctrl + Wheel',
+      explanation: 'To zoom backward',
+    },
+  ];
 
   textDefaultInstrution = [
     {

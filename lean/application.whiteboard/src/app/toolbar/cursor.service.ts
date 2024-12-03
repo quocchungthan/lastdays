@@ -12,6 +12,12 @@ export class CursorService {
     this.browserService.setCursorByStringValue('crosshair');
   }
 
+  stickyNote() {
+    this.browserService.setCursorByStringValue(
+      "url('/tools/sticky-note.gif') 4 32, auto"
+   );
+  }
+
   eraser() {
       this.browserService.setCursorByStringValue(
          "url('/tools/eraser.gif') 4 32, auto"
