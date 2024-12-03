@@ -82,5 +82,10 @@ export class StickyTextInputComponent implements OnInit {
     style.position = 'fixed';
     style.left = (p.x) + 'px';
     style.top = (p.y) + 'px';
+    style.transform = `
+      translate(
+      ${Math.min(0, window.innerWidth - (p.x + this.positionalContainer.nativeElement.clientWidth))}px,
+      ${Math.min(0, window.innerHeight - (p.y + this.positionalContainer.nativeElement.clientHeight))}px
+      )`;
   }
 }
