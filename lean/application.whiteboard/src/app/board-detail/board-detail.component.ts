@@ -120,7 +120,8 @@ export class BoardDetailComponent implements AfterViewInit, OnDestroy {
     await this._loadFromDbAndRecover(boardId);
     await this._boardsService.askForExistingBoardFromPeersAsync(boardId);
     this._syncingService.onDataChange
-        .subscribe(async () => {
+        .subscribe(async (dataYield) => {
+          if (!dataYield.length) return;
           await this._loadFromDbAndRecover(boardId);
         });
   }
