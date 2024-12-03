@@ -55,8 +55,8 @@ export class MenuContextComponent {
     const style = this.positionalContainer.nativeElement.style;
     style.display = 'flex';
     style.position = 'fixed';
-    style.left = window.innerWidth / 2 + p.x + 'px';
-    style.top = window.innerHeight / 2 + p.y + 'px';
+    style.left = p.x + 'px';
+    style.top = p.y + 'px';
   }
 
   // Handler for option click

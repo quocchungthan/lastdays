@@ -257,14 +257,9 @@ export class RendererService implements IRendererService {
   }
 
   calculateAbsolutePosition(position: Point): Point {
-    const absoluteX =
-      (position.x / (this._viewport.x() / this._viewport.scaleX())) *
-      (window.innerWidth / 2);
-    const absoluteY =
-      (position.y / (this._viewport.y() / this._viewport.scaleY())) *
-      (window.innerHeight / 2);
-
-    return { x: absoluteX, y: absoluteY };
+    const xPercentage = ((this._viewport.x() + position.x * this._viewport.scaleX())) / this._viewport.size().width;
+    const yPercentage = ((this._viewport.y() + position.y * this._viewport.scaleY())) / this._viewport.size().height;
+    return { x: window.innerWidth * xPercentage, y: window.innerHeight * yPercentage };
   }
 
   private _createTextPastedEvent(text: string): IEventGeneral {
@@ -310,7 +305,7 @@ export class RendererService implements IRendererService {
 
   openMenuContext(p: Point) {
     this._textInputDialogVisible = ToolState.MenuContextVisible;
-    this._assignedDialogPosition.next(p);
+    this._assignedDialogPosition.next(this.calculateAbsolutePosition(p));
   }
 
   private addKonvaTextToDrawingLayer(konvaText: Konva.Text) {
