@@ -10,4 +10,5 @@ export class StickyNotePastedEvent implements IEventGeneral {
    position: Point = { x: 0, y: 0 };
    color: string | CanvasGradient = '';
    name: string = '';
+   rotation = 0;
 }

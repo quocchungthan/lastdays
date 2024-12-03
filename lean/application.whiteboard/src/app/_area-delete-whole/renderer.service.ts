@@ -14,6 +14,7 @@ import { ToRecoverableEvent } from "./mappers/to-coverable-event.mapper";
 import { SyncingService } from "../business/syncing-service";
 import { ObjectDeltionEvent } from "../../syncing-models/ObjectDeletionEvent";
 import { MovingArrowRendererService } from "../_area-moving-arrow";
+import { StickyNoteRendererService } from "../_area-sticky-note";
 
 @Injectable()
 export class RendererService implements IRendererService {
@@ -34,6 +35,7 @@ private _instruction = new Subject<ShortcutInstruction[]>();
       private inputRenderService: TextRendererService,
       private pencilRenderer: PencilRendererService,
       private syncingService: SyncingService,
+      private stickyNoteRenderer: StickyNoteRendererService,
       private arrowRenderer: MovingArrowRendererService) {
    konvaObjectService.viewPortChanges.subscribe((stage) => {
       this._drawingLayer = stage.children.find(
@@ -69,6 +71,7 @@ private _instruction = new Subject<ShortcutInstruction[]>();
          objectsUnderTouch.forEach((obj) => {
             const collision = this.inputRenderService.collision(obj, touchPos)
                || this.pencilRenderer.collision(obj, touchPos)
+               || this.stickyNoteRenderer.collision(obj, touchPos)
                || this.arrowRenderer.collision(obj, touchPos);
            if (collision) {
               this.handleObjectCollision(obj);

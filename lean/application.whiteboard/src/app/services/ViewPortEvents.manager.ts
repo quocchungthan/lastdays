@@ -75,6 +75,20 @@ export class ViewPortEventsManager implements OnDestroy {
         return this._pinchMove.asObservable();
     }
 
+    public onFinishDragging(target?: Konva.Shape | Konva.Group) {
+        if (!target) return this._dragEnd.asObservable();
+
+        const observable = new Subject<Point | null>();
+
+        target.on('dragend', (e) => {
+            observable.next(this._currentRelativePosition());
+            e.evt.preventDefault();
+            return;
+        });
+
+        return observable.pipe(finalize(() => target.removeEventListener('dragend')));
+    }
+
     public onRightClicked(target?: Konva.Shape) {
         if (!target) return this._rightClicked.asObservable();
 

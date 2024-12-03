@@ -14,7 +14,7 @@ import { CursorService } from "../toolbar/cursor.service";
 import { InstructionsService } from "../toolbar/instructions.service";
 import { ToolSelectionService } from "../toolbar/tool-selection.service";
 import { StickyNotePastedEvent } from "../../syncing-models/StickyNotePastedEvent";
-import { Init, Recover } from "./mappers/to-coverable-event";
+import { Init, Recover, ToRecoverableEvent } from "./mappers/to-coverable-event";
 
 @Injectable()
 export class RendererService implements IRendererService {
@@ -59,13 +59,33 @@ export class RendererService implements IRendererService {
      const heldObject = holdingTransformer[0]?.nodes()?.[0] as Konva.Text;
      return heldObject;
    }
+
+   private removeDuplicated(konvaText: Konva.Group) {
+    // Prevent duplicated textes on Unselect
+    const pastedBefore = this._drawingLayer.children.filter(
+      (pastedText) =>
+        pastedText instanceof Konva.Group &&
+        this.identicalInNames(konvaText, pastedText)
+        && this.identicalInNames(pastedText, konvaText)
+    );
+    pastedBefore.forEach((p) => {
+      p.destroy();
+    });
+  }
+
+  private identicalInNames(t1: Konva.Group, t2: Konva.Group): unknown {
+    return t1
+      .name()
+      .split(' ')
+      .every((n) => t2.hasName(n));
+  }
  
    collision(obj: Konva.Group | Konva.Shape, touchPos: Point): Konva.Group | Konva.Shape | null {
-     if (!(obj instanceof Konva.Text)) return null;
+     if (!(obj instanceof Konva.Group && obj.hasName('sticky-note'))) return null;
      const rect = obj.getClientRect();
      touchPos.x *= this._viewport.scaleX();
      touchPos.y *= this._viewport.scaleY();
-     if (obj.hasName('text_input_tool') && !this.isTouchPointOutsideOfClientrect(rect, touchPos)) {
+     if (obj.hasName('sticky-note') && !this.isTouchPointOutsideOfClientrect(rect, touchPos)) {
        return obj;
      }
  
@@ -96,11 +116,18 @@ export class RendererService implements IRendererService {
      this._activated = value;
      if (!this._activated) {
        this._closeInputDialog();
+       this.draggable(false);
      } else {
        this._instruction.next(this._instructionService.stickNoteDefaultInstrution);
        this._curors.stickyNote();
+       this.draggable(true);
      }
    }
+
+  draggable(arg0: boolean) {
+    this._drawingLayer.children.filter(x => x instanceof Konva.Group && x.hasName('sticky-note'))
+      .forEach(x => x.draggable(arg0));
+  }
  
    private _listenToEvents() {
      this._interactiveEventService
@@ -108,7 +135,11 @@ export class RendererService implements IRendererService {
        .pipe(filter(() => this._activated))
        .subscribe((position) => {
          const newStickyNote = Init({x: position.x - 75, y: position.y - 20}, this._toolSelection.selectedColor);
-         this._drawingLayer.add(newStickyNote);
+         const event = ToRecoverableEvent(newStickyNote);
+         this._syncingService.storeEventAsync(event)
+          .then(() => {
+            this.recover(event);
+          });
        });
  
      this._browserService.onEscape().subscribe(() => {
@@ -155,7 +186,13 @@ export class RendererService implements IRendererService {
   
     const parsedEvent = event as StickyNotePastedEvent;
     const konvaObject = Recover(parsedEvent);
+    this.removeDuplicated(konvaObject);
     this._drawingLayer.add(konvaObject);
+    this._interactiveEventService.onFinishDragging(konvaObject)
+      .subscribe(() => {
+        this._syncingService.storeEventAsync(ToRecoverableEvent(konvaObject))
+          .then(() => {});
+      });
     return Promise.resolve();
    }
  

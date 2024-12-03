@@ -17,7 +17,9 @@ export function ToRecoverableEvent(object: Konva.Group): StickyNotePastedEvent {
    }
    event.boardId = getBoardId(location.href) ?? '';  // Board ID extracted from the URL
    event.position = { x: object.x(), y: object.y() };  // Position of the text element
-   event.color = (object.children.filter(x => x instanceof Konva.Rect && x.hasName('background')).at(0) as Konva.Rect).fill();
+   const background = (object.children.filter(x => x instanceof Konva.Rect && x.hasName('background')).at(0) as Konva.Rect);
+   event.rotation = background.rotation();
+   event.color = background.fill();
    
    return event;
 }
@@ -27,6 +29,7 @@ export function Recover(event: StickyNotePastedEvent) {
   event.name ??= 'sticky-note ' + event.eventId;
   const konvaObject = Init(event.position, event.color as string);
   konvaObject.name(event.name);
+  (konvaObject.children.filter(x => x instanceof Konva.Rect && x.hasName('background')).at(0) as Konva.Rect).rotation(event.rotation)
 
   return konvaObject;
 }
@@ -36,7 +39,7 @@ export function Init(position: Point, color: string) {
     name: 'sticky-note ' + uuidv4(),
     x: position.x,
     y: position.y,
-    draggable: true
+    draggable: true,
   });
 
   const stickyNoteBackground = new Konva.Rect({
