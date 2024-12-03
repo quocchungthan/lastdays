@@ -116,11 +116,11 @@ export class RendererService implements IRendererService {
      this._activated = value;
      if (!this._activated) {
        this._closeInputDialog();
-       this.draggable(false);
+      //  this.draggable(false);
      } else {
        this._instruction.next(this._instructionService.stickNoteDefaultInstrution);
        this._curors.stickyNote();
-       this.draggable(true);
+      //  this.draggable(true);
      }
    }
 
