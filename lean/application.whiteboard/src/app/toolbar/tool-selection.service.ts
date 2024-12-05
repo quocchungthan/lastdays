@@ -22,6 +22,10 @@ export class ToolSelectionService {
       return this._colorSelection.getValue();
    }
 
+   get onColorSelected() {
+      return this._colorSelection.asObservable();
+   }
+
    public selectColor(selected: string) {
       this._colorSelection.next(selected);
    }

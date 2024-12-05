@@ -5,6 +5,8 @@ import { SUPPORTED_COLORS } from '../../../shared-configuration/theme.constants'
 import { v4 as uuidv4 } from 'uuid';
 import { StickyNotePastedEvent } from '../../../syncing-models/StickyNotePastedEvent';
 
+const STICKY_NOTE_SIZE_DEFAULT = 210;
+
 export function ToRecoverableEvent(object: Konva.Group): StickyNotePastedEvent {
   const event = new StickyNotePastedEvent();
    const identifiers = object.name().split(' ').filter((x) => x);
@@ -43,8 +45,8 @@ export function Init(position: Point, color: string) {
   });
 
   const stickyNoteBackground = new Konva.Rect({
-    width: 150,
-    height: 150,
+    width: STICKY_NOTE_SIZE_DEFAULT,
+    height: STICKY_NOTE_SIZE_DEFAULT,
     fill: color,
     name: 'background',
     stroke: 'transparent',

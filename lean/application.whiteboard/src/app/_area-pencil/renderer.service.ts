@@ -22,6 +22,7 @@ import {
   calculateDistance,
   pointsToCoordinations,
 } from '../../utils/array.helper';
+import { PREFERED_INK_COLOR } from '../../shared-configuration/theme.constants';
 
 @Injectable()
 export class RendererService implements IRendererService {
@@ -31,6 +32,7 @@ export class RendererService implements IRendererService {
   private _drawingLayer!: Konva.Layer;
   private _instruction = new Subject<ShortcutInstruction[]>();
   private _viewport!: Konva.Stage;
+  private _preferedColor: string = PREFERED_INK_COLOR;
 
   constructor(
     private _interactiveEventService: ViewPortEventsManager,
@@ -47,6 +49,11 @@ export class RendererService implements IRendererService {
       ) as Konva.Layer;
     });
     this._listenToEvents();
+    this._toolSelection.onColorSelected
+      .pipe(filter(() => this._activated))
+      .subscribe((c) => {
+        this._preferedColor = c;
+      });
   }
 
   public activateTool(value: boolean) {
@@ -56,6 +63,7 @@ export class RendererService implements IRendererService {
         this._instructionsService.pencilDefaultInstruction
       );
       this._cursors.pencil();
+      this._toolSelection.selectColor(this._preferedColor);
     }
   }
 
@@ -129,7 +137,7 @@ export class RendererService implements IRendererService {
       return;
     }
 
-    this._currentObject = Init(position, this._toolSelection.selectedColor);
+    this._currentObject = Init(position, this._preferedColor);
     this._drawingLayer.add(this._currentObject);
   }
 

@@ -19,6 +19,7 @@ import { ShortcutInstruction } from '../_area-base/shortkeys-instruction.model';
 import { InstructionsService } from '../toolbar/instructions.service';
 import { IRect } from 'konva/lib/types';
 import { CursorService } from '../toolbar/cursor.service';
+import { PREFERED_INK_COLOR } from '../../shared-configuration/theme.constants';
 
 enum ToolState {
   None,
@@ -37,6 +38,7 @@ export class RendererService implements IRendererService {
   private _viewport!: Konva.Stage;
   private _assignedDialogPosition = new Subject<Point | undefined>();
   private _instruction = new Subject<ShortcutInstruction[]>();
+  private _preferedColor: string = PREFERED_INK_COLOR;
 
   constructor(
     private _curors: CursorService,
@@ -54,6 +56,11 @@ export class RendererService implements IRendererService {
       this._viewport = stage;
     });
     this._listenToEvents();
+    this._toolSelection.onColorSelected
+      .pipe(filter(() => this._activated))
+      .subscribe((c) => {
+        this._preferedColor = c;
+      });
   }
   
   startEditExistingText() {
@@ -171,6 +178,7 @@ export class RendererService implements IRendererService {
     } else {
       this._instruction.next(this._instructionService.textDefaultInstrution);
       this._curors.textInput();
+      this._toolSelection.selectColor(this._preferedColor);
     }
   }
 
@@ -265,7 +273,7 @@ export class RendererService implements IRendererService {
     const event = new TextPastedEvent();
     event.position = this._currentTextPosition || { x: 0, y: 0 };
     event.text = text;
-    event.color = this._toolSelection.selectedColor; // Assume color is set via tool selection
+    event.color = this._preferedColor; // Assume color is set via tool selection
     return event;
   }
 
@@ -275,7 +283,7 @@ export class RendererService implements IRendererService {
     const initiated = Init(
       event.text,
       event.position,
-      this._toolSelection.selectedColor
+      this._preferedColor
     );
 
     initiated.addName(event.eventId);

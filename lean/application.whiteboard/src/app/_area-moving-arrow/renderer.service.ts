@@ -14,6 +14,7 @@ import { ViewPortEventsManager } from '../services/ViewPortEvents.manager';
 import { ToolSelectionService } from '../toolbar/tool-selection.service';
 import { ArrowPastedEvent } from '../../syncing-models/ArrowPastedEvent';
 import { Init, Recover, ToRecoverableEvent } from './mappers/to-coverable-event';
+import { SUPPORTED_COLORS } from '../../shared-configuration/theme.constants';
 
 @Injectable()
 export class RendererService implements IRendererService {
@@ -23,6 +24,7 @@ export class RendererService implements IRendererService {
   private _currentObject?: Konva.Arrow; // Changed from Konva.Line to Konva.Arrow
   private _drawingLayer!: Konva.Layer;
   private _viewport!: Konva.Stage;
+  private _preferedColor: string = SUPPORTED_COLORS[6];
 
   constructor(
     private _interactiveEventService: ViewPortEventsManager,
@@ -39,6 +41,11 @@ export class RendererService implements IRendererService {
       ) as Konva.Layer;
     });
     this._listenToEvents();
+    this._toolSelection.onColorSelected
+      .pipe(filter(() => this._activated))
+      .subscribe((c) => {
+        this._preferedColor = c;
+      });
   }
 
   activateTool(active: boolean) {
@@ -46,6 +53,7 @@ export class RendererService implements IRendererService {
     if (this._activated) {
       this._cursors.arrow();
       this._instruction.next(this._instructions.arrowDefaultInstruction);
+      this._toolSelection.selectColor(this._preferedColor);
     }
   }
 
@@ -109,7 +117,7 @@ export class RendererService implements IRendererService {
     }
 
     // Initialize a new Konva.Arrow object instead of Konva.Line
-    this._currentObject = Init(position, this._toolSelection.selectedColor);
+    this._currentObject = Init(position, this._preferedColor);
 
     this._drawingLayer.add(this._currentObject);
   }

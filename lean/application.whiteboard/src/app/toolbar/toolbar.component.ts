@@ -8,6 +8,7 @@ import { EraserToolIcon } from '../_area-delete-whole';
 import { ToolIconComponent } from "../_area-moving-arrow/tool-icon/tool-icon.component";
 import { WorkflowBoardToolIcon } from '../_area-workflow-board';
 import { StickyNoteToolIcon } from '../_area-sticky-note';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-toolbar',
@@ -26,7 +27,13 @@ export class ToolbarComponent {
   colors = SUPPORTED_COLORS;
   shapes = ['circle', 'square', 'triangle'];
 
-  constructor(private _toolSelection: ToolSelectionService){}
+  constructor(private _toolSelection: ToolSelectionService){
+    this._toolSelection.onColorSelected
+      .pipe(filter(x => x !== this.selectedColor))
+      .subscribe((c) => {
+        this.selectedColor = c;
+      });
+  }
 
   expand() {
     this.isExpanded = true;

@@ -11,6 +11,7 @@ import { ShortcutInstruction } from '../_area-base/shortkeys-instruction.model';
 import { IRendererService } from '../_area-base/renderer.service.interface';
 import { IEventGeneral } from '../../syncing-models/EventGeneral.interface';
 import { AssistantService } from '../business/assistant.service';
+import { SUPPORTED_COLORS } from '../../shared-configuration/theme.constants';
 
 @Injectable()
 export class RendererService implements IRendererService {
@@ -22,6 +23,7 @@ export class RendererService implements IRendererService {
   // Variables for selection area
   private _selectionRect?: Konva.Rect;
   private _startPosition?: { x: number, y: number };
+  private _preferedColor: string = SUPPORTED_COLORS[7];
 
   constructor(
     private _interactiveEventService: ViewPortEventsManager,
@@ -40,6 +42,11 @@ export class RendererService implements IRendererService {
     });
 
     this._listenToEvents();
+    this._toolSelection.onColorSelected
+      .pipe(filter(() => this._activated))
+      .subscribe((c) => {
+        this._preferedColor = c;
+      });
   }
 
   recover(event: IEventGeneral): Promise<void> {
@@ -51,6 +58,7 @@ export class RendererService implements IRendererService {
     if (this._activated) {
       this._cursors.areaSelection();
       this._instruction.next(this._instructionsService.workflowBoardDefaultInstruction);
+      this._toolSelection.selectColor(this._preferedColor);
     }
   }
 
@@ -85,7 +93,7 @@ export class RendererService implements IRendererService {
     this._startPosition = { x: point.x, y: point.y };
 
     // Get selected color from the toolSelection service
-    const selectedColor = this._toolSelection.selectedColor;
+    const selectedColor = this._preferedColor;
     const { r, g, b } = this.hexToRgb(selectedColor);
     
     // Create a new rectangle for the selection with dynamic colors

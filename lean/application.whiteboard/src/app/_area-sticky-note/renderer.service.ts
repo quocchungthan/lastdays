@@ -15,17 +15,17 @@ import { InstructionsService } from "../toolbar/instructions.service";
 import { ToolSelectionService } from "../toolbar/tool-selection.service";
 import { StickyNotePastedEvent } from "../../syncing-models/StickyNotePastedEvent";
 import { Init, Recover, ToRecoverableEvent } from "./mappers/to-coverable-event";
+import { BG_HIGHTLIGHT_COLOR } from "../../shared-configuration/theme.constants";
 
 @Injectable()
 export class RendererService implements IRendererService {
    private static threshold = 1;
    private _activated = false;
-   private _currentObject?: Konva.Group;
    private _drawingLayer!: Konva.Layer;
-   private _currentTextPosition: Point | undefined;
    private _viewport!: Konva.Stage;
    private _assignedDialogPosition = new Subject<Point | undefined>();
    private _instruction = new Subject<ShortcutInstruction[]>();
+   private _preferedColor = BG_HIGHTLIGHT_COLOR;
  
    constructor(
      private _curors: CursorService,
@@ -43,6 +43,11 @@ export class RendererService implements IRendererService {
        this._viewport = stage;
      });
      this._listenToEvents();
+     this._toolSelection.onColorSelected
+      .pipe(filter(() => this._activated))
+      .subscribe((c) => {
+        this._preferedColor = c;
+      });
    }
    
    startEditExistingText() {
@@ -119,6 +124,7 @@ export class RendererService implements IRendererService {
      } else {
        this._instruction.next(this._instructionService.stickNoteDefaultInstrution);
        this._curors.stickyNote();
+       this._toolSelection.selectColor(this._preferedColor);
       //  this.draggable(true);
      }
    }
@@ -133,7 +139,7 @@ export class RendererService implements IRendererService {
        .onTouchStart()
        .pipe(filter(() => this._activated))
        .subscribe((position) => {
-         const newStickyNote = Init({x: position.x - 75, y: position.y - 20}, this._toolSelection.selectedColor);
+         const newStickyNote = Init({x: position.x - 75, y: position.y - 20}, this._preferedColor);
          const event = ToRecoverableEvent(newStickyNote);
          this._syncingService.storeEventAsync(event)
           .then(() => {
