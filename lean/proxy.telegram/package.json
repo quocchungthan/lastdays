@@ -10,5 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "@cbto/nodepackages.utils": "^1.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1"
   }
 }
