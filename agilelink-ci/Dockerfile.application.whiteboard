@@ -24,8 +24,8 @@ COPY --from=build /app/dist/application.whiteboard/browser/ /usr/share/nginx/htm
 COPY ./agilelink-ci/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy the SSL certificates into the container
-COPY ./lean/application.whiteboard/agilel.ink.local.crt /etc/ssl/certs/agilel.ink.local.crt
-COPY ./lean/application.whiteboard/agilel.ink.local.key /etc/ssl/private/agilel.ink.local.key
+COPY ./lean/application.whiteboard/cert.pem /etc/ssl/certs/agilel.ink.local.crt
+COPY ./lean/application.whiteboard/key.pem /etc/ssl/private/agilel.ink.local.key
 
 # Expose HTTP (80) and HTTPS (443) ports
 EXPOSE 80
