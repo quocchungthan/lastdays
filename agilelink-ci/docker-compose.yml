@@ -25,7 +25,7 @@ services:
       - SESSION_Secret_Key=${SESSION_Secret_Key}
       - App_AlPortalBaseUrl=http://localhost:4011
       - App_FlashcardBaseUrl=http://localhost:4012
-      - App_WhiteBoardBaseUrl=http://localhost:4013
+      - App_WhiteBoardBaseUrl=https://agilel.ink.local
     networks:
       - app-network
   flashcard:
@@ -74,11 +74,12 @@ services:
       context: ..
       dockerfile: agilelink-ci/Dockerfile.application.whiteboard
     ports:
-      - "4013:4013"
-    environment:
-      - PORT=4013  # Sets the PORT environment variable inside the container
+      - "80:80"
+      - "443:443"
     networks:
       - app-network
+    extra_hosts:
+      - "agilel.ink.local:127.0.0.1"
 
 networks:
   app-network:
